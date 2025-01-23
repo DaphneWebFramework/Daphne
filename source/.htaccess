@@ -1,0 +1,24 @@
+##
+# .htaccess
+#
+# (C) 2025 by Eylem Ugurel
+#
+# Licensed under a Creative Commons Attribution 4.0 International License.
+#
+# You should have received a copy of the license along with this work. If not,
+# see <http://creativecommons.org/licenses/by/4.0/>.
+##
+
+<IfModule mod_headers.c>
+  Header set X-Frame-Options DENY
+  Header set X-Content-Type-Options nosniff
+  Header set X-XSS-Protection "1; mode=block"
+  Header unset Server
+  Header unset X-Powered-By
+</IfModule>
+
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+</IfModule>
