@@ -1,6 +1,7 @@
 # Daphne
 
 [![Backend Tests](https://github.com/DaphneWebFramework/Daphne/actions/workflows/test-backend.yml/badge.svg)](https://github.com/DaphneWebFramework/Daphne/actions/workflows/test-backend.yml)
+[![Test Frontend](https://github.com/DaphneWebFramework/Daphne/actions/workflows/test-frontend.yml/badge.svg)](https://github.com/DaphneWebFramework/Daphne/actions/workflows/test-frontend.yml)
 
 ![](assets/masthead.png)
 

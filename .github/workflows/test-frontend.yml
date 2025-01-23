@@ -1,0 +1,16 @@
+name: Frontend Tests
+on: push
+jobs:
+  test-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+      - name: Install Node.js Modules
+        run: npm install puppeteer http-server
+      - name: Start HTTP Server
+        run: npx http-server . -p 8080 &
+      - name: Run Tests
+        run: node ".github/scripts/run-frontend-tests.js"
