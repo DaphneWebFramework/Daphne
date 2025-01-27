@@ -11,6 +11,7 @@
  */
 
 use \Harmonia\Config;
+use \Harmonia\Resource;
 use \Harmonia\Core\CPath;
 
 \spl_autoload_register(function(string $className): void {
@@ -25,3 +26,4 @@ use \Harmonia\Core\CPath;
 });
 
 Config::Instance()->Load(CPath::Join(__DIR__, 'config.inc.php'));
+Resource::Instance()->Initialize(new CPath(__DIR__));
