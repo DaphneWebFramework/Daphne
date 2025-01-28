@@ -26,4 +26,4 @@ use \Harmonia\Core\CPath;
 });
 
 Config::Instance()->Load(CPath::Join(__DIR__, 'config.inc.php'));
-Resource::Instance()->Initialize(new CPath(__DIR__));
+Resource::Instance()->Initialize(__DIR__);
