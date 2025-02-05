@@ -12,5 +12,6 @@
 
 return [
 //{{OPTIONS
+    'AppName' => "Daphne",
 //}}OPTIONS
 ];
