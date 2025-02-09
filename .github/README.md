@@ -9,13 +9,13 @@
 
 ## Overview
 
-Daphne is a full-stack web framework designed for building database-driven web applications effortlessly. It is based on PHP, MySQL, Apache, jQuery, and Bootstrap.
+**Daphne** is a full-stack web framework designed for building database-driven web applications effortlessly. It is based on PHP, MySQL, Apache, jQuery, and Bootstrap.
 
 ## Installation
 
 ### Cloning the Repository
 
-To clone the Daphne framework along with its submodules:
+To clone Daphne along with its submodules:
 
 ```
 git clone --recurse-submodules https://github.com/DaphneWebFramework/Daphne.git
