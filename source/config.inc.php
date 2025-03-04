@@ -13,5 +13,11 @@
 return [
 //{{OPTIONS
     'AppName' => "Daphne",
+    'IsDebug' => true,
+    'DatabaseHostname' => "localhost",
+    'DatabaseUsername' => "root",
+    'DatabasePassword' => "",
+    'DatabaseCharset' => "utf8mb4",
+    'DatabaseName' => "daphne",
 //}}OPTIONS
 ];

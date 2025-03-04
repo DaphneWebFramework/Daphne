@@ -12,8 +12,11 @@
 
 require 'bootstrap.php';
 
-use Peneus\Api\Dispatcher;
-use Peneus\Api\HandlerRegistry;
+use \Peneus\Api\Dispatcher;
+use \Peneus\Api\HandlerRegistry;
+use \Peneus\Api\Handlers\AccountHandler;
 
+$handlerRegistry = HandlerRegistry::Instance();
+$handlerRegistry->RegisterHandler('account', AccountHandler::class);
 $dispatcher = new Dispatcher();
-$dispatcher->HandleRequest();
+$dispatcher->DispatchRequest();

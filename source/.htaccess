@@ -21,4 +21,7 @@ Options -Indexes
 
 <IfModule mod_rewrite.c>
   RewriteEngine On
+
+  # `api/foo/bar` → `api.php?handler=foo&action=bar`
+  RewriteRule ^api/([^/]+)/([^/]+)/?$ api.php?handler=$1&action=$2 [QSA,L]
 </IfModule>
