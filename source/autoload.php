@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * bootstrap.php
+ * autoload.php
  *
  * (C) 2025 by Eylem Ugurel
  *
@@ -11,18 +11,18 @@
  */
 
 use \Harmonia\Config;
-use \Harmonia\Resource;
 use \Harmonia\Core\CPath;
+use \Harmonia\Resource;
 
 \spl_autoload_register(function(string $className): void {
-    $classFilePath = \rtrim(__DIR__, '/\\')
-                   . '/backend/'
-                   . \str_replace('\\', '/', $className)
-                   . '.php';
-    if (!\is_file($classFilePath)) {
+    $classPath = \rtrim(__DIR__, '/\\')
+        . '/backend/'
+        . \str_replace('\\', '/', $className)
+        . '.php';
+    if (!\is_file($classPath)) {
         return;
     }
-    require $classFilePath;
+    require $classPath;
 });
 
 Config::Instance()->Load(CPath::Join(__DIR__, 'config.inc.php'));

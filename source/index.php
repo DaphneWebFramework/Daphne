@@ -10,4 +10,4 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-require 'bootstrap.php';
+require 'autoload.php';
