@@ -1,0 +1,11 @@
+{
+  "bootstrap": {
+    "default": true,
+    "css": "bootstrap-5.3.3/css/bootstrap",
+    "js": "bootstrap-5.3.3/js/bootstrap.bundle",
+    "*": [
+      "bootstrap-5.3.3/css/bootstrap.min.css.map",
+      "bootstrap-5.3.3/js/bootstrap.bundle.min.js.map"
+    ]
+  }
+}
