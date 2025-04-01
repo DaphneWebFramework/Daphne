@@ -13,7 +13,10 @@
 return [
 //{{OPTIONS
     'AppName' => "Daphne",
+    'Language' => "tr",
     'IsDebug' => true,
+    'LogFile' => 'default.log',
+    'LogLevel' => 3,
     'DatabaseHostname' => "localhost",
     'DatabaseUsername' => "root",
     'DatabasePassword' => "",
