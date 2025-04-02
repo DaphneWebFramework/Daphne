@@ -13,21 +13,15 @@
 if (!isset($this) || !$this instanceof \Peneus\Systems\PageSystem\Page) {
 	exit;
 }
-
-use \Charis\Container;
-use \Charis\Navbar;
-use \Charis\NavbarBrand;
-use \Harmonia\Config;
-use \Peneus\Resource;
-
-$config = Config::Instance();
-$resource = Resource::Instance();
 ?>
-	<?=new Navbar(['class'=>'bg-dark mb-4', 'data-bs-theme'=>'dark'], [
-		new Container(null, [
-			new NavbarBrand(['href'=>$resource->AppUrl()], $config->Option('AppName'))
-		])
-	])?>
+	<!-- Header -->
+<?php include 'header.php'?>
+	<!-- End Header -->
 
-<?=$this->Contents()?>
+	<!-- Content -->
+<?=$this->Content()?>
+	<!-- End Content -->
+
+	<!-- Footer -->
 <?php include 'footer.php'?>
+	<!-- End Footer -->

@@ -13,7 +13,7 @@
 return [
 //{{OPTIONS
     'AppName' => "Daphne",
-    'Language' => "tr",
+    'Language' => "en",
     'IsDebug' => true,
     'LogFile' => 'default.log',
     'LogLevel' => 3,

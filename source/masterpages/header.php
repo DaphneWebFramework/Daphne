@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * footer.php
+ * header.php
  *
  * (C) 2025 by Eylem Ugurel
  *
@@ -13,14 +13,14 @@
 if (!isset($this) || !$this instanceof \Peneus\Systems\PageSystem\Page) {
 	exit;
 }
-use \Charis\{Container, Footer, Generic};
+use \Charis\{Container, Navbar, NavbarBrand};
 use \Harmonia\Config;
+use \Peneus\Resource;
 ?>
-	<?=new Footer(null, [
+	<?=new Navbar(['class'=>'bg-dark mb-4', 'data-bs-theme'=>'dark'], [
 		new Container(null, [
-			new Generic('hr', ['class'=>'mb-2'], [], true),
-			new Generic('span', ['class'=>'small text-muted'],
-				'&copy; '.\date('Y').' '.Config::Instance()->Option('AppName')
+			new NavbarBrand(['href'=>Resource::Instance()->AppUrl()],
+				Config::Instance()->Option('AppName')
 			)
 		])
 	]).PHP_EOL?>

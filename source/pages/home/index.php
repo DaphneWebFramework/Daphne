@@ -12,17 +12,16 @@
 
 require '../../autoload.php';
 
-use \Charis\Container;
 use \Charis\Generic;
 use \Peneus\Systems\PageSystem\Page;
 
 $page = (new Page)
+	->SetTitle('Home')
 	->SetMasterPage('basic');
 ?>
 <?php $page->Begin()?>
-	<?=new Container(null, [
-		new Generic('h2', null, 'Welcome to Daphne'),
+	<?=new Generic('main', ['role'=>'main', 'class'=>'container'], [
+		new Generic('h3', null, 'Welcome to Daphne'),
 		new Generic('p', null, 'A full-stack web framework for building database-driven web applications with ease.'),
-	])?>
-
+	]).PHP_EOL?>
 <?php $page->End()?>
