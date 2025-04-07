@@ -18,11 +18,12 @@
 <body>
   <div id="qunit"></div>
   <div id="qunit-fixture"></div>
+  <script src="../../source/frontend/jquery-3.7.1/jquery-3.7.1.js"></script>
   <script src="qunit/qunit-2.23.1.js"></script>
   <script src="Loader.js"></script>
   <script>
     const loader = new Loader('../../source/frontend', 'suite', [
-      // Add class paths (without ".js" extension) here
+      'leuce-1.0.0/leuce'
     ]);
     loader.Load();
   </script>
