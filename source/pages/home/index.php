@@ -15,13 +15,13 @@ require '../../autoload.php';
 use \Charis\Generic;
 use \Peneus\Systems\PageSystem\Page;
 
-$page = (new Page)
+$page = (new Page(__DIR__))
 	->SetTitle('Home')
 	->SetMasterPage('basic');
 ?>
 <?php $page->Begin()?>
 	<?=new Generic('main', ['role'=>'main', 'class'=>'container'], [
-		new Generic('h3', null, 'Welcome to Daphne'),
-		new Generic('p', null, 'A full-stack web framework for building database-driven web applications with ease.'),
+		new Generic('h2', null, 'Welcome to Daphne'),
+		new Generic('p', ['class'=>'lead'], 'A full-stack framework for building database-driven web applications with ease.'),
 	]).PHP_EOL?>
 <?php $page->End()?>
