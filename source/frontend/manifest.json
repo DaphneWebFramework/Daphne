@@ -12,5 +12,9 @@
     "js": "jquery-3.7.1/jquery-3.7.1",
     "*": "jquery-3.7.1/jquery-3.7.1.min.map",
     "default": true
+  },
+  "leuce": {
+    "js": "leuce-1.0.0/leuce.js",
+    "default": true
   }
 }
