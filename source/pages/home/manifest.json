@@ -2,5 +2,9 @@
   "css": [
   ],
   "js": [
+    "Model",
+    "View",
+    "Controller",
+    "index"
   ]
 }
