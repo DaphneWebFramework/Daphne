@@ -11,6 +11,10 @@
 
 (function() {
 
+  /**
+   * An object representing an HTTP request, holding method, URL, headers, body,
+   * and encoding flags.
+   */
   class HttpRequest
   {
     method = '';
@@ -20,11 +24,15 @@
     isMultipart = false;
   }
 
+  /**
+   * A normalized HTTP response wrapper, created from a jQuery jqXHR object for
+   * consistent access.
+   */
   class HttpResponse
   {
     statusCode = 0;
     headers = {};
-    body = '';
+    body = null;
 
     static FromJqXHR(jqXHR) {
       const response = new HttpResponse();
@@ -45,6 +53,10 @@
     }
   }
 
+  /**
+   * Executes HTTP requests using jQuery.ajax, handling both callback and
+   * promise-based flows.
+   */
   class HttpClient
   {
     Send(request, onResponse, onProgress) {
@@ -100,6 +112,10 @@
     }
   }
 
+  /**
+   * A fluent builder for composing and dispatching HttpRequest instances
+   * through an HttpClient.
+   */
   class HttpRequestBuilder
   {
     #httpClient = null;
@@ -159,9 +175,17 @@
     }
   }
 
+  /**
+   * Base model class providing a consistent entry point for initiating HTTP
+   * requests.
+   */
   class MvcModel
   {
-    #httpClient = new HttpClient();
+    #httpClient = null;
+
+    constructor(httpClient) {
+      this.#httpClient = httpClient ?? new Leuce.HttpClient();
+    }
 
     Get() {
       return this.#buildRequest().Get();
@@ -176,6 +200,10 @@
     }
   }
 
+  /**
+   * Base view class offering a structured mechanism for binding and accessing
+   * UI elements.
+   */
   class MvcView
   {
     #bindings = {};
@@ -190,6 +218,10 @@
     }
   }
 
+  /**
+   * Base controller class designed to coordinate logic between a model and a
+   * view.
+   */
   class MvcController
   {
     #model = null;

@@ -272,4 +272,67 @@ QUnit.module('Leuce', function()
     });
   }); // HttpRequestBuilder
 
+  QUnit.module('MvcModel', function()
+  {
+    QUnit.test('Get builds request', function(assert) {
+      var capturedRequest = null;
+      var fakeClient = {
+        Send: function(request) {
+          capturedRequest = request;
+        }
+      };
+      var model = new Leuce.MvcModel(fakeClient);
+      model.Get().Handler('songs').Action('list').Send();
+      assert.strictEqual(capturedRequest.method, 'GET');
+      assert.strictEqual(capturedRequest.url, 'api/songs/list');
+    });
+
+    QUnit.test('Post builds request', function(assert) {
+      var capturedRequest = null;
+      var fakeClient = {
+        Send: function(request) {
+          capturedRequest = request;
+        }
+      };
+      var model = new Leuce.MvcModel(fakeClient);
+      model.Post().Handler('abc').Action('def').Send();
+      assert.strictEqual(capturedRequest.method, 'POST');
+      assert.strictEqual(capturedRequest.url, 'api/abc/def');
+    });
+  }); // MvcModel
+
+  QUnit.module('MvcView', function()
+  {
+    QUnit.test('Can bind and retrieve single element', function(assert) {
+      $('#qunit-fixture').html('<input id="username">');
+      var view = new Leuce.MvcView();
+      view.Bind('Username', '#username');
+      var $username = view.Get('Username');
+      assert.ok($username instanceof jQuery);
+      assert.strictEqual($username.attr('id'), 'username');
+    });
+
+    QUnit.test('Can bind and retrieve multiple elements', function(assert) {
+      $('#qunit-fixture').html('<input id="email"><button id="submit"></button>');
+      var view = new Leuce.MvcView();
+      view.Bind('Email', '#email')
+          .Bind('Submit', '#submit');
+      var $email = view.Get('Email');
+      var $submit = view.Get('Submit');
+      assert.strictEqual($email.attr('id'), 'email');
+      assert.strictEqual($submit.prop('tagName'), 'BUTTON');
+    });
+  }); // MvcView
+
+  QUnit.module('MvcController', function()
+  {
+    QUnit.test('Stores model and view', function(assert) {
+      var fakeModel = {};
+      var fakeView = {};
+      var controller = new Leuce.MvcController(fakeModel, fakeView);
+      assert.strictEqual(controller.Model, fakeModel);
+      assert.strictEqual(controller.View, fakeView);
+    });
+  }); // MvcController
+
 }); // Leuce
