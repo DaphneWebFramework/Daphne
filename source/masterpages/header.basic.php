@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 /**
- * header.php
+ * header.basic.php
  *
  * (C) 2025 by Eylem Ugurel
  *
@@ -17,7 +17,7 @@ use \Charis\{Container, Navbar, NavbarBrand};
 use \Harmonia\Config;
 use \Peneus\Resource;
 ?>
-	<?=new Navbar(['class'=>'bg-dark mb-4', 'data-bs-theme'=>'dark'], [
+	<?=new Navbar(['class'=>'bg-dark', 'data-bs-theme'=>'dark'], [
 		new Container(null, [
 			new NavbarBrand(['href'=>Resource::Instance()->AppUrl()],
 				Config::Instance()->Option('AppName')

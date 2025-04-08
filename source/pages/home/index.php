@@ -20,7 +20,7 @@ $page = (new Page(__DIR__))
 	->SetMasterPage('basic');
 ?>
 <?php $page->Begin()?>
-	<?=new Generic('main', ['role'=>'main', 'class'=>'container'], [
+	<?=new Generic('main', ['role'=>'main', 'class'=>'container my-5'], [
 		new Generic('h2', null, 'Welcome to Daphne'),
 		new Generic('p', ['class'=>'lead'], 'A full-stack framework for building database-driven web applications with ease.'),
 	]).PHP_EOL?>

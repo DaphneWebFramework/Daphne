@@ -15,7 +15,7 @@ if (!isset($this) || !$this instanceof \Peneus\Systems\PageSystem\Page) {
 }
 ?>
 	<!-- Header -->
-<?php include 'header.php'?>
+<?php include 'header.basic.php'?>
 	<!-- End Header -->
 
 	<!-- Content -->
