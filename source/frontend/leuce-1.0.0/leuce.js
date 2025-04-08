@@ -34,7 +34,7 @@
     headers = {};
     body = null;
 
-    static FromJqXHR(jqXHR) {
+    static fromJqXHR(jqXHR) {
       const response = new HttpResponse();
       response.statusCode = jqXHR.status;
       jqXHR.getAllResponseHeaders().split(/[\r\n]+/).forEach(function(line) {
@@ -47,7 +47,7 @@
       return response;
     }
 
-    IsSuccess() {
+    isSuccess() {
       return (this.statusCode >= 200 && this.statusCode < 300)
           || this.statusCode === 304;
     }
@@ -59,7 +59,7 @@
    */
   class HttpClient
   {
-    Send(request, onResponse, onProgress) {
+    send(request, onResponse = null, onProgress = null) {
       const settings = this.#buildSettings(request, onProgress);
       if (typeof onResponse === 'function') {
         this.#sendWithCallback(settings, onResponse);
@@ -97,7 +97,7 @@
 
     #sendWithCallback(settings, callback) {
       settings.complete = (jqXHR) => {
-        callback(HttpResponse.FromJqXHR(jqXHR));
+        callback(HttpResponse.fromJqXHR(jqXHR));
       };
       $.ajax(settings);
     }
@@ -105,7 +105,7 @@
     #sendWithPromise(settings) {
       return new Promise((resolve) => {
         settings.complete = (jqXHR) => {
-          resolve(HttpResponse.FromJqXHR(jqXHR));
+          resolve(HttpResponse.fromJqXHR(jqXHR));
         };
         $.ajax(settings);
       });
@@ -128,50 +128,50 @@
       this.#request = new HttpRequest();
     }
 
-    Get() {
+    get() {
       this.#request.method = 'GET';
       return this;
     }
 
-    Post() {
+    post() {
       this.#request.method = 'POST';
       return this;
     }
 
-    Handler(name) {
+    handler(name) {
       this.#handler = name;
       return this;
     }
 
-    Action(name) {
+    action(name) {
       this.#action = name;
       return this;
     }
 
-    Body(body) {
+    body(body) {
       this.#request.body = body;
       this.#request.isMultipart = false;
       return this;
     }
 
-    JsonBody(body) {
+    jsonBody(body) {
       this.#request.headers['Content-Type'] = 'application/json';
       this.#request.body = JSON.stringify(body);
       this.#request.isMultipart = false;
       return this;
     }
 
-    MultipartBody(formData) {
+    multipartBody(formData) {
       this.#request.body = formData;
       this.#request.isMultipart = true;
       return this;
     }
 
-    Send(onResponse, onProgress) {
+    send(onResponse, onProgress) {
       const handler = encodeURIComponent(this.#handler);
       const action = encodeURIComponent(this.#action);
       this.#request.url = `api/${handler}/${action}`;
-      return this.#httpClient.Send(this.#request, onResponse, onProgress);
+      return this.#httpClient.send(this.#request, onResponse, onProgress);
     }
   }
 
@@ -184,15 +184,15 @@
     #httpClient = null;
 
     constructor(httpClient) {
-      this.#httpClient = httpClient ?? new Leuce.HttpClient();
+      this.#httpClient = httpClient ?? new HttpClient();
     }
 
-    Get() {
-      return this.#buildRequest().Get();
+    get() {
+      return this.#buildRequest().get();
     }
 
-    Post() {
-      return this.#buildRequest().Post();
+    post() {
+      return this.#buildRequest().post();
     }
 
     #buildRequest() {
@@ -208,12 +208,12 @@
   {
     #bindings = {};
 
-    Bind(name, selector) {
+    bind(name, selector) {
       this.#bindings[name] = $(selector);
       return this;
     }
 
-    Get(name) {
+    get(name) {
       return this.#bindings[name];
     }
   }
@@ -232,11 +232,11 @@
       this.#view = view;
     }
 
-    get Model() {
+    get model() {
       return this.#model;
     }
 
-    get View() {
+    get view() {
       return this.#view;
     }
   }

@@ -25,7 +25,7 @@ QUnit.module('Leuce', function()
 
   QUnit.module('HttpResponse', function()
   {
-    QUnit.test('FromJqXHR parses response correctly', function(assert) {
+    QUnit.test('fromJqXHR parses response correctly', function(assert) {
       const jqXHR = {
         status: 200,
         getAllResponseHeaders: () =>
@@ -36,7 +36,7 @@ QUnit.module('Leuce', function()
           { ID: 4, Name: "Arabesk/Fantezi" },
         ]
       };
-      const response = Leuce.HttpResponse.FromJqXHR(jqXHR);
+      const response = Leuce.HttpResponse.fromJqXHR(jqXHR);
       assert.strictEqual(response.statusCode, 200);
       assert.deepEqual(response.headers['content-length'], '728');
       assert.deepEqual(response.headers['content-type'], 'application/json');
@@ -47,17 +47,17 @@ QUnit.module('Leuce', function()
       assert.strictEqual(response.body[1].Name, "Arabesk/Fantezi");
     });
 
-    QUnit.test('FromJqXHR falls back to responseText', function(assert) {
+    QUnit.test('fromJqXHR falls back to responseText', function(assert) {
       const jqXHR = {
         status: 0,
         getAllResponseHeaders: () => '',
         responseText: 'Hello, world!'
       };
-      const response = Leuce.HttpResponse.FromJqXHR(jqXHR);
+      const response = Leuce.HttpResponse.fromJqXHR(jqXHR);
       assert.strictEqual(response.body, 'Hello, world!');
     });
 
-    QUnit.test('IsSuccess returns correct result', function(assert) {
+    QUnit.test('isSuccess returns correct result', function(assert) {
       const testCases = [
         { code: 0, expected: false },
         { code: 199, expected: false },
@@ -74,7 +74,7 @@ QUnit.module('Leuce', function()
       testCases.forEach(({ code, expected }) => {
         const response = new Leuce.HttpResponse();
         response.statusCode = code;
-        assert.strictEqual(response.IsSuccess(), expected);
+        assert.strictEqual(response.isSuccess(), expected);
       });
     });
   }); // HttpResponse
@@ -94,7 +94,7 @@ QUnit.module('Leuce', function()
       $.ajaxSettings.xhr = originalXhr;
     });
 
-    QUnit.test('Send calls callback with HttpResponse', function(assert) {
+    QUnit.test('send calls callback with HttpResponse', function(assert) {
       assert.expect(3);
       const client = new Leuce.HttpClient();
       const request = new Leuce.HttpRequest();
@@ -108,14 +108,14 @@ QUnit.module('Leuce', function()
           responseText: '{"message":"hello"}'
         });
       };
-      client.Send(request, (response) => {
+      client.send(request, (response) => {
         assert.ok(response instanceof Leuce.HttpResponse);
         assert.strictEqual(response.statusCode, 200);
         assert.strictEqual(response.body.message, 'hello');
       });
     });
 
-    QUnit.test('Send resolves with HttpResponse when used as Promise', function(assert) {
+    QUnit.test('send resolves with HttpResponse when used as Promise', function(assert) {
       assert.expect(3);
       const done = assert.async();
       const client = new Leuce.HttpClient();
@@ -130,7 +130,7 @@ QUnit.module('Leuce', function()
           responseText: '{"message":"hello"}'
         });
       };
-      client.Send(request).then(response => {
+      client.send(request).then(response => {
         assert.ok(response instanceof Leuce.HttpResponse);
         assert.strictEqual(response.statusCode, 200);
         assert.strictEqual(response.body.message, 'hello');
@@ -138,7 +138,7 @@ QUnit.module('Leuce', function()
       });
     });
 
-    QUnit.test('Send triggers onProgress callback', function(assert) {
+    QUnit.test('send triggers onProgress callback', function(assert) {
       assert.expect(1);
       const done = assert.async();
       const client = new Leuce.HttpClient();
@@ -164,7 +164,7 @@ QUnit.module('Leuce', function()
       $.ajax = function(settings) {
         settings.xhr(); // simulate jQuery calling xhr()
       };
-      client.Send(request, function(){}, function(percentage) {
+      client.send(request, function(){}, function(percentage) {
         assert.strictEqual(percentage, 75);
         done();
       });
@@ -176,16 +176,16 @@ QUnit.module('Leuce', function()
     QUnit.test('Builds GET request without a body', function(assert) {
       var capturedRequest = null;
       var fakeClient = {
-        Send: function(request) {
+        send: function(request) {
           capturedRequest = request;
         }
       };
       var builder = new Leuce.HttpRequestBuilder(fakeClient);
       builder
-        .Get()
-        .Handler('genres')
-        .Action('list')
-        .Send();
+        .get()
+        .handler('genres')
+        .action('list')
+        .send();
 
       assert.strictEqual(capturedRequest.method, 'GET');
       assert.strictEqual(capturedRequest.url, 'api/genres/list');
@@ -195,17 +195,17 @@ QUnit.module('Leuce', function()
     QUnit.test('Builds POST request with raw body', function(assert) {
       var capturedRequest = null;
       var fakeClient = {
-        Send: function(request) {
+        send: function(request) {
           capturedRequest = request;
         }
       };
       var builder = new Leuce.HttpRequestBuilder(fakeClient);
       builder
-        .Post()
-        .Handler('files')
-        .Action('upload')
-        .Body('raw-body-here')
-        .Send();
+        .post()
+        .handler('files')
+        .action('upload')
+        .body('raw-body-here')
+        .send();
       assert.strictEqual(capturedRequest.method, 'POST');
       assert.strictEqual(capturedRequest.url, 'api/files/upload');
       assert.strictEqual(capturedRequest.body, 'raw-body-here');
@@ -215,17 +215,17 @@ QUnit.module('Leuce', function()
     QUnit.test('Builds POST request with JSON body', function(assert) {
       var capturedRequest = null;
       var fakeClient = {
-        Send: function(request) {
+        send: function(request) {
           capturedRequest = request;
         }
       };
       var builder = new Leuce.HttpRequestBuilder(fakeClient);
       builder
-        .Post()
-        .Handler('account')
-        .Action('login')
-        .JsonBody({ username: 'admin', password: '1234' })
-        .Send();
+        .post()
+        .handler('account')
+        .action('login')
+        .jsonBody({ username: 'admin', password: '1234' })
+        .send();
       assert.strictEqual(capturedRequest.method, 'POST');
       assert.strictEqual(capturedRequest.url, 'api/account/login');
       assert.strictEqual(capturedRequest.headers['Content-Type'], 'application/json');
@@ -236,7 +236,7 @@ QUnit.module('Leuce', function()
     QUnit.test('Builds POST request with multipart body', function(assert) {
       var capturedRequest = null;
       var fakeClient = {
-        Send: function(request) {
+        send: function(request) {
           capturedRequest = request;
         }
       };
@@ -244,11 +244,11 @@ QUnit.module('Leuce', function()
       formData.append('file', new Blob(['abc'], { type: 'text/plain' }));
       var builder = new Leuce.HttpRequestBuilder(fakeClient);
       builder
-        .Post()
-        .Handler('upload')
-        .Action('file')
-        .MultipartBody(formData)
-        .Send();
+        .post()
+        .handler('upload')
+        .action('file')
+        .multipartBody(formData)
+        .send();
       assert.strictEqual(capturedRequest.method, 'POST');
       assert.strictEqual(capturedRequest.url, 'api/upload/file');
       assert.strictEqual(capturedRequest.body, formData);
@@ -258,44 +258,44 @@ QUnit.module('Leuce', function()
     QUnit.test('Encodes handler and action in URL', function(assert) {
       var capturedRequest = null;
       var fakeClient = {
-        Send: function(request) {
+        send: function(request) {
           capturedRequest = request;
         }
       };
       var builder = new Leuce.HttpRequestBuilder(fakeClient);
       builder
-        .Post()
-        .Handler("user login")
-        .Action("reset/password")
-        .Send();
+        .post()
+        .handler("user login")
+        .action("reset/password")
+        .send();
       assert.strictEqual(capturedRequest.url, 'api/user%20login/reset%2Fpassword');
     });
   }); // HttpRequestBuilder
 
   QUnit.module('MvcModel', function()
   {
-    QUnit.test('Get builds request', function(assert) {
+    QUnit.test('get builds request', function(assert) {
       var capturedRequest = null;
       var fakeClient = {
-        Send: function(request) {
+        send: function(request) {
           capturedRequest = request;
         }
       };
       var model = new Leuce.MvcModel(fakeClient);
-      model.Get().Handler('songs').Action('list').Send();
+      model.get().handler('songs').action('list').send();
       assert.strictEqual(capturedRequest.method, 'GET');
       assert.strictEqual(capturedRequest.url, 'api/songs/list');
     });
 
-    QUnit.test('Post builds request', function(assert) {
+    QUnit.test('post builds request', function(assert) {
       var capturedRequest = null;
       var fakeClient = {
-        Send: function(request) {
+        send: function(request) {
           capturedRequest = request;
         }
       };
       var model = new Leuce.MvcModel(fakeClient);
-      model.Post().Handler('abc').Action('def').Send();
+      model.post().handler('abc').action('def').send();
       assert.strictEqual(capturedRequest.method, 'POST');
       assert.strictEqual(capturedRequest.url, 'api/abc/def');
     });
@@ -306,8 +306,8 @@ QUnit.module('Leuce', function()
     QUnit.test('Can bind and retrieve single element', function(assert) {
       $('#qunit-fixture').html('<input id="username">');
       var view = new Leuce.MvcView();
-      view.Bind('Username', '#username');
-      var $username = view.Get('Username');
+      view.bind('Username', '#username');
+      var $username = view.get('Username');
       assert.ok($username instanceof jQuery);
       assert.strictEqual($username.attr('id'), 'username');
     });
@@ -315,10 +315,10 @@ QUnit.module('Leuce', function()
     QUnit.test('Can bind and retrieve multiple elements', function(assert) {
       $('#qunit-fixture').html('<input id="email"><button id="submit"></button>');
       var view = new Leuce.MvcView();
-      view.Bind('Email', '#email')
-          .Bind('Submit', '#submit');
-      var $email = view.Get('Email');
-      var $submit = view.Get('Submit');
+      view.bind('Email', '#email')
+          .bind('Submit', '#submit');
+      var $email = view.get('Email');
+      var $submit = view.get('Submit');
       assert.strictEqual($email.attr('id'), 'email');
       assert.strictEqual($submit.prop('tagName'), 'BUTTON');
     });
@@ -330,8 +330,8 @@ QUnit.module('Leuce', function()
       var fakeModel = {};
       var fakeView = {};
       var controller = new Leuce.MvcController(fakeModel, fakeView);
-      assert.strictEqual(controller.Model, fakeModel);
-      assert.strictEqual(controller.View, fakeView);
+      assert.strictEqual(controller.model, fakeModel);
+      assert.strictEqual(controller.view, fakeView);
     });
   }); // MvcController
 
