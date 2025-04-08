@@ -1,5 +1,5 @@
 /**
- * Leuce — A HTTP and MVC micro-framework for Daphne
+ * Leuce: A HTTP and MVC micro-framework for Daphne
  *
  * (C) 2025 by Eylem Ugurel
  *
@@ -9,13 +9,12 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-(function() {
+(function(global) {
+  'use strict';
 
-  /**
-   * An object representing an HTTP request, holding method, URL, headers, body,
-   * and encoding flags.
-   */
-  class HttpRequest
+  //#region HTTP
+
+  class Request
   {
     method = '';
     url = '';
@@ -24,18 +23,14 @@
     isMultipart = false;
   }
 
-  /**
-   * A normalized HTTP response wrapper, created from a jQuery jqXHR object for
-   * consistent access.
-   */
-  class HttpResponse
+  class Response
   {
     statusCode = 0;
     headers = {};
     body = null;
 
     static fromJqXHR(jqXHR) {
-      const response = new HttpResponse();
+      const response = new Response();
       response.statusCode = jqXHR.status;
       jqXHR.getAllResponseHeaders().split(/[\r\n]+/).forEach(function(line) {
         const parts = line.split(': ');
@@ -53,11 +48,7 @@
     }
   }
 
-  /**
-   * Executes HTTP requests using jQuery.ajax, handling both callback and
-   * promise-based flows.
-   */
-  class HttpClient
+  class Client
   {
     send(request, onResponse = null, onProgress = null) {
       const settings = this.#buildSettings(request, onProgress);
@@ -97,7 +88,7 @@
 
     #sendWithCallback(settings, callback) {
       settings.complete = (jqXHR) => {
-        callback(HttpResponse.fromJqXHR(jqXHR));
+        callback(Response.fromJqXHR(jqXHR));
       };
       $.ajax(settings);
     }
@@ -105,27 +96,23 @@
     #sendWithPromise(settings) {
       return new Promise((resolve) => {
         settings.complete = (jqXHR) => {
-          resolve(HttpResponse.fromJqXHR(jqXHR));
+          resolve(Response.fromJqXHR(jqXHR));
         };
         $.ajax(settings);
       });
     }
   }
 
-  /**
-   * A fluent builder for composing and dispatching HttpRequest instances
-   * through an HttpClient.
-   */
-  class HttpRequestBuilder
+  class RequestBuilder
   {
-    #httpClient = null;
+    #client = null;
     #request = null;
     #handler = '';
     #action = '';
 
-    constructor(httpClient) {
-      this.#httpClient = httpClient;
-      this.#request = new HttpRequest();
+    constructor(client) {
+      this.#client = client;
+      this.#request = new Request();
     }
 
     get() {
@@ -171,20 +158,20 @@
       const handler = encodeURIComponent(this.#handler);
       const action = encodeURIComponent(this.#action);
       this.#request.url = `api/${handler}/${action}`;
-      return this.#httpClient.send(this.#request, onResponse, onProgress);
+      return this.#client.send(this.#request, onResponse, onProgress);
     }
   }
 
-  /**
-   * Base model class providing a consistent entry point for initiating HTTP
-   * requests.
-   */
-  class MvcModel
-  {
-    #httpClient = null;
+  //#endregion HTTP
 
-    constructor(httpClient) {
-      this.#httpClient = httpClient ?? new HttpClient();
+  //#region MVC
+
+  class Model
+  {
+    #client = null;
+
+    constructor(client) {
+      this.#client = client ?? new Client();
     }
 
     get() {
@@ -196,15 +183,11 @@
     }
 
     #buildRequest() {
-      return new HttpRequestBuilder(this.#httpClient);
+      return new RequestBuilder(this.#client);
     }
   }
 
-  /**
-   * Base view class offering a structured mechanism for binding and accessing
-   * UI elements.
-   */
-  class MvcView
+  class View
   {
     #bindings = {};
 
@@ -218,11 +201,7 @@
     }
   }
 
-  /**
-   * Base controller class designed to coordinate logic between a model and a
-   * view.
-   */
-  class MvcController
+  class Controller
   {
     #model = null;
     #view = null;
@@ -241,14 +220,19 @@
     }
   }
 
-  window.Leuce = {
-    HttpRequest,
-    HttpResponse,
-    HttpClient,
-    HttpRequestBuilder,
-    MvcModel,
-    MvcView,
-    MvcController
-  };
+  //#endregion MVC
 
-})();
+  global.Leuce = global.Leuce || {};
+  global.Leuce.VERSION = '1.0.0';
+
+  global.Leuce.HTTP = global.Leuce.HTTP || {};
+  global.Leuce.HTTP.Request = Request;
+  global.Leuce.HTTP.Response = Response;
+  global.Leuce.HTTP.Client = Client;
+  global.Leuce.HTTP.RequestBuilder = RequestBuilder;
+
+  global.Leuce.MVC = global.Leuce.MVC || {};
+  global.Leuce.MVC.Model = Model;
+  global.Leuce.MVC.View = View;
+  global.Leuce.MVC.Controller = Controller;
+})(window);

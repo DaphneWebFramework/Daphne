@@ -9,7 +9,7 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-class View extends Leuce.MvcView
+class View extends Leuce.MVC.View
 {
   constructor() {
     super();

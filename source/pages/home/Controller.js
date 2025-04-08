@@ -9,7 +9,7 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-class Controller extends Leuce.MvcController
+class Controller extends Leuce.MVC.Controller
 {
   constructor(model, view) {
     super(model, view);
