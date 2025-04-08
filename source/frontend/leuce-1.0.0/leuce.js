@@ -16,19 +16,37 @@
 
   class Request
   {
+    /** @type {string} */
     method = '';
+
+    /** @type {string} */
     url = '';
+
+    /** @type {Object.<string, string>} */
     headers = {};
+
+    /** @type {string|Object|FormData|null} */
     body = '';
+
+    /** @type {boolean} */
     isMultipart = false;
   }
 
   class Response
   {
+    /** @type {number} */
     statusCode = 0;
+
+    /** @type {Object.<string, string>} */
     headers = {};
+
+    /** @type {string|Object|null} */
     body = null;
 
+    /**
+     * @param {Object} jqXHR
+     * @returns {Response}
+     */
     static fromJqXHR(jqXHR) {
       const response = new Response();
       response.statusCode = jqXHR.status;
@@ -42,6 +60,9 @@
       return response;
     }
 
+    /**
+     * @returns {boolean}
+     */
     isSuccess() {
       return (this.statusCode >= 200 && this.statusCode < 300)
           || this.statusCode === 304;
@@ -50,6 +71,12 @@
 
   class Client
   {
+    /**
+     * @param {Request} request
+     * @param {(function(Response))=} onResponse
+     * @param {(function(number))=} onProgress
+     * @returns {Promise<Response>|undefined}
+     */
     send(request, onResponse = null, onProgress = null) {
       const settings = this.#buildSettings(request, onProgress);
       if (typeof onResponse === 'function') {
@@ -59,7 +86,12 @@
       }
     }
 
-    #buildSettings(request, onProgress) {
+    /**
+     * @param {Request} request
+     * @param {(function(number))=} onProgress
+     * @returns {Object}
+     */
+    #buildSettings(request, onProgress = null) {
       const settings = {
         method: request.method,
         url: request.url,
@@ -71,10 +103,10 @@
         settings.processData = false;
       }
       if (typeof onProgress === 'function') {
-        settings.xhr = () => {
+        settings.xhr = function() {
           const xhr = $.ajaxSettings.xhr();
           if (xhr.upload) {
-            xhr.upload.addEventListener('progress', (e) => {
+            xhr.upload.addEventListener('progress', function(e) {
               if (e.lengthComputable) {
                 onProgress((e.loaded / e.total) * 100);
               }
@@ -86,16 +118,24 @@
       return settings;
     }
 
+    /**
+     * @param {Object} settings
+     * @param {function(Response)} callback
+     */
     #sendWithCallback(settings, callback) {
-      settings.complete = (jqXHR) => {
+      settings.complete = function(jqXHR) {
         callback(Response.fromJqXHR(jqXHR));
       };
       $.ajax(settings);
     }
 
+    /**
+     * @param {Object} settings
+     * @returns {Promise<Response>}
+     */
     #sendWithPromise(settings) {
-      return new Promise((resolve) => {
-        settings.complete = (jqXHR) => {
+      return new Promise(function(resolve) {
+        settings.complete = function(jqXHR) {
           resolve(Response.fromJqXHR(jqXHR));
         };
         $.ajax(settings);
@@ -105,42 +145,74 @@
 
   class RequestBuilder
   {
+    /** @type {Client} */
     #client = null;
+
+    /** @type {Request} */
     #request = null;
+
+    /** @type {string} */
     #handler = '';
+
+    /** @type {string} */
     #action = '';
 
+    /**
+     * @param {Client} client
+     */
     constructor(client) {
       this.#client = client;
       this.#request = new Request();
     }
 
+    /**
+     * @returns {RequestBuilder}
+     */
     get() {
       this.#request.method = 'GET';
       return this;
     }
 
+    /**
+     * @returns {RequestBuilder}
+     */
     post() {
       this.#request.method = 'POST';
       return this;
     }
 
+    /**
+     * @param {string} name
+     * @returns {RequestBuilder}
+     */
     handler(name) {
       this.#handler = name;
       return this;
     }
 
+    /**
+     * @param {string} name
+     * @returns {RequestBuilder}
+     */
     action(name) {
       this.#action = name;
       return this;
     }
 
+    /**
+     * @param {any} body
+     * @returns {RequestBuilder}
+     */
     body(body) {
       this.#request.body = body;
       this.#request.isMultipart = false;
       return this;
     }
 
+    /**
+     * @param {any} body
+     * @returns {RequestBuilder}
+     */
     jsonBody(body) {
       this.#request.headers['Content-Type'] = 'application/json';
       this.#request.body = JSON.stringify(body);
@@ -148,13 +220,22 @@
       return this;
     }
 
+    /**
+     * @param {FormData} formData
+     * @returns {RequestBuilder}
+     */
     multipartBody(formData) {
       this.#request.body = formData;
       this.#request.isMultipart = true;
       return this;
     }
 
-    send(onResponse, onProgress) {
+    /**
+     * @param {(function(Response))=} onResponse
+     * @param {(function(number))=} onProgress
+     * @returns {Promise<Response>|undefined}
+     */
+    send(onResponse = null, onProgress = null) {
       const handler = encodeURIComponent(this.#handler);
       const action = encodeURIComponent(this.#action);
       this.#request.url = `api/${handler}/${action}`;
@@ -168,20 +249,33 @@
 
   class Model
   {
+    /** @type {Client} */
     #client = null;
 
-    constructor(client) {
+    /**
+     * @param {Client=} client
+     */
+    constructor(client = null) {
       this.#client = client ?? new Client();
     }
 
+    /**
+     * @returns {RequestBuilder}
+     */
     get() {
       return this.#buildRequest().get();
     }
 
+    /**
+     * @returns {RequestBuilder}
+     */
     post() {
       return this.#buildRequest().post();
     }
 
+    /**
+     * @returns {RequestBuilder}
+     */
     #buildRequest() {
       return new RequestBuilder(this.#client);
     }
@@ -189,13 +283,23 @@
 
   class View
   {
+    /** @type {Object.<string, jQuery>} */
     #bindings = {};
 
+    /**
+     * @param {string} name
+     * @param {string} selector
+     * @returns {View}
+     */
     bind(name, selector) {
       this.#bindings[name] = $(selector);
       return this;
     }
 
+    /**
+     * @param {string} name
+     * @returns {jQuery|undefined}
+     */
     get(name) {
       return this.#bindings[name];
     }
@@ -203,18 +307,31 @@
 
   class Controller
   {
+    /** @type {Model} */
     #model = null;
+
+    /** @type {View} */
     #view = null;
 
+    /**
+     * @param {Model} model
+     * @param {View} view
+     */
     constructor(model, view) {
       this.#model = model;
       this.#view = view;
     }
 
+    /**
+     * @returns {Model}
+     */
     get model() {
       return this.#model;
     }
 
+    /**
+     * @returns {View}
+     */
     get view() {
       return this.#view;
     }
