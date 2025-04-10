@@ -13,7 +13,10 @@
 return [
 //{{OPTIONS
     'AppName' => "Daphne",
+    'Description' => "A full-stack framework for building database-driven web applications with ease.",
     'Language' => "en",
+    'Locale' => "en_US",
+    'Viewport' => "width=device-width, initial-scale=1, shrink-to-fit=no",
     'IsDebug' => true,
     'LogFile' => 'default.log',
     'LogLevel' => 3,
