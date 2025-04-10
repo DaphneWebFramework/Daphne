@@ -1,10 +1,10 @@
 {
   "bootstrap": {
-    "css": "bootstrap-5.3.3/css/bootstrap",
-    "js": "bootstrap-5.3.3/js/bootstrap.bundle",
+    "css": "bootstrap-5.3.5/css/bootstrap",
+    "js": "bootstrap-5.3.5/js/bootstrap.bundle",
     "*": [
-      "bootstrap-5.3.3/css/bootstrap.min.css.map",
-      "bootstrap-5.3.3/js/bootstrap.bundle.min.js.map"
+      "bootstrap-5.3.5/css/bootstrap.min.css.map",
+      "bootstrap-5.3.5/js/bootstrap.bundle.min.js.map"
     ],
     "default": true
   },
