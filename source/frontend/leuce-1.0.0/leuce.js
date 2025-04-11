@@ -238,9 +238,12 @@
     send(onResponse = null, onProgress = null) {
       const handler = encodeURIComponent(this.#handler);
       const action = encodeURIComponent(this.#action);
-      const apiUrl = Leuce.Utility.metaContent('app:api-url');
+      let apiUrl = Leuce.Utility.metaContent('app:api-url');
       if (apiUrl === null) {
         throw new Error('Missing meta tag: app:api-url');
+      }
+      if (!apiUrl.endsWith('/')) {
+        apiUrl += '/';
       }
       this.#request.url = `${apiUrl}${handler}/${action}`;
       return this.#client.send(this.#request, onResponse, onProgress);

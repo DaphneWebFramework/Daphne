@@ -285,7 +285,7 @@ QUnit.module('Leuce', function()
   QUnit.module('MVC', function(hooks)
   {
     hooks.beforeEach(function() {
-      leuceTestHelper_insertMeta('app:api-url', 'api/');
+      leuceTestHelper_insertMeta('app:api-url', 'api');
     });
 
     hooks.afterEach(function() {
