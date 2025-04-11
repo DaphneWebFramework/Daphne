@@ -238,7 +238,11 @@
     send(onResponse = null, onProgress = null) {
       const handler = encodeURIComponent(this.#handler);
       const action = encodeURIComponent(this.#action);
-      this.#request.url = `api/${handler}/${action}`;
+      const apiUrl = Leuce.Utility.metaContent('app:api-url');
+      if (apiUrl === null) {
+        throw new Error('Missing meta tag: app:api-url');
+      }
+      this.#request.url = `${apiUrl}${handler}/${action}`;
       return this.#client.send(this.#request, onResponse, onProgress);
     }
   }
@@ -284,15 +288,15 @@
   class View
   {
     /** @type {Object.<string, jQuery>} */
-    #bindings = {};
+    #store = {};
 
     /**
      * @param {string} name
-     * @param {string} selector
+     * @param {string|HTMLElement|Array<HTMLElement>|jQuery} selector
      * @returns {View}
      */
-    bind(name, selector) {
-      this.#bindings[name] = $(selector);
+    set(name, selector) {
+      this.#store[name] = $(selector);
       return this;
     }
 
@@ -301,7 +305,7 @@
      * @returns {jQuery|undefined}
      */
     get(name) {
-      return this.#bindings[name];
+      return this.#store[name];
     }
   }
 
@@ -339,6 +343,25 @@
 
   //#endregion MVC
 
+  //#region Utility
+
+  class Utility
+  {
+    /**
+     * @param {string} name
+     * @returns {string|null}
+     */
+    static metaContent(name) {
+      const meta = document.querySelector(`meta[name="${name}"]`);
+      if (meta === null) {
+        return null;
+      }
+      return meta.getAttribute('content');
+    }
+  }
+
+  //#endregion Utility
+
   global.Leuce = global.Leuce || {};
   global.Leuce.VERSION = '1.0.0';
 
@@ -352,4 +375,6 @@
   global.Leuce.MVC.Model = Model;
   global.Leuce.MVC.View = View;
   global.Leuce.MVC.Controller = Controller;
+
+  global.Leuce.Utility = Utility;
 })(window);

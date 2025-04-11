@@ -173,8 +173,16 @@ QUnit.module('Leuce', function()
       });
     }); // Client
 
-    QUnit.module('RequestBuilder', function()
+    QUnit.module('RequestBuilder', function(hooks)
     {
+      hooks.beforeEach(function() {
+        leuceTestHelper_insertMeta('app:api-url', 'api/');
+      });
+
+      hooks.afterEach(function() {
+        leuceTestHelper_removeMeta('app:api-url');
+      });
+
       QUnit.test('Builds GET request without a body', function(assert) {
         var capturedRequest = null;
         var fakeClient = {
@@ -274,8 +282,16 @@ QUnit.module('Leuce', function()
     }); // RequestBuilder
   }); // HTTP
 
-  QUnit.module('MVC', function()
+  QUnit.module('MVC', function(hooks)
   {
+    hooks.beforeEach(function() {
+      leuceTestHelper_insertMeta('app:api-url', 'api/');
+    });
+
+    hooks.afterEach(function() {
+      leuceTestHelper_removeMeta('app:api-url');
+    });
+
     QUnit.module('Model', function()
     {
       QUnit.test('get builds request', function(assert) {
@@ -307,20 +323,20 @@ QUnit.module('Leuce', function()
 
     QUnit.module('View', function()
     {
-      QUnit.test('Can bind and retrieve single element', function(assert) {
+      QUnit.test('Can set and retrieve single element', function(assert) {
         $('#qunit-fixture').html('<input id="username">');
         var view = new Leuce.MVC.View();
-        view.bind('Username', '#username');
+        view.set('Username', '#username');
         var $username = view.get('Username');
         assert.ok($username instanceof jQuery);
         assert.strictEqual($username.attr('id'), 'username');
       });
 
-      QUnit.test('Can bind and retrieve multiple elements', function(assert) {
+      QUnit.test('Can set and retrieve multiple elements', function(assert) {
         $('#qunit-fixture').html('<input id="email"><button id="submit"></button>');
         var view = new Leuce.MVC.View();
-        view.bind('Email', '#email')
-            .bind('Submit', '#submit');
+        view.set('Email', '#email')
+            .set('Submit', '#submit');
         var $email = view.get('Email');
         var $submit = view.get('Submit');
         assert.strictEqual($email.attr('id'), 'email');
@@ -339,4 +355,38 @@ QUnit.module('Leuce', function()
       });
     }); // Controller
   }); // MVC
+
+  QUnit.module('Utility', function()
+  {
+    QUnit.test('metaContent returns correct value from meta tag', function(assert) {
+      const metaName = 'app:api-url';
+      const metaContent = 'https://example.com/api/';
+      leuceTestHelper_insertMeta(metaName, metaContent);
+      assert.strictEqual(Leuce.Utility.metaContent(metaName), metaContent);
+      leuceTestHelper_removeMeta(metaName);
+    });
+
+    QUnit.test('metaContent returns null if meta tag not found', function(assert) {
+      leuceTestHelper_removeMeta('app:api-url'); // Ensure it does not exist
+      assert.strictEqual(Leuce.Utility.metaContent('app:api-url'), null);
+    });
+  }); // Utility
 }); // Leuce
+
+//#region Test Helpers
+
+function leuceTestHelper_insertMeta(name, value) {
+  const meta = document.createElement('meta');
+  meta.setAttribute('name', name);
+  meta.setAttribute('content', value);
+  document.head.appendChild(meta);
+}
+
+function leuceTestHelper_removeMeta(name) {
+  const meta = document.querySelector(`meta[name="${name}"]`);
+  if (meta !== null) {
+    document.head.removeChild(meta);
+  }
+}
+
+//#endregion Test Helpers
