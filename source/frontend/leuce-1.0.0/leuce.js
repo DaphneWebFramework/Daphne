@@ -1,5 +1,5 @@
 /**
- * Leuce: A HTTP and MVC micro-framework for Daphne
+ * Leuce: Lightweight HTTP, MVC, and UI framework for Daphne-powered apps
  *
  * (C) 2025 by Eylem Ugurel
  *
@@ -346,6 +346,65 @@
 
   //#endregion MVC
 
+  //#region UI
+
+  class UI
+  {
+    /**
+     * @param {jQuery} $button
+     * @param {boolean} isLoading
+     */
+    static setButtonLoading($button, isLoading) {
+      const dataKey = name => `Leuce.UI.setButtonLoading.${name}`;
+      if (!$button.is('button')) {
+        console.warn('Leuce: Only button elements are supported.');
+        return;
+      }
+      if ($button.data(dataKey('isLoading')) === isLoading) {
+        console.warn('Leuce: Button is already in the requested state.');
+        return;
+      }
+      if (isLoading) {
+        const htmlBackup = $button.html();
+        const alreadyDisabled = $button.prop('disabled');
+        const inlineWidth = $button[0].style.width;
+        $button.data(dataKey('isLoading'), true);
+        $button.data(dataKey('htmlBackup'), htmlBackup);
+        $button.data(dataKey('alreadyDisabled'), alreadyDisabled);
+        $button.data(dataKey('inlineWidth'), inlineWidth);
+        $button.css('width', $button.outerWidth() + 'px');
+        $button.html(
+          '<span class="spinner-border spinner-border-sm" aria-hidden="true"></span>' +
+          '<span class="visually-hidden" role="status">Loading...</span>'
+        );
+        if (!alreadyDisabled) {
+          $button.prop('disabled', true);
+        }
+        $button.attr('aria-busy', 'true');
+      } else {
+        const htmlBackup = $button.data(dataKey('htmlBackup'));
+        const alreadyDisabled = $button.data(dataKey('alreadyDisabled'));
+        const inlineWidth = $button.data(dataKey('inlineWidth'));
+        if (htmlBackup !== undefined) {
+          $button.html(htmlBackup);
+        }
+        $button.css('width', inlineWidth || '');
+        if (!alreadyDisabled) {
+          $button.prop('disabled', false);
+        }
+        $button.removeData([
+          dataKey('isLoading'),
+          dataKey('htmlBackup'),
+          dataKey('alreadyDisabled'),
+          dataKey('inlineWidth')
+        ].join(' '));
+        $button.removeAttr('aria-busy');
+      }
+    }
+  }
+
+  //#endregion UI
+
   //#region Utility
 
   class Utility
@@ -379,5 +438,19 @@
   global.Leuce.MVC.View = View;
   global.Leuce.MVC.Controller = Controller;
 
+  global.Leuce.UI = UI;
+
   global.Leuce.Utility = Utility;
 })(window);
+
+//#region jQuery Plugins
+
+(function($) {
+  $.fn.setButtonLoading = function(isLoading) {
+    return this.each(function() {
+      Leuce.UI.setButtonLoading($(this), isLoading);
+    });
+  };
+})(jQuery);
+
+//#endregion jQuery Plugins
