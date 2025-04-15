@@ -22,6 +22,9 @@ Options -Indexes
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
-  # `api/foo/bar` → `api.php?handler=foo&action=bar`
+  # e.g., `api/account/login` → `api.php?handler=account&action=login`
   RewriteRule ^api/([^/]+)/([^/]+)/?$ api.php?handler=$1&action=$2 [QSA,L]
+
+  # e.g., `pages/error/403` → `pages/error/?statusCode=403`
+  RewriteRule ^pages/error/([0-9]+)/?$ pages/error/?statusCode=$1 [L]
 </IfModule>
