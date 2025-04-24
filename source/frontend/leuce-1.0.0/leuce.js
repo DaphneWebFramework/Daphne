@@ -299,16 +299,21 @@
      * @returns {View}
      */
     set(name, selector) {
-      this.#store[name] = $(selector);
+      const $el = $(selector);
+      if ($el.length === 0) {
+        console.warn(`Leuce: Element not found for "${name}".`);
+      }
+      this.#store[name] = $el;
       return this;
     }
 
     /**
      * @param {string} name
-     * @returns {jQuery|undefined}
+     * @returns {jQuery|null}
      */
     get(name) {
-      return this.#store[name];
+      const $el = this.#store[name];
+      return ($el && $el.length > 0) ? $el : null;
     }
   }
 

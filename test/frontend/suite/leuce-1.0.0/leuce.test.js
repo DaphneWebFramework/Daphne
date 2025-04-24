@@ -342,6 +342,14 @@ QUnit.module('Leuce', function()
         assert.strictEqual($email.attr('id'), 'email');
         assert.strictEqual($submit.prop('tagName'), 'BUTTON');
       });
+
+      QUnit.test('Returns null when selector does not match any elements', function(assert) {
+        $('#qunit-fixture').html('');
+        var view = new Leuce.MVC.View();
+        view.set('nonExistent', '#nonExistent');
+        var result = view.get('nonExistent');
+        assert.strictEqual(result, null);
+      });
     }); // View
 
     QUnit.module('Controller', function()
