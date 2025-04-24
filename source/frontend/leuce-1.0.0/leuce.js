@@ -388,10 +388,10 @@
         if (htmlBackup !== undefined) {
           $button.html(htmlBackup);
         }
-        $button.css('width', inlineWidth || '');
         if (!alreadyDisabled) {
           $button.prop('disabled', false);
         }
+        $button.css('width', inlineWidth || '');
         $button.removeData([
           dataKey('isLoading'),
           dataKey('htmlBackup'),
@@ -419,6 +419,16 @@
         return null;
       }
       return meta.getAttribute('content');
+    }
+
+    /**
+     * @param {string} name
+     * @param {string} [search]
+     * @returns {string|null}
+     */
+    static queryParameter(name, search = window.location.search) {
+      const params = new URLSearchParams(search);
+      return params.get(name);
     }
   }
 

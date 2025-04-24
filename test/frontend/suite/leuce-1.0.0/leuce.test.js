@@ -461,6 +461,27 @@ QUnit.module('Leuce', function()
         assert.strictEqual(Leuce.Utility.metaContent('app:api-url'), null);
       });
     }); // metaContent
+
+    QUnit.module('queryParameter', function() {
+      const testSearch = '?foo=bar&baz=qux&empty=&encoded=hello%20world';
+
+      QUnit.test('Returns null for non-existent parameter', function(assert) {
+        assert.strictEqual(Leuce.Utility.queryParameter('missing', testSearch), null);
+      });
+
+      QUnit.test('Returns correct value for existing parameter', function(assert) {
+        assert.strictEqual(Leuce.Utility.queryParameter('foo', testSearch), 'bar');
+        assert.strictEqual(Leuce.Utility.queryParameter('baz', testSearch), 'qux');
+      });
+
+      QUnit.test('Returns empty string for parameter with no value', function(assert) {
+        assert.strictEqual(Leuce.Utility.queryParameter('empty', testSearch), '');
+      });
+
+      QUnit.test('Decodes URL-encoded values', function(assert) {
+        assert.strictEqual(Leuce.Utility.queryParameter('encoded', testSearch), 'hello world');
+      });
+    }); // queryParameter
   }); // Utility
 }); // Leuce
 
