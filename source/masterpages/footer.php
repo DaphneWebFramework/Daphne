@@ -13,14 +13,14 @@
 if (!isset($this) || !$this instanceof \Peneus\Systems\PageSystem\Page) {
 	exit;
 }
-use \Charis\{Container, Footer, Generic};
+use \Charis\{Container, Generic};
 use \Harmonia\Config;
 ?>
-	<?=new Footer(null, [
+	<?=new Generic('footer', null, [
 		new Container(null, [
 			new Generic('hr', ['class'=>'mb-2'], [], true),
 			new Generic('span', ['class'=>'small text-muted'],
 				'&copy; '.\date('Y').' '.Config::Instance()->Option('AppName')
 			)
 		])
-	]).PHP_EOL?>
+	])?>

@@ -23,4 +23,4 @@ use \Peneus\Resource;
 				Config::Instance()->Option('AppName')
 			)
 		])
-	]).PHP_EOL?>
+	])?>

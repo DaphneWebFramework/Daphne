@@ -15,4 +15,4 @@ require 'autoload.php';
 use \Harmonia\Http\Response;
 use \Peneus\Resource;
 
-(new Response)->Redirect(Resource::Instance()->PageDirectoryUrl('home'));
+(new Response)->Redirect(Resource::Instance()->PageUrl('home'));

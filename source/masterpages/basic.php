@@ -21,7 +21,3 @@ if (!isset($this) || !$this instanceof \Peneus\Systems\PageSystem\Page) {
 	<!-- Content -->
 <?=$this->Content()?>
 	<!-- End Content -->
-
-	<!-- Footer -->
-<?php include 'footer.php'?>
-	<!-- End Footer -->
