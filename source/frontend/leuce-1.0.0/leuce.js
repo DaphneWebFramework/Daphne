@@ -300,9 +300,9 @@
      */
     set(name, selector) {
       const $el = $(selector);
-      if ($el.length === 0) {
-        console.warn(`Leuce: Element not found for "${name}".`);
-      }
+      // if ($el.length === 0) {
+      //   console.warn(`Leuce: Element not found for "${name}".`);
+      // }
       this.#store[name] = $el;
       return this;
     }

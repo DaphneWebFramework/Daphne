@@ -27,7 +27,7 @@ QUnit.module('Leuce', function()
 
     QUnit.module('Response', function()
     {
-      QUnit.test('fromJqXHR parses response correctly', function(assert) {
+      QUnit.test('fromJqXHR() parses response correctly', function(assert) {
         const jqXHR = {
           status: 200,
           getAllResponseHeaders: () =>
@@ -49,7 +49,7 @@ QUnit.module('Leuce', function()
         assert.strictEqual(response.body[1].Name, "Arabesk/Fantezi");
       });
 
-      QUnit.test('fromJqXHR falls back to responseText', function(assert) {
+      QUnit.test('fromJqXHR() falls back to responseText', function(assert) {
         const jqXHR = {
           status: 0,
           getAllResponseHeaders: () => '',
@@ -59,7 +59,7 @@ QUnit.module('Leuce', function()
         assert.strictEqual(response.body, 'Hello, world!');
       });
 
-      QUnit.test('isSuccess returns correct result', function(assert) {
+      QUnit.test('isSuccess() returns correct result', function(assert) {
         const testCases = [
           { code: 0, expected: false },
           { code: 199, expected: false },
@@ -96,7 +96,7 @@ QUnit.module('Leuce', function()
         $.ajaxSettings.xhr = originalXhr;
       });
 
-      QUnit.test('send calls callback with Response', function(assert) {
+      QUnit.test('send() calls callback with Response', function(assert) {
         assert.expect(3);
         const client = new Leuce.HTTP.Client();
         const request = new Leuce.HTTP.Request();
@@ -117,7 +117,7 @@ QUnit.module('Leuce', function()
         });
       });
 
-      QUnit.test('send resolves with Response when used as Promise', function(assert) {
+      QUnit.test('send() resolves with Response when used as Promise', function(assert) {
         assert.expect(3);
         const done = assert.async();
         const client = new Leuce.HTTP.Client();
@@ -140,7 +140,7 @@ QUnit.module('Leuce', function()
         });
       });
 
-      QUnit.test('send triggers onProgress callback', function(assert) {
+      QUnit.test('send() triggers onProgress callback', function(assert) {
         assert.expect(1);
         const done = assert.async();
         const client = new Leuce.HTTP.Client();
@@ -294,7 +294,7 @@ QUnit.module('Leuce', function()
 
     QUnit.module('Model', function()
     {
-      QUnit.test('get builds request', function(assert) {
+      QUnit.test('get() builds request', function(assert) {
         var capturedRequest = null;
         var fakeClient = {
           send: function(request) {
@@ -307,7 +307,7 @@ QUnit.module('Leuce', function()
         assert.strictEqual(capturedRequest.url, 'api/songs/list');
       });
 
-      QUnit.test('post builds request', function(assert) {
+      QUnit.test('post() builds request', function(assert) {
         var capturedRequest = null;
         var fakeClient = {
           send: function(request) {
