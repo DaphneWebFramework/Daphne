@@ -14,7 +14,7 @@
     "default": true
   },
   "leuce": {
-    "js": "leuce-1.0.0/leuce.js",
+    "js": "leuce/leuce.js",
     "default": true
   },
   "app": {

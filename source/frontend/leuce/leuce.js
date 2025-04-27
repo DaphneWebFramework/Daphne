@@ -1,5 +1,7 @@
 /**
- * Leuce: Lightweight HTTP, MVC, and UI framework for Daphne-powered apps
+ * leuce.js
+ *
+ * A lightweight HTTP, MVC, UI, and Utility framework for Daphne-powered apps.
  *
  * (C) 2025 by Eylem Ugurel
  *
