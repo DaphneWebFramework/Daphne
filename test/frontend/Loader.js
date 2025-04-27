@@ -38,7 +38,7 @@ class Loader
      * loaded to prevent QUnit errors and prevent the GitHub workflow from
      * freezing.
      */
-    async Load()
+    async load()
     {
         if (this.classPaths.length === 0) {
             await Loader.#loadScript(`${this.suiteBasePath}/.test.js`);

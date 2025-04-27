@@ -9,6 +9,4 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-QUnit.test('', function(assert) {
-  assert.ok(true);
-});
+QUnit.test('', function(assert) { assert.ok(true); });

@@ -490,6 +490,8 @@ global.Leuce.Utility = Utility;
 //#region jQuery Plugins
 
 (function($) {
+'use strict';
+
 /**
  * @param {boolean} isLoading
  * @returns {jQuery}
