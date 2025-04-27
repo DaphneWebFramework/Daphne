@@ -11,21 +11,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>Frontend Tests</title>
-  <link rel="stylesheet" href="qunit/qunit-2.23.1.css">
+	<meta charset="utf-8">
+	<title>Frontend Tests</title>
+	<link rel="stylesheet" href="qunit/qunit-2.23.1.css">
 </head>
 <body>
-  <div id="qunit"></div>
-  <div id="qunit-fixture"></div>
-  <script src="../../source/frontend/jquery-3.7.1/jquery-3.7.1.js"></script>
-  <script src="qunit/qunit-2.23.1.js"></script>
-  <script src="Loader.js"></script>
-  <script>
-    const loader = new Loader('../../source/frontend', 'suite', [
-      'leuce-1.0.0/leuce'
-    ]);
-    loader.Load();
-  </script>
+	<div id="qunit"></div>
+	<div id="qunit-fixture"></div>
+	<script src="../../source/frontend/jquery-3.7.1/jquery-3.7.1.js"></script>
+	<script src="qunit/qunit-2.23.1.js"></script>
+	<script src="Loader.js"></script>
+	<script>
+		const loader = new Loader('../../source/frontend', 'suite', [
+			'leuce-1.0.0/leuce'
+		]);
+		loader.Load();
+	</script>
 </body>
 </html>

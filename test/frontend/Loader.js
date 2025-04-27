@@ -24,41 +24,42 @@ class Loader
      * @param {string[]} classPaths
      *   A list of class paths to test, without extensions.
      */
-    constructor(classBasePath, suiteBasePath, classPaths) {
-        this.classBasePath = Loader.#removeTrailingSlashes(classBasePath);
-        this.suiteBasePath = Loader.#removeTrailingSlashes(suiteBasePath);
+    constructor(classBasePath, suiteBasePath, classPaths)
+    {
+        this.classBasePath = Loader.#trimTrailingSlashes(classBasePath);
+        this.suiteBasePath = Loader.#trimTrailingSlashes(suiteBasePath);
         this.classPaths = classPaths;
     }
 
     /**
-     * Loads all class and corresponding test files.
+     * Loads all class and corresponding test files in serial order.
      *
      * If the `classPaths` array is empty, a test file with an empty test is
      * loaded to prevent QUnit errors and prevent the GitHub workflow from
      * freezing.
      */
-    Load() {
+    async Load()
+    {
         if (this.classPaths.length === 0) {
-            Loader.#loadScript(`${this.suiteBasePath}/.test.js`);
+            await Loader.#loadScript(`${this.suiteBasePath}/.test.js`);
         } else {
-            this.classPaths.forEach(classPath => {
-                Loader.#loadScript(`${this.classBasePath}/${classPath}.js`);
-                Loader.#loadScript(`${this.suiteBasePath}/${classPath}.test.js`);
-            });
+            for (const classPath of this.classPaths) {
+                await Loader.#loadScript(`${this.classBasePath}/${classPath}.js`);
+                await Loader.#loadScript(`${this.suiteBasePath}/${classPath}.test.js`);
+            }
         }
     }
 
-    //#region Private
-
     /**
-     * Removes trailing slashes from a given path.
+     * Removes slashes from the end of a path.
      *
      * @param {string} path
-     *   The path from which to remove trailing slashes.
+     *   The path from which to trim trailing slashes.
      * @returns {string}
      *   The path without trailing slashes.
      */
-    static #removeTrailingSlashes(path) {
+    static #trimTrailingSlashes(path)
+    {
         return path.replace(/\/+$/, '');
     }
 
@@ -67,12 +68,18 @@ class Loader
      *
      * @param {string} src
      *   The source path of the script to be loaded.
+     * @returns {Promise<void>}
+     *   A Promise that resolves when the script is loaded or rejects if it
+     *   fails.
      */
-    static #loadScript(src) {
-        const script = document.createElement('script');
-        script.src = src;
-        document.body.appendChild(script);
+    static #loadScript(src)
+    {
+        return new Promise(function(resolve, reject) {
+            const script = document.createElement('script');
+            script.src = src;
+            script.onload = function() { resolve(); };
+            script.onerror = function() { reject(new Error(`Failed to load script: ${src}`)); };
+            document.body.appendChild(script);
+        });
     }
-
-    //#endregion Private
 }
