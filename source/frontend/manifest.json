@@ -16,5 +16,9 @@
   "leuce": {
     "js": "leuce-1.0.0/leuce.js",
     "default": true
+  },
+  "app": {
+    "js": "app/app.js",
+    "default": true
   }
 }
