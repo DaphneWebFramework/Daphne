@@ -10,12 +10,12 @@
  */
 
 (function(global) {
-  'use strict';
+'use strict';
 
-  //#region HTTP
+//#region HTTP
 
-  class Request
-  {
+class Request
+{
     /** @type {string} */
     method = '';
 
@@ -30,10 +30,10 @@
 
     /** @type {boolean} */
     isMultipart = false;
-  }
+}
 
-  class Response
-  {
+class Response
+{
     /** @type {number} */
     statusCode = 0;
 
@@ -47,43 +47,46 @@
      * @param {Object} jqXHR
      * @returns {Response}
      */
-    static fromJqXHR(jqXHR) {
-      const response = new Response();
-      response.statusCode = jqXHR.status;
-      jqXHR.getAllResponseHeaders().split(/[\r\n]+/).forEach(function(line) {
-        const parts = line.split(': ');
-        if (parts.length === 2) {
-          response.headers[parts[0]] = parts[1];
-        }
-      });
-      response.body = jqXHR.responseJSON ?? jqXHR.responseText;
-      return response;
+    static fromJqXHR(jqXHR)
+    {
+        const response = new Response();
+        response.statusCode = jqXHR.status;
+        jqXHR.getAllResponseHeaders().split(/[\r\n]+/).forEach(function(line) {
+            const parts = line.split(': ');
+            if (parts.length === 2) {
+                response.headers[parts[0]] = parts[1];
+            }
+        });
+        response.body = jqXHR.responseJSON ?? jqXHR.responseText;
+        return response;
     }
 
     /**
      * @returns {boolean}
      */
-    isSuccess() {
-      return (this.statusCode >= 200 && this.statusCode < 300)
-          || this.statusCode === 304;
+    isSuccess()
+    {
+        return (this.statusCode >= 200 && this.statusCode < 300)
+            || this.statusCode === 304;
     }
-  }
+}
 
-  class Client
-  {
+class Client
+{
     /**
      * @param {Request} request
      * @param {(function(Response))=} onResponse
      * @param {(function(number))=} onProgress
      * @returns {Promise<Response>|undefined}
      */
-    send(request, onResponse = null, onProgress = null) {
-      const settings = this.#buildSettings(request, onProgress);
-      if (typeof onResponse === 'function') {
-        this.#sendWithCallback(settings, onResponse);
-      } else {
-        return this.#sendWithPromise(settings);
-      }
+    send(request, onResponse = null, onProgress = null)
+    {
+        const settings = this.#buildSettings(request, onProgress);
+        if (typeof onResponse === 'function') {
+            this.#sendWithCallback(settings, onResponse);
+        } else {
+            return this.#sendWithPromise(settings);
+        }
     }
 
     /**
@@ -91,60 +94,63 @@
      * @param {(function(number))=} onProgress
      * @returns {Object}
      */
-    #buildSettings(request, onProgress = null) {
-      const settings = {
-        method: request.method,
-        url: request.url,
-        headers: request.headers,
-        data: request.body
-      };
-      if (request.isMultipart) {
-        settings.contentType = false;
-        settings.processData = false;
-      }
-      if (typeof onProgress === 'function') {
-        settings.xhr = function() {
-          const xhr = $.ajaxSettings.xhr();
-          if (xhr.upload) {
-            xhr.upload.addEventListener('progress', function(e) {
-              if (e.lengthComputable) {
-                onProgress((e.loaded / e.total) * 100);
-              }
-            });
-          }
-          return xhr;
+    #buildSettings(request, onProgress = null)
+    {
+        const settings = {
+            method: request.method,
+            url: request.url,
+            headers: request.headers,
+            data: request.body
         };
-      }
-      return settings;
+        if (request.isMultipart) {
+            settings.contentType = false;
+            settings.processData = false;
+        }
+        if (typeof onProgress === 'function') {
+            settings.xhr = function() {
+                const xhr = $.ajaxSettings.xhr();
+                if (xhr.upload) {
+                    xhr.upload.addEventListener('progress', function(e) {
+                        if (e.lengthComputable) {
+                            onProgress((e.loaded / e.total) * 100);
+                        }
+                    });
+                }
+                return xhr;
+            };
+        }
+        return settings;
     }
 
     /**
      * @param {Object} settings
      * @param {function(Response)} callback
      */
-    #sendWithCallback(settings, callback) {
-      settings.complete = function(jqXHR) {
-        callback(Response.fromJqXHR(jqXHR));
-      };
-      $.ajax(settings);
+    #sendWithCallback(settings, callback)
+    {
+        settings.complete = function(jqXHR) {
+            callback(Response.fromJqXHR(jqXHR));
+        };
+        $.ajax(settings);
     }
 
     /**
      * @param {Object} settings
      * @returns {Promise<Response>}
      */
-    #sendWithPromise(settings) {
-      return new Promise(function(resolve) {
-        settings.complete = function(jqXHR) {
-          resolve(Response.fromJqXHR(jqXHR));
-        };
-        $.ajax(settings);
-      });
+    #sendWithPromise(settings)
+    {
+        return new Promise(function(resolve) {
+            settings.complete = function(jqXHR) {
+                resolve(Response.fromJqXHR(jqXHR));
+            };
+            $.ajax(settings);
+        });
     }
-  }
+}
 
-  class RequestBuilder
-  {
+class RequestBuilder
+{
     /** @type {Client} */
     #client = null;
 
@@ -160,74 +166,82 @@
     /**
      * @param {Client} client
      */
-    constructor(client) {
-      this.#client = client;
-      this.#request = new Request();
+    constructor(client)
+    {
+        this.#client = client;
+        this.#request = new Request();
     }
 
     /**
      * @returns {RequestBuilder}
      */
-    get() {
-      this.#request.method = 'GET';
-      return this;
+    get()
+    {
+        this.#request.method = 'GET';
+        return this;
     }
 
     /**
      * @returns {RequestBuilder}
      */
-    post() {
-      this.#request.method = 'POST';
-      return this;
-    }
-
-    /**
-     * @param {string} name
-     * @returns {RequestBuilder}
-     */
-    handler(name) {
-      this.#handler = name;
-      return this;
+    post()
+    {
+        this.#request.method = 'POST';
+        return this;
     }
 
     /**
      * @param {string} name
      * @returns {RequestBuilder}
      */
-    action(name) {
-      this.#action = name;
-      return this;
+    handler(name)
+    {
+        this.#handler = name;
+        return this;
+    }
+
+    /**
+     * @param {string} name
+     * @returns {RequestBuilder}
+     */
+    action(name)
+    {
+        this.#action = name;
+        return this;
     }
 
     /**
      * @param {any} body
      * @returns {RequestBuilder}
      */
-    body(body) {
-      this.#request.body = body;
-      this.#request.isMultipart = false;
-      return this;
+    body(body)
+    {
+        this.#request.body = body;
+        this.#request.isMultipart = false;
+        return this;
     }
 
     /**
      * @param {any} body
      * @returns {RequestBuilder}
      */
-    jsonBody(body) {
-      this.#request.headers['Content-Type'] = 'application/json';
-      this.#request.body = JSON.stringify(body);
-      this.#request.isMultipart = false;
-      return this;
+    jsonBody(body)
+    {
+        this.#request.headers['Content-Type'] = 'application/json';
+        this.#request.body = JSON.stringify(body);
+        this.#request.isMultipart = false;
+        return this;
     }
 
     /**
      * @param {FormData} formData
      * @returns {RequestBuilder}
      */
-    multipartBody(formData) {
-      this.#request.body = formData;
-      this.#request.isMultipart = true;
-      return this;
+    multipartBody(formData)
+    {
+        this.#request.body = formData;
+        this.#request.isMultipart = true;
+        return this;
     }
 
     /**
@@ -235,61 +249,66 @@
      * @param {(function(number))=} onProgress
      * @returns {Promise<Response>|undefined}
      */
-    send(onResponse = null, onProgress = null) {
-      const handler = encodeURIComponent(this.#handler);
-      const action = encodeURIComponent(this.#action);
-      let apiUrl = Leuce.Utility.metaContent('app:api-url');
-      if (apiUrl === null) {
-        throw new Error('Missing meta tag: app:api-url');
-      }
-      if (!apiUrl.endsWith('/')) {
-        apiUrl += '/';
-      }
-      this.#request.url = `${apiUrl}${handler}/${action}`;
-      return this.#client.send(this.#request, onResponse, onProgress);
+    send(onResponse = null, onProgress = null)
+    {
+        const handler = encodeURIComponent(this.#handler);
+        const action = encodeURIComponent(this.#action);
+        let apiUrl = Utility.metaContent('app:api-url');
+        if (apiUrl === null) {
+            throw new Error('Missing meta tag: app:api-url');
+        }
+        if (!apiUrl.endsWith('/')) {
+            apiUrl += '/';
+        }
+        this.#request.url = `${apiUrl}${handler}/${action}`;
+        return this.#client.send(this.#request, onResponse, onProgress);
     }
-  }
+}
 
-  //#endregion HTTP
+//#endregion HTTP
 
-  //#region MVC
+//#region MVC
 
-  class Model
-  {
+class Model
+{
     /** @type {Client} */
     #client = null;
 
     /**
      * @param {Client=} client
      */
-    constructor(client = null) {
-      this.#client = client ?? new Client();
+    constructor(client = null)
+    {
+        this.#client = client ?? new Client();
     }
 
     /**
      * @returns {RequestBuilder}
      */
-    get() {
-      return this.#buildRequest().get();
+    get()
+    {
+        return this.#buildRequest().get();
     }
 
     /**
      * @returns {RequestBuilder}
      */
-    post() {
-      return this.#buildRequest().post();
+    post()
+    {
+        return this.#buildRequest().post();
     }
 
     /**
      * @returns {RequestBuilder}
      */
-    #buildRequest() {
-      return new RequestBuilder(this.#client);
+    #buildRequest()
+    {
+        return new RequestBuilder(this.#client);
     }
-  }
+}
 
-  class View
-  {
+class View
+{
     /** @type {Object.<string, jQuery>} */
     #store = {};
 
@@ -298,27 +317,29 @@
      * @param {string|HTMLElement|Array<HTMLElement>|jQuery} selector
      * @returns {View}
      */
-    set(name, selector) {
-      const $el = $(selector);
-      // if ($el.length === 0) {
-      //   console.warn(`Leuce: Element not found for "${name}".`);
-      // }
-      this.#store[name] = $el;
-      return this;
+    set(name, selector)
+    {
+        const $el = $(selector);
+        // if ($el.length === 0) {
+        //     console.warn(`Leuce: Element not found for "${name}".`);
+        // }
+        this.#store[name] = $el;
+        return this;
     }
 
     /**
      * @param {string} name
      * @returns {jQuery|null}
      */
-    get(name) {
-      const $el = this.#store[name];
-      return ($el && $el.length > 0) ? $el : null;
+    get(name)
+    {
+        const $el = this.#store[name];
+        return ($el && $el.length > 0) ? $el : null;
     }
-  }
+}
 
-  class Controller
-  {
+class Controller
+{
     /** @type {Model} */
     #model = null;
 
@@ -329,101 +350,106 @@
      * @param {Model} model
      * @param {View} view
      */
-    constructor(model, view) {
-      this.#model = model;
-      this.#view = view;
+    constructor(model, view)
+    {
+        this.#model = model;
+        this.#view = view;
     }
 
     /**
      * @returns {Model}
      */
-    get model() {
-      return this.#model;
+    get model()
+    {
+        return this.#model;
     }
 
     /**
      * @returns {View}
      */
-    get view() {
-      return this.#view;
+    get view()
+    {
+        return this.#view;
     }
-  }
+}
 
-  //#endregion MVC
+//#endregion MVC
 
-  //#region UI
+//#region UI
 
-  class UI
-  {
+class UI
+{
     /**
      * @param {jQuery} $button
      * @param {boolean} isLoading
      */
-    static setButtonLoading($button, isLoading) {
-      const dataKey = name => `Leuce.UI.setButtonLoading.${name}`;
-      if (!$button.is('button')) {
-        console.warn('Leuce: Only button elements are supported.');
-        return;
-      }
-      if ($button.data(dataKey('isLoading')) === isLoading) {
-        console.warn('Leuce: Button is already in the requested state.');
-        return;
-      }
-      if (isLoading) {
-        const htmlBackup = $button.html();
-        const alreadyDisabled = $button.prop('disabled');
-        const inlineWidth = $button[0].style.width;
-        $button.data(dataKey('isLoading'), true);
-        $button.data(dataKey('htmlBackup'), htmlBackup);
-        $button.data(dataKey('alreadyDisabled'), alreadyDisabled);
-        $button.data(dataKey('inlineWidth'), inlineWidth);
-        $button.css('width', $button.outerWidth() + 'px');
-        $button.html(
-          '<span class="spinner-border spinner-border-sm" aria-hidden="true"></span>' +
-          '<span class="visually-hidden" role="status">Loading...</span>'
-        );
-        if (!alreadyDisabled) {
-          $button.prop('disabled', true);
+    static setButtonLoading($button, isLoading)
+    {
+        const dataKey = name => `Leuce.UI.setButtonLoading.${name}`;
+        if (!$button.is('button')) {
+            console.warn('Leuce: Only button elements are supported.');
+            return;
         }
-        $button.attr('aria-busy', 'true');
-      } else {
-        const htmlBackup = $button.data(dataKey('htmlBackup'));
-        const alreadyDisabled = $button.data(dataKey('alreadyDisabled'));
-        const inlineWidth = $button.data(dataKey('inlineWidth'));
-        if (htmlBackup !== undefined) {
-          $button.html(htmlBackup);
+        if ($button.data(dataKey('isLoading')) === isLoading) {
+            console.warn('Leuce: Button is already in the requested state.');
+            return;
         }
-        if (!alreadyDisabled) {
-          $button.prop('disabled', false);
+        if (isLoading) {
+            const htmlBackup = $button.html();
+            const alreadyDisabled = $button.prop('disabled');
+            const inlineWidth = $button[0].style.width;
+            $button.data(dataKey('isLoading'), true);
+            $button.data(dataKey('htmlBackup'), htmlBackup);
+            $button.data(dataKey('alreadyDisabled'), alreadyDisabled);
+            $button.data(dataKey('inlineWidth'), inlineWidth);
+            $button.css('width', $button.outerWidth() + 'px');
+            $button.html(
+                '<span class="spinner-border spinner-border-sm" aria-hidden="true"></span>' +
+                '<span class="visually-hidden" role="status">Loading...</span>'
+            );
+            if (!alreadyDisabled) {
+                $button.prop('disabled', true);
+            }
+            $button.attr('aria-busy', 'true');
+        } else {
+            const htmlBackup = $button.data(dataKey('htmlBackup'));
+            const alreadyDisabled = $button.data(dataKey('alreadyDisabled'));
+            const inlineWidth = $button.data(dataKey('inlineWidth'));
+            if (htmlBackup !== undefined) {
+                $button.html(htmlBackup);
+            }
+            if (!alreadyDisabled) {
+                $button.prop('disabled', false);
+            }
+            $button.css('width', inlineWidth || '');
+            $button.removeData([
+                dataKey('isLoading'),
+                dataKey('htmlBackup'),
+                dataKey('alreadyDisabled'),
+                dataKey('inlineWidth')
+            ].join(' '));
+            $button.removeAttr('aria-busy');
         }
-        $button.css('width', inlineWidth || '');
-        $button.removeData([
-          dataKey('isLoading'),
-          dataKey('htmlBackup'),
-          dataKey('alreadyDisabled'),
-          dataKey('inlineWidth')
-        ].join(' '));
-        $button.removeAttr('aria-busy');
-      }
     }
-  }
+}
 
-  //#endregion UI
+//#endregion UI
 
-  //#region Utility
+//#region Utility
 
-  class Utility
-  {
+class Utility
+{
     /**
      * @param {string} name
      * @returns {string|null}
      */
-    static metaContent(name) {
-      const meta = document.querySelector(`meta[name="${name}"]`);
-      if (meta === null) {
-        return null;
-      }
-      return meta.getAttribute('content');
+    static metaContent(name)
+    {
+        const meta = document.querySelector(`meta[name="${name}"]`);
+        if (meta === null) {
+            return null;
+        }
+        return meta.getAttribute('content');
     }
 
     /**
@@ -431,41 +457,46 @@
      * @param {string} [search]
      * @returns {string|null}
      */
-    static queryParameter(name, search = window.location.search) {
-      const params = new URLSearchParams(search);
-      return params.get(name);
+    static queryParameter(name, search = window.location.search)
+    {
+        const params = new URLSearchParams(search);
+        return params.get(name);
     }
-  }
+}
 
-  //#endregion Utility
+//#endregion Utility
 
-  global.Leuce = global.Leuce || {};
-  global.Leuce.VERSION = '1.0.0';
+global.Leuce = global.Leuce || {};
+global.Leuce.VERSION = '1.0.0';
 
-  global.Leuce.HTTP = global.Leuce.HTTP || {};
-  global.Leuce.HTTP.Request = Request;
-  global.Leuce.HTTP.Response = Response;
-  global.Leuce.HTTP.Client = Client;
-  global.Leuce.HTTP.RequestBuilder = RequestBuilder;
+global.Leuce.HTTP = global.Leuce.HTTP || {};
+global.Leuce.HTTP.Request = Request;
+global.Leuce.HTTP.Response = Response;
+global.Leuce.HTTP.Client = Client;
+global.Leuce.HTTP.RequestBuilder = RequestBuilder;
 
-  global.Leuce.MVC = global.Leuce.MVC || {};
-  global.Leuce.MVC.Model = Model;
-  global.Leuce.MVC.View = View;
-  global.Leuce.MVC.Controller = Controller;
+global.Leuce.MVC = global.Leuce.MVC || {};
+global.Leuce.MVC.Model = Model;
+global.Leuce.MVC.View = View;
+global.Leuce.MVC.Controller = Controller;
 
-  global.Leuce.UI = UI;
+global.Leuce.UI = UI;
 
-  global.Leuce.Utility = Utility;
+global.Leuce.Utility = Utility;
 })(window);
 
 //#region jQuery Plugins
 
 (function($) {
-  $.fn.setButtonLoading = function(isLoading) {
+/**
+ * @param {boolean} isLoading
+ * @returns {jQuery}
+ */
+$.fn.setButtonLoading = function(isLoading) {
     return this.each(function() {
-      Leuce.UI.setButtonLoading($(this), isLoading);
+        Leuce.UI.setButtonLoading($(this), isLoading);
     });
-  };
+};
 })(jQuery);
 
 //#endregion jQuery Plugins
