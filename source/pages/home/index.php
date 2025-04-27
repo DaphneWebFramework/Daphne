@@ -17,11 +17,11 @@ use \Peneus\Systems\PageSystem\Page;
 
 $page = (new Page(__DIR__))
 	->SetTitle('Home')
-	->SetMasterPage('basic');
+	->SetMasterPage('standard');
 ?>
 <?php $page->Begin()?>
 	<?=new Generic('main', ['role'=>'main', 'class'=>'container my-5'], [
 		new Generic('h2', null, 'Welcome to Daphne'),
 		new Generic('p', ['class'=>'lead'], 'A full-stack framework for building database-driven web applications with ease.'),
-	]).PHP_EOL?>
+	])?>
 <?php $page->End()?>

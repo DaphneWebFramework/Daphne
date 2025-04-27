@@ -9,6 +9,6 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-class Model extends Leuce.MVC.Model
+class Model extends App.Model
 {
 }

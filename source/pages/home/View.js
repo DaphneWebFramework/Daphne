@@ -9,9 +9,10 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-class View extends Leuce.MVC.View
+class View extends App.View
 {
-  constructor() {
-    super();
-  }
+    constructor()
+    {
+        super();
+    }
 }
