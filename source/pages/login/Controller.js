@@ -18,8 +18,8 @@ class Controller extends App.Controller
     constructor(model, view)
     {
         super(model, view);
-        this.view.get('loginButton')?.on('click', this.#onLoginClick.bind(this));
-        this.view.get('logoutButton')?.on('click', this.#onLogoutClick.bind(this));
+        this.view.get('form')?.on('submit', this.#onFormSubmit.bind(this));
+        this.view.get('logoutButton')?.on('click', this.#onLogoutButtonClick.bind(this));
     }
 
     /**
@@ -38,16 +38,13 @@ class Controller extends App.Controller
 
     /**
      * @param {jQuery.Event} event
-     *
-     * @todo Handle error response.
      */
-    #onLoginClick(event)
+    #onFormSubmit(event)
     {
         event.preventDefault();
-        const $button = this.view.get('loginButton');
-        $button.setButtonLoading(true);
+        this.view.get('loginButton').setButtonLoading(true);
         this.model.login(this.view.formData()).then(response => {
-            $button.setButtonLoading(false);
+            this.view.get('loginButton').setButtonLoading(false);
             if (response.isSuccess()) {
                 let redirectUri = Leuce.Utility.queryParameter('redirect');
                 if (!redirectUri) {
@@ -61,7 +58,7 @@ class Controller extends App.Controller
                     }
                 }
             } else {
-                ;
+                this.view.showError(response.body.error);
             }
         });
     }
@@ -71,13 +68,12 @@ class Controller extends App.Controller
      *
      * @todo Handle error response.
      */
-    #onLogoutClick(event)
+    #onLogoutButtonClick(event)
     {
         event.preventDefault();
-        const $button = this.view.get('logoutButton');
-        $button.setButtonLoading(true);
+        this.view.get('logoutButton').setButtonLoading(true);
         this.model.logout().then(response => {
-            $button.setButtonLoading(false);
+            this.view.get('logoutButton').setButtonLoading(false);
             if (response.isSuccess()) {
                 Controller.reloadPage();
             } else {
