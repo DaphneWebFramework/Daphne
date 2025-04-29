@@ -65,8 +65,6 @@ class Controller extends App.Controller
 
     /**
      * @param {jQuery.Event} event
-     *
-     * @todo Handle error response.
      */
     #onLogoutButtonClick(event)
     {
@@ -77,7 +75,7 @@ class Controller extends App.Controller
             if (response.isSuccess()) {
                 Controller.reloadPage();
             } else {
-                ;
+                Leuce.UI.notifyError(response.body.error);
             }
         });
     }

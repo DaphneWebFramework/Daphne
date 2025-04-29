@@ -1,0 +1,27 @@
+/**
+ * leuce.css
+ *
+ * A lightweight HTTP, MVC, UI, and Utility framework for Daphne-powered apps.
+ *
+ * (C) 2025 by Eylem Ugurel
+ *
+ * Licensed under a Creative Commons Attribution 4.0 International License.
+ *
+ * You should have received a copy of the license along with this work. If not,
+ * see <http://creativecommons.org/licenses/by/4.0/>.
+ */
+
+#leuce-notifications {
+  position: fixed;
+  top: 4rem;
+  right: 1rem;
+  max-width: 300px;
+  z-index: 1050; /* Same as BS z-index for .modal-backdrop */
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+#leuce-notifications > .leuce-notification {
+  margin-bottom: 0; /* Clear BS .alert's because container uses flexbox gap */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}

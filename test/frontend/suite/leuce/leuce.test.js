@@ -482,6 +482,91 @@ QUnit.module('Leuce', function()
                     k.startsWith('Leuce.UI.setButtonLoading.')).length, 0);
             });
         }); // setButtonLoading
+
+        QUnit.module('notify', function(hooks)
+        {
+            hooks.beforeEach(function()
+            {
+                $('#leuce-notifications').remove();
+            });
+
+            QUnit.test('Creates container if not present', function(assert)
+            {
+                Leuce.UI.notify('Test message');
+                assert.strictEqual($('#leuce-notifications').length, 1);
+            });
+
+            QUnit.test('Appends notification with correct message and type', function(assert)
+            {
+                Leuce.UI.notify('Hello world', 'info');
+                const $item = $('#leuce-notifications').children().first();
+                assert.true($item.hasClass('alert-info'));
+                assert.ok($item.html().includes('Hello world'));
+            });
+
+            QUnit.test('Appends close button', function(assert)
+            {
+                Leuce.UI.notify('Close test');
+                const $btn = $('#leuce-notifications').find('button.btn-close');
+                assert.strictEqual($btn.length, 1);
+                assert.strictEqual($btn.attr('data-bs-dismiss'), 'alert');
+            });
+
+            QUnit.test('Does not auto-close if timeout is zero', function(assert)
+            {
+                const done = assert.async();
+                Leuce.UI.notify('Persistent', 'warning', 0);
+                const $item = $('#leuce-notifications').children().first();
+                setTimeout(function() {
+                    assert.ok($item.is(':visible')); // Still visible after timeout
+                    done();
+                }, 500);
+            });
+
+            QUnit.test('Auto-closes after timeout', function(assert)
+            {
+                const done = assert.async();
+                Leuce.UI.notify('Timed', 'primary', 300);
+                const $item = $('#leuce-notifications').children().first();
+                $item.on('closed.bs.alert', function() {
+                    assert.ok(true); // Closed via Bootstrap event
+                    done();
+                });
+            });
+
+            QUnit.test('Stacks multiple notifications', function(assert)
+            {
+                Leuce.UI.notify('One');
+                Leuce.UI.notify('Two');
+                Leuce.UI.notify('Three');
+                const $items = $('#leuce-notifications').children();
+                assert.strictEqual($items.length, 3);
+                assert.ok($items.eq(0).html().includes('Three')); // Newest is on top
+                assert.ok($items.eq(2).html().includes('One')); // Oldest is at bottom
+            });
+        }); // notify
+
+        QUnit.module('notifySuccess', function()
+        {
+            QUnit.test('Uses success class', function(assert)
+            {
+                $('#leuce-notifications').remove();
+                Leuce.UI.notifySuccess('Success message');
+                const $item = $('#leuce-notifications').children().first();
+                assert.true($item.hasClass('alert-success'));
+            });
+        }); // notifySuccess
+
+        QUnit.module('notifyError', function()
+        {
+            QUnit.test('Uses danger class', function(assert)
+            {
+                $('#leuce-notifications').remove();
+                Leuce.UI.notifyError('Error message');
+                const $item = $('#leuce-notifications').children().first();
+                assert.true($item.hasClass('alert-danger'));
+            });
+        }); // notifyError
     }); // UI
 
     QUnit.module('Utility', function()

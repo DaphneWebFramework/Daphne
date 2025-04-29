@@ -66,8 +66,6 @@ class Controller extends Leuce.MVC.Controller
 
     /**
      * @param {jQuery.Event} event
-     *
-     * @todo Handle error response.
      */
     #onLogoutClick(event)
     {
@@ -78,7 +76,7 @@ class Controller extends Leuce.MVC.Controller
             if (response.isSuccess()) {
                 Controller.reloadPage();
             } else {
-                ;
+                Leuce.UI.notifyError(response.body.error);
             }
         });
     }

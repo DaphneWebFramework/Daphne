@@ -14,11 +14,12 @@
     "default": true
   },
   "leuce": {
-    "js": "leuce/leuce.js",
+    "css": "leuce/leuce",
+    "js": "leuce/leuce",
     "default": true
   },
   "app": {
-    "js": "app/app.js",
+    "js": "app/app",
     "default": true
   }
 }

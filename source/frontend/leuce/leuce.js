@@ -433,6 +433,55 @@ class UI
             $button.removeAttr('aria-busy');
         }
     }
+
+    /**
+     * @param {string} message
+     * @param {string} [type]
+     * @param {number} [timeout]
+     */
+    static notify(message, type = 'primary', timeout = 0)
+    {
+        const containerId = 'leuce-notifications';
+        let $container = $('#' + containerId);
+        if ($container.length === 0) {
+            $container = $('<div>', { id: containerId });
+            $(document.body).append($container);
+        }
+        const $item = $('<div>', {
+            class: `leuce-notification alert alert-${type} alert-dismissible fade show`,
+            role: 'alert'
+        }).html(message);
+        $item.append($('<button>', {
+            type: 'button',
+            class: 'btn-close',
+            'data-bs-dismiss': 'alert',
+            'aria-label': 'Close'
+        }));
+        $container.prepend($item);
+        if (timeout > 0) {
+            setTimeout(function() {
+                $item.alert('close'); // via jQueryInterface
+            }, timeout);
+        }
+    }
+
+    /**
+     * @param {string} message
+     * @param {number} [timeout]
+     */
+    static notifySuccess(message, timeout = 0)
+    {
+        this.notify(message, 'success', timeout);
+    }
+
+    /**
+     * @param {string} message
+     * @param {number} [timeout]
+     */
+    static notifyError(message, timeout = 0)
+    {
+        this.notify(message, 'danger', timeout);
+    }
 }
 
 //#endregion UI
