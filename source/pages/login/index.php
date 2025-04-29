@@ -55,22 +55,24 @@ $page = (new Page(__DIR__))
 					<div class="alert alert-danger d-none" role="alert"></div>
 					<form id="loginForm" spellcheck="false">
 						<?=new FormHiddenInput([
-							'name'=>$page->CsrfTokenName(),
-							'value'=>$page->CsrfTokenValue()
+							'name' => $page->CsrfTokenName(),
+							'value' => $page->CsrfTokenValue()
 						])?>
 						<?=new FormEmailFL([
-							':name'=>'email',
-							':label'=>'Email address',
-							':required'=>true
+							':label' => 'Email address',
+							':name' => 'email',
+							':autocomplete' => 'username',
+							':required' => true
 						])?>
 						<?=new FormPasswordFL([
-							':name'=>'password',
-							':label'=>'Password',
-							':required'=>true
+							':label' => 'Password',
+							':name' => 'password',
+							':autocomplete' => 'current-password',
+							':required' => true
 						])?>
 						<div class="d-flex justify-content-end">
 							<?=new Button([
-								'type'=>'submit'
+								'type' => 'submit'
 							], 'Log in')?>
 						</div>
 					</form>
