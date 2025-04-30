@@ -39,7 +39,7 @@ $navItems = [];
 if ($account === null) {
 	$navItems[] = new NavbarItem([
 		':label' => 'Register',
-		':href' => $resource->PageUrl('register')
+		':href' => $resource->PageUrl('register-account')
 	]);
 	$navItems[] = new NavbarItem([
 		':label' => 'Login',
@@ -52,14 +52,14 @@ if ($account === null) {
 			':href' => $resource->PageUrl('settings')
 		])
 	];
-	if ($role >= Role::Editor) {
+	if ($role->value >= Role::Editor->value) {
 		$dropdownItems[] = new NavbarDropdownDivider();
 		$dropdownItems[] = new NavbarDropdownItem([
 			':label' => 'Editor',
 			':href' => $resource->PageUrl('editor')
 		]);
 	}
-	if ($role >= Role::Admin) {
+	if ($role->value >= Role::Admin->value) {
 		$dropdownItems[] = new NavbarDropdownItem([
 			':label' => 'Admin',
 			':href' => $resource->PageUrl('admin')
@@ -71,7 +71,8 @@ if ($account === null) {
 		':id' => 'logout'
 	]);
 	$navItems[] = new NavbarDropdown([
-		':label' => $account->displayName
+		':label' => \htmlspecialchars($account->displayName,
+			\ENT_QUOTES | \ENT_SUBSTITUTE | \ENT_HTML5, 'UTF-8')
 	], $dropdownItems);
 }
 ?>
