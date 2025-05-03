@@ -10,7 +10,7 @@
  */
 
 .card {
-  min-width: 300px;
-  max-width: 400px;
+  min-width: 256px;
+  max-width: 360px;
   width: 100%;
 }
