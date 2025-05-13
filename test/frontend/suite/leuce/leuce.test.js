@@ -295,6 +295,24 @@ QUnit.module('Leuce', function()
                     .send();
                 assert.strictEqual(capturedRequest.url, 'api/user%20login/reset%2Fpassword');
             });
+
+            QUnit.test('Appends query parameters to URL', function(assert)
+            {
+                var capturedRequest = null;
+                var fakeClient = {
+                    send: function(request) {
+                        capturedRequest = request;
+                    }
+                };
+                var builder = new Leuce.HTTP.RequestBuilder(fakeClient);
+                builder
+                    .get()
+                    .handler('search')
+                    .action('song')
+                    .query({ title: 'test', page: 2 })
+                    .send();
+                assert.strictEqual(capturedRequest.url, 'api/search/song?title=test&page=2');
+            });
         }); // RequestBuilder
     }); // HTTP
 

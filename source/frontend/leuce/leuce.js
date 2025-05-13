@@ -165,6 +165,9 @@ class RequestBuilder
     /** @type {string} */
     #action = '';
 
+    /** @type {Object.<string, string|number>|null} */
+    #queryParams = null;
+
     /**
      * @param {Client} client
      */
@@ -213,6 +216,16 @@ class RequestBuilder
     }
 
     /**
+     * @param {Object.<string, string|number>} params
+     * @returns {RequestBuilder}
+     */
+    query(params)
+    {
+        this.#queryParams = params;
+        return this;
+    }
+
+    /**
      * @param {any} body
      * @returns {RequestBuilder}
      */
@@ -253,8 +266,6 @@ class RequestBuilder
      */
     send(onResponse = null, onProgress = null)
     {
-        const handler = encodeURIComponent(this.#handler);
-        const action = encodeURIComponent(this.#action);
         let apiUrl = Utility.metaContent('app:api-url');
         if (apiUrl === null) {
             throw new Error('Missing meta tag: app:api-url');
@@ -262,7 +273,13 @@ class RequestBuilder
         if (!apiUrl.endsWith('/')) {
             apiUrl += '/';
         }
+        const handler = encodeURIComponent(this.#handler);
+        const action = encodeURIComponent(this.#action);
         this.#request.url = `${apiUrl}${handler}/${action}`;
+        if (this.#queryParams) {
+            this.#request.url += '?'
+                + new URLSearchParams(this.#queryParams).toString();
+        }
         return this.#client.send(this.#request, onResponse, onProgress);
     }
 }
