@@ -1,0 +1,42 @@
+/**
+ * View.js
+ *
+ * (C) 2025 by Eylem Ugurel
+ *
+ * Licensed under a Creative Commons Attribution 4.0 International License.
+ *
+ * You should have received a copy of the license along with this work. If not,
+ * see <http://creativecommons.org/licenses/by/4.0/>.
+ */
+
+class View extends App.View
+{
+    constructor()
+    {
+        super();
+        this.set('alert', '.alert');
+        this.set('form', 'form');
+        this.set('registerButton', 'form button[type=submit]');
+    }
+
+    /**
+     * @returns {string}
+     */
+    formData()
+    {
+        return this.get('form').serialize();
+    }
+
+    /**
+     * @param {string} message
+     */
+    showError(message)
+    {
+        this.get('alert').text(message).removeClass('d-none');
+    }
+
+    hideError()
+    {
+        this.get('alert').text('').addClass('d-none');
+    }
+}

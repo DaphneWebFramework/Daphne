@@ -20,10 +20,16 @@ return [
     'IsDebug' => true,
     'LogFile' => 'default.log',
     'LogLevel' => 3,
-    'DatabaseHostname' => "localhost",
+    'DatabaseHost' => "localhost",
     'DatabaseUsername' => "root",
     'DatabasePassword' => "",
     'DatabaseCharset' => "utf8mb4",
     'DatabaseName' => "daphne",
+    'MailerHost' => "localhost",
+    'MailerPort' => 587,
+    'MailerEncryption' => "tls",
+    'MailerUsername' => "noreply@localhost",
+    'MailerPassword' => "",
+    'SupportEmail' => "support@localhost",
 //}}OPTIONS
 ];
