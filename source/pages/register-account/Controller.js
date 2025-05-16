@@ -34,7 +34,7 @@ class Controller extends App.Controller
                 this.view.hideError();
                 Leuce.UI.notifySuccess(response.body.message);
             } else {
-                this.view.showError(response.body.error);
+                this.view.showError(response.body.message);
             }
         });
     }

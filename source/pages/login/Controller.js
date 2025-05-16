@@ -45,6 +45,7 @@ class Controller extends App.Controller
         this.view.get('loginButton').setButtonLoading(true);
         this.model.login(this.view.formData()).then(response => {
             if (response.isSuccess()) {
+                this.view.hideError();
                 let redirectUri = Leuce.Utility.queryParameter('redirect');
                 if (!redirectUri) {
                     Controller.reloadPage();
@@ -58,7 +59,7 @@ class Controller extends App.Controller
                 }
             } else {
                 this.view.get('loginButton').setButtonLoading(false);
-                this.view.showError(response.body.error);
+                this.view.showError(response.body.message);
             }
         });
     }
@@ -75,7 +76,7 @@ class Controller extends App.Controller
                 Controller.reloadPage();
             } else {
                 this.view.get('logoutButton').setButtonLoading(false);
-                Leuce.UI.notifyError(response.body.error);
+                Leuce.UI.notifyError(response.body.message);
             }
         });
     }

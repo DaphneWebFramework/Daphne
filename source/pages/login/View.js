@@ -15,8 +15,8 @@ class View extends App.View
     {
         super();
         this.set('alert', '.alert');
-        this.set('form', '#loginForm');
-        this.set('loginButton', '#loginForm button[type=submit]');
+        this.set('form', 'form');
+        this.set('loginButton', 'form button[type=submit]');
         this.set('logoutButton', '#logoutButton');
     }
 
@@ -33,6 +33,11 @@ class View extends App.View
      */
     showError(message)
     {
-        this.get('alert')?.text(message).removeClass('d-none');
+        this.get('alert').text(message).removeClass('d-none');
+    }
+
+    hideError()
+    {
+        this.get('alert').text('').addClass('d-none');
     }
 }

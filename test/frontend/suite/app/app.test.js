@@ -68,19 +68,22 @@ QUnit.module('App', function()
     QUnit.module('Controller', function(hooks)
     {
         let originalReloadPage;
+        let originalNotifyError;
 
         hooks.before(function()
         {
             originalReloadPage = App.Controller.reloadPage;
             App.Controller.reloadPage = function() {}; // stub
+            originalNotifyError = Leuce.UI.notifyError;
         });
 
         hooks.after(function()
         {
             App.Controller.reloadPage = originalReloadPage;
+            Leuce.UI.notifyError = originalNotifyError;
         });
 
-        QUnit.test('constructor() binds and calls logout logic', function(assert)
+        QUnit.test('logout click triggers logout and reloads on success', function(assert)
         {
             $('#qunit-fixture').html('<a id="logout"></a>');
             assert.expect(2);
@@ -91,7 +94,38 @@ QUnit.module('App', function()
             let logoutCalled = false;
             model.logout = function() {
                 logoutCalled = true;
-                return Promise.resolve({ isSuccess: () => true });
+                const response = {
+                    isSuccess: () => true
+                };
+                return Promise.resolve(response);
+            };
+            view.get('logout').trigger('click');
+            Promise.resolve().then(function() {
+                assert.true(logoutCalled);
+                assert.strictEqual(view.get('root')[0].style.cursor, '');
+                done();
+            });
+        });
+
+        QUnit.test('logout click triggers notifyError with response message on failure', function(assert)
+        {
+            $('#qunit-fixture').html('<a id="logout"></a>');
+            assert.expect(3);
+            const model = new App.Model();
+            const view = new App.View();
+            const controller = new App.Controller(model, view);
+            const done = assert.async();
+            let logoutCalled = false;
+            model.logout = function() {
+                logoutCalled = true;
+                const response = {
+                    isSuccess: () => false,
+                    body: { message: 'Session expired.' }
+                };
+                return Promise.resolve(response);
+            };
+            Leuce.UI.notifyError = function(message) {
+                assert.strictEqual(message, 'Session expired.');
             };
             view.get('logout').trigger('click');
             Promise.resolve().then(function() {

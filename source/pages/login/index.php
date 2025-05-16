@@ -53,7 +53,7 @@ $page = (new Page(__DIR__))
 				</div>
 				<div class="card-body">
 					<div class="alert alert-danger d-none" role="alert"></div>
-					<form id="loginForm" spellcheck="false">
+					<form spellcheck="false">
 						<?=new FormHiddenInput([
 							'name' => $page->CsrfTokenName(),
 							'value' => $page->CsrfTokenValue()
