@@ -31,10 +31,9 @@ class Controller extends App.Controller
         this.model.registerAccount(this.view.formData()).then(response => {
             this.view.get('registerButton').setButtonLoading(false);
             if (response.isSuccess()) {
-                this.view.hideError();
                 Leuce.UI.notifySuccess(response.body.message);
             } else {
-                this.view.showError(response.body.message);
+                Leuce.UI.notifyError(response.body.message);
             }
         });
     }

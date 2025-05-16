@@ -14,7 +14,6 @@ class View extends App.View
     constructor()
     {
         super();
-        this.set('alert', '.alert');
         this.set('form', 'form');
         this.set('registerButton', 'form button[type=submit]');
     }
@@ -25,18 +24,5 @@ class View extends App.View
     formData()
     {
         return this.get('form').serialize();
-    }
-
-    /**
-     * @param {string} message
-     */
-    showError(message)
-    {
-        this.get('alert').text(message).removeClass('d-none');
-    }
-
-    hideError()
-    {
-        this.get('alert').text('').addClass('d-none');
     }
 }

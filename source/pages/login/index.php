@@ -52,7 +52,6 @@ $page = (new Page(__DIR__))
 					<h5 class="card-title">Log in</h5>
 				</div>
 				<div class="card-body">
-					<div class="alert alert-danger d-none" role="alert"></div>
 					<form spellcheck="false">
 						<?=new FormHiddenInput([
 							'name' => $page->CsrfTokenName(),
