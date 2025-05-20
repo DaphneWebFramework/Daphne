@@ -339,11 +339,19 @@ class View
     set(name, selector)
     {
         const $el = $(selector);
-        // if ($el.length === 0) {
-        //     console.warn(`Leuce: Element not found for "${name}".`);
-        // }
-        this.#store[name] = $el;
+        if ($el.length) {
+            this.#store[name] = $el;
+        }
         return this;
+    }
+
+    /**
+     * @param {string} name
+     * @returns {boolean}
+     */
+    has(name)
+    {
+        return this.#store.hasOwnProperty(name);
     }
 
     /**
@@ -352,8 +360,10 @@ class View
      */
     get(name)
     {
-        const $el = this.#store[name];
-        return ($el && $el.length > 0) ? $el : null;
+        if (!this.has(name)) {
+            return null;
+        }
+        return this.#store[name];
     }
 }
 

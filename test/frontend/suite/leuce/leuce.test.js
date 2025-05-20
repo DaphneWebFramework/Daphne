@@ -361,7 +361,7 @@ QUnit.module('Leuce', function()
 
         QUnit.module('View', function()
         {
-            QUnit.test('Can set and retrieve single element', function(assert)
+            QUnit.test('set() stores single element', function(assert)
             {
                 $('#qunit-fixture').html('<input id="username">');
                 var view = new Leuce.MVC.View();
@@ -371,19 +371,35 @@ QUnit.module('Leuce', function()
                 assert.strictEqual($username.attr('id'), 'username');
             });
 
-            QUnit.test('Can set and retrieve multiple elements', function(assert)
+            QUnit.test('set() stores multiple elements', function(assert)
             {
                 $('#qunit-fixture').html('<input id="email"><button id="submit"></button>');
                 var view = new Leuce.MVC.View();
                 view.set('Email', '#email')
-                        .set('Submit', '#submit');
+                    .set('Submit', '#submit');
                 var $email = view.get('Email');
                 var $submit = view.get('Submit');
                 assert.strictEqual($email.attr('id'), 'email');
                 assert.strictEqual($submit.prop('tagName'), 'BUTTON');
             });
 
-            QUnit.test('Returns null when selector does not match any elements', function(assert)
+            QUnit.test('has() returns true for stored element', function(assert)
+            {
+                $('#qunit-fixture').html('<div id="item"></div>');
+                var view = new Leuce.MVC.View();
+                view.set('Item', '#item');
+                assert.ok(view.has('Item'));
+            });
+
+            QUnit.test('has() returns false for non-existent element', function(assert)
+            {
+                $('#qunit-fixture').html('');
+                var view = new Leuce.MVC.View();
+                view.set('Ghost', '#ghost');
+                assert.notOk(view.has('Ghost'));
+            });
+
+            QUnit.test('get() returns null for non-existent element', function(assert)
             {
                 $('#qunit-fixture').html('');
                 var view = new Leuce.MVC.View();
