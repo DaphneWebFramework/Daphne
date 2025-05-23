@@ -11,19 +11,32 @@
 
 class View extends App.View
 {
+    /** @type {boolean} */
+    #isLoginMode;
+
     constructor()
     {
         super();
         this.set('form', 'form');
-        if (this.has('form')) {
+        this.#isLoginMode = this.has('form');
+        if (this.#isLoginMode) {
             this.set('loginButton', 'form button[type=submit]');
         } else {
+            this.set('homeButton', '#homeButton');
             this.set('logoutButton', '#logoutButton');
         }
     }
 
     /**
-     * @returns {string}
+     * @returns {boolean}
+     */
+    get isLoginMode()
+    {
+        return this.#isLoginMode;
+    }
+
+    /**
+     * @returns {string|undefined}
      */
     formData()
     {

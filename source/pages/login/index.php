@@ -16,7 +16,6 @@ use \Charis\Button;
 use \Charis\FormComposites\FormEmailFL;
 use \Charis\FormComposites\FormPasswordFL;
 use \Charis\FormControls\FormHiddenInput;
-use \Charis\Generic;
 use \Peneus\Resource;
 use \Peneus\Systems\PageSystem\Page;
 
@@ -35,9 +34,9 @@ $page = (new Page(__DIR__))
 				<div class="card-body">
 					<p>You can return to the home page or log out to use a different account.</p>
 					<div class="d-flex justify-content-end gap-2">
-						<?=new Generic('a', [
-							'href' => Resource::Instance()->PageUrl('home'),
-							'class' => 'btn btn-primary'
+						<?=new Button([
+							'id' => 'homeButton',
+							'data-href' => Resource::Instance()->PageUrl('home')
 						], 'Home')?>
 						<?=new Button([
 							'id' => 'logoutButton',
