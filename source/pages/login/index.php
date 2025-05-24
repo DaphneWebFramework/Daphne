@@ -26,26 +26,7 @@ $page = (new Page(__DIR__))
 <?php $page->Begin()?>
 	<main role="main" class="container">
 		<div class="d-flex justify-content-center mt-5">
-<?php if ($page->LoggedInAccount() !== null):?>
-			<div class="card">
-				<div class="card-header">
-					<h5 class="card-title">You've successfully logged in</h5>
-				</div>
-				<div class="card-body">
-					<p>You can return to the home page or log out to use a different account.</p>
-					<div class="d-flex justify-content-end gap-2">
-						<?=new Button([
-							'id' => 'homeButton',
-							'data-href' => Resource::Instance()->PageUrl('home')
-						], 'Home')?>
-						<?=new Button([
-							'id' => 'logoutButton',
-							'class' => 'btn-secondary'
-						], 'Log out')?>
-					</div>
-				</div>
-			</div>
-<?php else:?>
+<?php if ($page->LoggedInAccount() === null):?>
 			<div class="card">
 				<div class="card-header">
 					<h5 class="card-title">Log in</h5>
@@ -76,6 +57,25 @@ $page = (new Page(__DIR__))
 					</form>
 				</div><!-- .card-body -->
 			</div><!-- .card -->
+<?php else:?>
+			<div class="card">
+				<div class="card-header">
+					<h5 class="card-title">You've successfully logged in</h5>
+				</div>
+				<div class="card-body">
+					<p>You can return to the home page or log out to use a different account.</p>
+					<div class="d-flex justify-content-end gap-2">
+						<?=new Button([
+							'id' => 'homeButton',
+							'data-href' => Resource::Instance()->PageUrl('home')
+						], 'Home')?>
+						<?=new Button([
+							'id' => 'logoutButton',
+							'class' => 'btn-secondary'
+						], 'Log out')?>
+					</div>
+				</div>
+			</div>
 <?php endif?>
 		</div><!-- .d-flex -->
 	</main>
