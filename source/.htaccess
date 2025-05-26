@@ -27,4 +27,7 @@ Options -Indexes
 
   # e.g., `pages/error/403` → `pages/error/?statusCode=403`
   RewriteRule ^pages/error/([0-9]+)/?$ pages/error/?statusCode=$1 [L]
+
+  # e.g., `pages/activate-account/abc123...` → `pages/activate-account/?code=abc123...`
+  RewriteRule ^pages/activate-account/([a-f0-9]{64})/?$ pages/activate-account/?code=$1 [L]
 </IfModule>

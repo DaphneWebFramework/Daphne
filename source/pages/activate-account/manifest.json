@@ -1,0 +1,8 @@
+{
+  "js": [
+    "Model",
+    "View",
+    "Controller",
+    "index"
+  ]
+}
