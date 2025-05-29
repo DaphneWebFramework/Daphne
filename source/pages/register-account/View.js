@@ -15,7 +15,7 @@ class View extends App.View
     {
         super();
         this.set('form', 'form');
-        this.set('registerButton', 'form button[type=submit]');
+        this.set('submitButton', 'form button[type=submit]');
     }
 
     /**

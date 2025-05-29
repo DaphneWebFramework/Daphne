@@ -27,9 +27,9 @@ class Controller extends App.Controller
     #onFormSubmit(event)
     {
         event.preventDefault();
-        this.view.get('registerButton').setButtonLoading(true);
+        this.view.get('submitButton').setButtonLoading(true);
         this.model.registerAccount(this.view.formData()).then(response => {
-            this.view.get('registerButton').setButtonLoading(false);
+            this.view.get('submitButton').setButtonLoading(false);
             if (response.isSuccess()) {
                 Leuce.UI.notifySuccess(response.body.message);
             } else {
