@@ -30,4 +30,7 @@ Options -Indexes
 
   # e.g., `pages/activate-account/abc123...` → `pages/activate-account/?code=abc123...`
   RewriteRule ^pages/activate-account/([a-f0-9]{64})/?$ pages/activate-account/?code=$1 [L]
+
+  # e.g., `pages/reset-password/abc123...` → `pages/reset-password/?code=abc123...`
+  RewriteRule ^pages/reset-password/([a-f0-9]{64})/?$ pages/reset-password/?code=$1 [L]
 </IfModule>
