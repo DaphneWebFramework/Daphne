@@ -20,8 +20,6 @@ use \Harmonia\Http\Request;
 use \Harmonia\Http\Response;
 use \Harmonia\Http\StatusCode;
 use \Harmonia\Services\SecurityService;
-use \Peneus\Model\Account;
-use \Peneus\Model\PasswordReset;
 use \Peneus\Resource;
 use \Peneus\Systems\PageSystem\Page;
 
@@ -29,35 +27,14 @@ $page = (new Page(__DIR__))
 	->SetTitle('Reset Password')
 	->SetMasterPage('basic');
 
-function redirectToErrorPage(StatusCode $statusCode): never {
-	(new Response)->Redirect(Resource::Instance()->ErrorPageUrl($statusCode));
-}
-
-function resolveResetCode(): string {
-	$resetCode = Request::Instance()->QueryParams()->GetOrDefault('code', '');
-	if (!SecurityService::Instance()->IsValidToken($resetCode)) {
-		redirectToErrorPage(StatusCode::NotFound);
+function resolveCode(): string {
+	$code = Request::Instance()->QueryParams()->GetOrDefault('code', '');
+	if (!SecurityService::Instance()->IsValidToken($code)) {
+		(new Response)->Redirect(Resource::Instance()->ErrorPageUrl(
+			StatusCode::BadRequest));
 	}
-	return $resetCode;
+	return $code;
 }
-
-function resolveEmail(string $resetCode): string {
-	$passwordReset = PasswordReset::FindFirst(
-		'resetCode = :resetCode',
-		['resetCode' => $resetCode]
-	);
-	if ($passwordReset === null) {
-		redirectToErrorPage(StatusCode::NotFound);
-	}
-	$account = Account::FindById($passwordReset->accountId);
-	if ($account === null) {
-		redirectToErrorPage(StatusCode::NotFound);
-	}
-	return $account->email;
-}
-
-$resetCode = resolveResetCode();
-$email = resolveEmail($resetCode);
 ?>
 <?php $page->Begin()?>
 	<main role="main" class="container">
@@ -74,11 +51,11 @@ $email = resolveEmail($resetCode);
 						])?>
 						<?=new FormHiddenInput([
 							'name' => 'resetCode',
-							'value' => $resetCode
+							'value' => resolveCode()
 						])?>
 						<?=new FormEmailInput([
 							'class' => 'd-none',
-							'value' => $email,
+							'value' => '',
 							'autocomplete' => 'username'
 						])?>
 						<?=new FormPasswordFL([

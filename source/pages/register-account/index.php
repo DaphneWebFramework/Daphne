@@ -17,6 +17,7 @@ use \Charis\FormComposites\FormEmailFL;
 use \Charis\FormComposites\FormPasswordFL;
 use \Charis\FormComposites\FormTextFL;
 use \Charis\FormControls\FormHiddenInput;
+use \Peneus\Resource;
 use \Peneus\Systems\PageSystem\Page;
 
 $page = (new Page(__DIR__))
@@ -28,7 +29,7 @@ $page = (new Page(__DIR__))
 		<div class="d-flex justify-content-center mt-5">
 			<div class="card">
 				<div class="card-header">
-					<h5 class="card-title">Register Account</h5>
+					<h5 class="card-title">Create your account</h5>
 				</div>
 				<div class="card-body">
 					<form spellcheck="false">
@@ -60,6 +61,12 @@ $page = (new Page(__DIR__))
 						</div>
 					</form>
 				</div><!-- .card-body -->
+				<div class="card-footer text-center">
+					Already have an account?
+					<a href="<?=Resource::Instance()->LoginPageUrl('home')?>">
+						Log in
+					</a>
+				</div><!-- .card-footer -->
 			</div><!-- .card -->
 		</div><!-- .d-flex -->
 	</main>

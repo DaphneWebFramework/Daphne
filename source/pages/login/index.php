@@ -29,7 +29,7 @@ $page = (new Page(__DIR__))
 <?php if ($page->LoggedInAccount() === null):?>
 			<div class="card">
 				<div class="card-header">
-					<h5 class="card-title">Log in</h5>
+					<h5 class="card-title">Welcome back</h5>
 				</div>
 				<div class="card-body">
 					<form spellcheck="false">
@@ -49,13 +49,22 @@ $page = (new Page(__DIR__))
 							':autocomplete' => 'current-password',
 							':required' => true
 						])?>
-						<div class="d-flex justify-content-end">
+						<div class="d-flex justify-content-between align-items-center">
+							<a href="<?=Resource::Instance()->PageUrl('forgot-password')?>">
+								Forgot your password?
+							</a>
 							<?=new Button([
 								'type' => 'submit'
 							], 'Log in')?>
 						</div>
 					</form>
 				</div><!-- .card-body -->
+				<div class="card-footer text-center">
+					Don't have an account?
+					<a href="<?=Resource::Instance()->PageUrl('register-account')?>">
+						Register
+					</a>
+				</div><!-- .card-footer -->
 			</div><!-- .card -->
 <?php else:?>
 			<div class="card">
@@ -64,11 +73,10 @@ $page = (new Page(__DIR__))
 				</div>
 				<div class="card-body">
 					<p>You can return to the home page or log out to use a different account.</p>
-					<div class="d-flex justify-content-end gap-2">
-						<?=new Button([
-							'id' => 'homeButton',
-							'data-href' => Resource::Instance()->PageUrl('home')
-						], 'Home')?>
+					<div class="d-flex justify-content-between align-items-center">
+						<a href="<?=Resource::Instance()->PageUrl('home')?>">
+							Home page
+						</a>
 						<?=new Button([
 							'id' => 'logoutButton',
 							'class' => 'btn-secondary'

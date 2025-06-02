@@ -14,11 +14,24 @@ require '../../autoload.php';
 
 use \Charis\FormControls\FormHiddenInput;
 use \Harmonia\Http\Request;
+use \Harmonia\Http\Response;
+use \Harmonia\Http\StatusCode;
+use \Harmonia\Services\SecurityService;
+use \Peneus\Resource;
 use \Peneus\Systems\PageSystem\Page;
 
 $page = (new Page(__DIR__))
 	->SetTitle('Activate Account')
 	->SetMasterPage('basic');
+
+function resolveCode(): string {
+	$code = Request::Instance()->QueryParams()->GetOrDefault('code', '');
+	if (!SecurityService::Instance()->IsValidToken($code)) {
+		(new Response)->Redirect(Resource::Instance()->ErrorPageUrl(
+			StatusCode::BadRequest));
+	}
+	return $code;
+}
 ?>
 <?php $page->Begin()?>
 	<main role="main" class="container">
@@ -39,7 +52,7 @@ $page = (new Page(__DIR__))
 						])?>
 						<?=new FormHiddenInput([
 							'name' => 'activationCode',
-							'value' => Request::Instance()->QueryParams()->GetOrDefault('code', '')
+							'value' => resolveCode()
 						])?>
 					</form>
 				</div><!-- .card-body -->

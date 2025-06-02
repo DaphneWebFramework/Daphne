@@ -22,7 +22,6 @@ class View extends App.View
         if (this.#isLoginMode) {
             this.set('loginButton', 'form button[type=submit]');
         } else {
-            this.set('homeButton', '#homeButton');
             this.set('logoutButton', '#logoutButton');
         }
     }

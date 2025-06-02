@@ -21,7 +21,6 @@ class Controller extends App.Controller
         if (this.view.isLoginMode) {
             this.view.get('form').on('submit', this.#onFormSubmit.bind(this));
         } else {
-            this.view.get('homeButton').on('click', this.#onHomeButtonClick.bind(this));
             this.view.get('logoutButton').on('click', this.#onLogoutButtonClick.bind(this));
         }
     }
@@ -65,16 +64,6 @@ class Controller extends App.Controller
                 Leuce.UI.notifyError(response.body.message);
             }
         });
-    }
-
-    /**
-     * @param {jQuery.Event} event
-     */
-    #onHomeButtonClick(event)
-    {
-        const homeButton = this.view.get('homeButton');
-        homeButton.setButtonLoading(true);
-        window.location.href = homeButton.data('href');
     }
 
     /**
