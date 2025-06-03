@@ -8,6 +8,10 @@
     ],
     "default": true
   },
+  "bootstrap-icons": {
+    "css": "bootstrap-icons-1.13.1/bootstrap-icons",
+    "*": "bootstrap-icons-1.13.1/fonts/*"
+  },
   "jquery": {
     "js": "jquery-3.7.1/jquery-3.7.1",
     "*": "jquery-3.7.1/jquery-3.7.1.min.map",
