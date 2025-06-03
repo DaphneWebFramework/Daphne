@@ -35,6 +35,7 @@ $resource = Resource::Instance();
 $account = $this->LoggedInAccount();
 $role = $this->LoggedInAccountRole();
 $navItems = [];
+$wideLayout = $this->Property('wideLayout', false);
 
 if ($account === null) {
 	$navItems[] = new NavbarItem([
@@ -72,12 +73,13 @@ if ($account === null) {
 	]);
 	$navItems[] = new NavbarDropdown([
 		':label' => \htmlspecialchars($account->displayName,
-			\ENT_QUOTES | \ENT_SUBSTITUTE | \ENT_HTML5, 'UTF-8')
+			\ENT_QUOTES | \ENT_SUBSTITUTE | \ENT_HTML5, 'UTF-8'),
+		':alignRight' => $wideLayout ? true : false,
 	], $dropdownItems);
 }
 ?>
 	<?=new Navbar(['class' => 'bg-dark navbar-expand-sm', 'data-bs-theme' => 'dark'], [
-		new Container(null, [
+		new Container(['class' => $wideLayout ? 'container-fluid' : 'container'], [
 			new NavbarBrand(['href' => $resource->AppUrl()], $config->Option('AppName')),
 			new NavbarToggler([
 				'data-bs-target' => '#navbarTogglerTarget',
