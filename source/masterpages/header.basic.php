@@ -13,16 +13,23 @@
 if (!isset($this) || !$this instanceof \Peneus\Systems\PageSystem\Page) {
 	exit;
 }
-use \Charis\{Container, Navbar, NavbarBrand};
+
 use \Harmonia\Config;
 use \Peneus\Resource;
+use \Charis\{
+	Container,
+	Navbar,
+	NavbarBrand
+};
 
+$config = Config::Instance();
+$resource = Resource::Instance();
 $wideLayout = $this->Property('wideLayout', false);
 ?>
-	<?=new Navbar(['class'=>'bg-dark', 'data-bs-theme'=>'dark'], [
+	<?=new Navbar(['class' => 'bg-dark', 'data-bs-theme' => 'dark'], [
 		new Container(['class' => $wideLayout ? 'container-fluid' : 'container'], [
-			new NavbarBrand(['href'=>Resource::Instance()->AppUrl()],
-				Config::Instance()->Option('AppName')
+			new NavbarBrand(['href' => $resource->AppUrl()],
+				$config->Option('AppName')
 			)
 		])
 	])?>
