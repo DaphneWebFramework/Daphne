@@ -21,6 +21,8 @@ $page = (new Page(__DIR__))
 <?php $page->Begin()?>
 	<main role="main" class="container my-5">
 		<h2>Welcome to Daphne</h2>
-		<p class="lead">A full-stack framework for building database-driven web applications with ease.</p>
+		<p class="lead">
+			A full-stack framework for building database-driven web applications with ease.
+		</p>
 	</main>
 <?php $page->End()?>
