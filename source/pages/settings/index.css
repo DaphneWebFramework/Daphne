@@ -1,0 +1,49 @@
+/**
+ * index.css
+ *
+ * (C) 2025 by Eylem Ugurel
+ *
+ * Licensed under a Creative Commons Attribution 4.0 International License.
+ *
+ * You should have received a copy of the license along with this work. If not,
+ * see <http://creativecommons.org/licenses/by/4.0/>.
+ */
+
+.nav-pills {
+  padding: 1.5rem 0.75rem;
+}
+.nav-pills .nav-link {
+  display: flex;
+  gap: 0.75rem;
+}
+@media (max-width: 575.98px) {
+  .nav-pills .nav-link .label {
+    display: none;
+  }
+}
+.tab-content {
+  padding: 1.5rem;
+  flex-grow: 1;
+}
+@media (min-width: 576px) {
+  .tab-pane {
+    max-width: 360px;
+  }
+}
+.tab-pane h3 {
+  padding-bottom: 0.5rem;
+  border-bottom: thin solid var(--bs-border-color);
+  margin-bottom: 1rem;
+}
+.tab-pane section {
+  margin-bottom: 1.5rem;
+}
+.tab-pane h5 {
+  margin-bottom: 1rem;
+}
+.tab-pane a {
+  text-decoration: none;
+}
+.tab-pane a:hover {
+  text-decoration: underline;
+}
