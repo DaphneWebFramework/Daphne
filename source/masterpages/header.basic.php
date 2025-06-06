@@ -14,13 +14,11 @@ if (!isset($this) || !$this instanceof \Peneus\Systems\PageSystem\Page) {
 	exit;
 }
 
+use \Charis\Container;
+use \Charis\Navbar;
+use \Charis\NavbarBrand;
 use \Harmonia\Config;
 use \Peneus\Resource;
-use \Charis\{
-	Container,
-	Navbar,
-	NavbarBrand
-};
 
 $config = Config::Instance();
 $resource = Resource::Instance();

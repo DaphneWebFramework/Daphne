@@ -14,21 +14,19 @@ if (!isset($this) || !$this instanceof \Peneus\Systems\PageSystem\Page) {
 	exit;
 }
 
+use \Charis\Container;
+use \Charis\Navbar;
+use \Charis\NavbarBrand;
+use \Charis\NavbarCollapse;
+use \Charis\NavbarDropdown;
+use \Charis\NavbarDropdownDivider;
+use \Charis\NavbarDropdownItem;
+use \Charis\NavbarItem;
+use \Charis\NavbarNav;
+use \Charis\NavbarToggler;
 use \Harmonia\Config;
-use \Peneus\Resource;
 use \Peneus\Model\Role;
-use \Charis\{
-	Container,
-	Navbar,
-	NavbarBrand,
-	NavbarToggler,
-	NavbarCollapse,
-	NavbarNav,
-	NavbarItem,
-	NavbarDropdown,
-	NavbarDropdownItem,
-	NavbarDropdownDivider
-};
+use \Peneus\Resource;
 
 $config = Config::Instance();
 $resource = Resource::Instance();

@@ -14,11 +14,9 @@ if (!isset($this) || !$this instanceof \Peneus\Systems\PageSystem\Page) {
 	exit;
 }
 
+use \Charis\Container;
+use \Charis\Generic;
 use \Harmonia\Config;
-use \Charis\{
-	Container,
-	Generic
-};
 
 $config = Config::Instance();
 $wideLayout = $this->Property('wideLayout', false);
