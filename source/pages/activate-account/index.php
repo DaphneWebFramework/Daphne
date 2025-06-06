@@ -12,6 +12,7 @@
 
 require '../../autoload.php';
 
+use \Charis\Form;
 use \Charis\FormControls\FormHiddenInput;
 use \Harmonia\Http\Request;
 use \Harmonia\Http\Response;
@@ -24,7 +25,7 @@ $page = (new Page(__DIR__))
 	->SetTitle('Activate Account')
 	->SetMasterPage('basic');
 
-function resolveCode(): string {
+function getCode(): string {
 	$code = Request::Instance()->QueryParams()->GetOrDefault('code', '');
 	if (!SecurityService::Instance()->IsValidToken($code)) {
 		(new Response)->Redirect(Resource::Instance()->ErrorPageUrl(
@@ -45,16 +46,16 @@ function resolveCode(): string {
 				</div>
 				<div class="card-body">
 					Please wait while we activate your account.
-					<form class="d-none">
-						<?=new FormHiddenInput([
+					<?=new Form(['class' => 'd-none'], [
+						new FormHiddenInput([
 							'name' => $page->CsrfTokenName(),
 							'value' => $page->CsrfTokenValue()
-						])?>
-						<?=new FormHiddenInput([
+						]),
+						new FormHiddenInput([
 							'name' => 'activationCode',
-							'value' => resolveCode()
-						])?>
-					</form>
+							'value' => getCode()
+						])
+					])?>
 				</div><!-- .card-body -->
 			</div><!-- .card -->
 		</div><!-- .d-flex -->

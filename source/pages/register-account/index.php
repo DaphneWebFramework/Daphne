@@ -13,16 +13,20 @@
 require '../../autoload.php';
 
 use \Charis\Button;
+use \Charis\Form;
 use \Charis\FormComposites\FormEmailFL;
 use \Charis\FormComposites\FormPasswordFL;
 use \Charis\FormComposites\FormTextFL;
 use \Charis\FormControls\FormHiddenInput;
+use \Charis\Generic;
 use \Peneus\Resource;
 use \Peneus\Systems\PageSystem\Page;
 
 $page = (new Page(__DIR__))
 	->SetTitle('Register Account')
 	->SetMasterPage('basic');
+
+$resource = Resource::Instance();
 ?>
 <?php $page->Begin()?>
 	<main role="main" class="container">
@@ -32,38 +36,38 @@ $page = (new Page(__DIR__))
 					<h5 class="card-title">Create your account</h5>
 				</div>
 				<div class="card-body">
-					<form spellcheck="false">
-						<?=new FormHiddenInput([
+					<?=new Form(null, [
+						new FormHiddenInput([
 							'name' => $page->CsrfTokenName(),
 							'value' => $page->CsrfTokenValue()
-						])?>
-						<?=new FormEmailFL([
+						]),
+						new FormEmailFL([
 							':label' => 'Email address',
 							':name' => 'email',
 							':autocomplete' => 'off',
 							':required' => true
-						])?>
-						<?=new FormPasswordFL([
+						]),
+						new FormPasswordFL([
 							':label' => 'Password',
 							':name' => 'password',
 							':autocomplete' => 'new-password',
 							':required' => true
-						])?>
-						<?=new FormTextFL([
+						]),
+						new FormTextFL([
 							':label' => 'Display name',
 							':name' => 'displayName',
 							':required' => true
-						])?>
-						<div class="d-flex justify-content-end">
-							<?=new Button([
+						]),
+						new Generic('div', ['class' => 'd-flex justify-content-end'], [
+							new Button([
 								'type' => 'submit'
-							], 'Register')?>
-						</div>
-					</form>
+							], 'Register')
+						])
+					])?>
 				</div><!-- .card-body -->
 				<div class="card-footer text-center">
 					Already have an account?
-					<a href="<?=Resource::Instance()->LoginPageUrl('home')?>">
+					<a href="<?=$resource->LoginPageUrl('home')?>">
 						Log in
 					</a>
 				</div><!-- .card-footer -->

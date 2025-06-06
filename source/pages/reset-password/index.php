@@ -13,9 +13,11 @@
 require '../../autoload.php';
 
 use \Charis\Button;
+use \Charis\Form;
 use \Charis\FormComposites\FormPasswordFL;
 use \Charis\FormControls\FormEmailInput;
 use \Charis\FormControls\FormHiddenInput;
+use \Charis\Generic;
 use \Harmonia\Http\Request;
 use \Harmonia\Http\Response;
 use \Harmonia\Http\StatusCode;
@@ -27,7 +29,7 @@ $page = (new Page(__DIR__))
 	->SetTitle('Reset Password')
 	->SetMasterPage('basic');
 
-function resolveCode(): string {
+function getCode(): string {
 	$code = Request::Instance()->QueryParams()->GetOrDefault('code', '');
 	if (!SecurityService::Instance()->IsValidToken($code)) {
 		(new Response)->Redirect(Resource::Instance()->ErrorPageUrl(
@@ -44,32 +46,32 @@ function resolveCode(): string {
 					<h5 class="card-title">Choose a new password</h5>
 				</div>
 				<div class="card-body">
-					<form spellcheck="false">
-						<?=new FormHiddenInput([
+					<?=new Form(null, [
+						new FormHiddenInput([
 							'name' => $page->CsrfTokenName(),
 							'value' => $page->CsrfTokenValue()
-						])?>
-						<?=new FormHiddenInput([
+						]),
+						new FormHiddenInput([
 							'name' => 'resetCode',
-							'value' => resolveCode()
-						])?>
-						<?=new FormEmailInput([
+							'value' => getCode()
+						]),
+						new FormEmailInput([
 							'class' => 'd-none',
 							'value' => '',
 							'autocomplete' => 'username'
-						])?>
-						<?=new FormPasswordFL([
+						]),
+						new FormPasswordFL([
 							':label' => 'New password',
 							':name' => 'newPassword',
 							':autocomplete' => 'new-password',
 							':required' => true
-						])?>
-						<div class="d-flex justify-content-end">
-							<?=new Button([
+						]),
+						new Generic('div', ['class' => 'd-flex justify-content-end'], [
+							new Button([
 								'type' => 'submit'
-							], 'Reset Password')?>
-						</div>
-					</form>
+							], 'Reset Password')
+						])
+					])?>
 				</div><!-- .card-body -->
 			</div><!-- .card -->
 		</div><!-- .d-flex -->
