@@ -18,5 +18,23 @@ class Controller extends App.Controller
     constructor(model, view)
     {
         super(model, view);
+        this.view.get('displayNameForm').on('submit', this.#onDisplayNameFormSubmit.bind(this));
+    }
+
+    /**
+     * @param {jQuery.Event} event
+     */
+    #onDisplayNameFormSubmit(event)
+    {
+        event.preventDefault();
+        this.view.get('displayNameChangeButton').setButtonLoading(true);
+        this.model.changeDisplayName(this.view.displayNameFormData()).then(response => {
+            this.view.get('displayNameChangeButton').setButtonLoading(false);
+            if (response.isSuccess()) {
+                this.view.setNavbarDisplayName(this.view.displayNameInput().val());
+            } else {
+                Leuce.UI.notifyError(response.body.message);
+            }
+        });
     }
 }

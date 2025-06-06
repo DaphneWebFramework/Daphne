@@ -74,6 +74,7 @@ if ($account === null) {
 	$navItems[] = new NavbarDropdown([
 		':label' => \htmlspecialchars($account->displayName,
 			\ENT_QUOTES | \ENT_SUBSTITUTE | \ENT_HTML5, 'UTF-8'),
+		':id' => 'navbarDisplayName',
 		':alignRight' => $wideLayout ? true : false,
 	], $dropdownItems);
 }

@@ -14,5 +14,32 @@ class View extends App.View
     constructor()
     {
         super();
+        this.set('navbarDisplayName', '#navbarDisplayName');
+        this.set('displayNameForm', '#displayNameForm');
+        this.set('displayNameChangeButton', '#displayNameForm button[type=submit]');
+    }
+
+    /**
+     * @returns {string}
+     */
+    displayNameFormData()
+    {
+        return this.get('displayNameForm').serialize();
+    }
+
+    /**
+     * @returns {jQuery}
+     */
+    displayNameInput()
+    {
+        return this.get('displayNameForm').find('[name=displayName]');
+    }
+
+    /**
+     * @param {string} displayName
+     */
+    setNavbarDisplayName(displayName)
+    {
+        this.get('navbarDisplayName').text(displayName);
     }
 }

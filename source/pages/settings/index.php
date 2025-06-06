@@ -35,6 +35,7 @@ $page = (new Page(__DIR__))
 	->SetProperty('wideLayout', true);
 
 $resource = Resource::Instance();
+$account = $page->LoggedInAccount();
 ?>
 <?php $page->Begin()?>
 	<main role="main">
@@ -53,18 +54,19 @@ $resource = Resource::Instance();
 				new TabPane([':key' => 'account', ':active' => true], [
 					new Generic('h3', null, 'Account'),
 					new Generic('section', null, [
-						new Form(null, [
+						new Form(['id' => 'displayNameForm'], [
 							new Generic('div', ['class' => 'd-flex align-items-end gap-2 mb-3'], [
 								new FormText([
 									':label' => 'Display name',
 									':name' => 'displayName',
+									':value' => $account->displayName,
 									':required' => true,
 									'class' => '-mb-3 flex-grow-1'
 								]),
 								new Button([
 									'type' => 'submit',
 									'class' => 'btn-outline-secondary'
-								], 'Save')
+								], 'Change')
 							])
 						])
 					]),
@@ -95,7 +97,7 @@ $resource = Resource::Instance();
 								new Button([
 									'type' => 'submit',
 									'class' => 'btn-outline-secondary'
-								], 'Save')
+								], 'Change')
 							])
 						])
 					]),

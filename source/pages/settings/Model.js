@@ -11,4 +11,16 @@
 
 class Model extends App.Model
 {
+    /**
+     * @param {string} data
+     * @returns {Promise}
+     */
+    changeDisplayName(data)
+    {
+        return this.post()
+            .handler('account')
+            .action('change-display-name')
+            .body(data)
+            .send();
+    }
 }
