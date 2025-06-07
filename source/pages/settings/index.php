@@ -54,7 +54,7 @@ $account = $page->LoggedInAccount();
 				new TabPane([':key' => 'account', ':active' => true], [
 					new Generic('h3', null, 'Account'),
 					new Generic('section', null, [
-						new Form(['id' => 'displayNameForm'], [
+						new Form(['id' => 'displayNameChangeForm'], [
 							new Generic('div', ['class' => 'd-flex align-items-end gap-2 mb-3'], [
 								new FormText([
 									':label' => 'Display name',
@@ -72,7 +72,7 @@ $account = $page->LoggedInAccount();
 					]),
 					new Generic('section', null, [
 						new Generic('h5', null, 'Change password'),
-						new Form(null, [
+						new Form(['id' => 'passwordChangeForm'], [
 							new FormEmailInput([
 								'class' => 'd-none',
 								'value' => '',

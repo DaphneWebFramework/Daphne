@@ -18,22 +18,40 @@ class Controller extends App.Controller
     constructor(model, view)
     {
         super(model, view);
-        this.view.get('displayNameForm').on('submit', this.#onDisplayNameFormSubmit.bind(this));
+        this.view.get('displayNameChangeForm')
+            .on('submit', this.#onDisplayNameChangeFormSubmit.bind(this));
+        this.view.get('passwordChangeForm')
+            .on('submit', this.#onPasswordChangeFormSubmit.bind(this));
     }
 
     /**
      * @param {jQuery.Event} event
      */
-    #onDisplayNameFormSubmit(event)
+    #onDisplayNameChangeFormSubmit(event)
     {
         event.preventDefault();
         this.view.get('displayNameChangeButton').setButtonLoading(true);
-        this.model.changeDisplayName(this.view.displayNameFormData()).then(response => {
+        this.model.changeDisplayName(this.view.displayNameChangeFormData()).then(response => {
             this.view.get('displayNameChangeButton').setButtonLoading(false);
             if (response.isSuccess()) {
                 this.view.setNavbarDisplayName(this.view.displayNameInput().val());
             } else {
-                Leuce.UI.notifyError(response.body.message);
+                Leuce.UI.notifyError(response.body.message, 3000);
+            }
+        });
+    }
+
+    /**
+     * @param {jQuery.Event} event
+     */
+    #onPasswordChangeFormSubmit(event)
+    {
+        event.preventDefault();
+        this.view.get('passwordChangeButton').setButtonLoading(true);
+        this.model.changePassword(this.view.passwordChangeFormData()).then(response => {
+            this.view.get('passwordChangeButton').setButtonLoading(false);
+            if (!response.isSuccess()) {
+                Leuce.UI.notifyError(response.body.message, 3000);
             }
         });
     }

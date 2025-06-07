@@ -15,16 +15,18 @@ class View extends App.View
     {
         super();
         this.set('navbarDisplayName', '#navbarDisplayName');
-        this.set('displayNameForm', '#displayNameForm');
-        this.set('displayNameChangeButton', '#displayNameForm button[type=submit]');
+        this.set('displayNameChangeForm', '#displayNameChangeForm');
+        this.set('displayNameChangeButton', '#displayNameChangeForm button[type=submit]');
+        this.set('passwordChangeForm', '#passwordChangeForm');
+        this.set('passwordChangeButton', '#passwordChangeForm button[type=submit]');
     }
 
     /**
      * @returns {string}
      */
-    displayNameFormData()
+    displayNameChangeFormData()
     {
-        return this.get('displayNameForm').serialize();
+        return this.get('displayNameChangeForm').serialize();
     }
 
     /**
@@ -32,7 +34,7 @@ class View extends App.View
      */
     displayNameInput()
     {
-        return this.get('displayNameForm').find('[name=displayName]');
+        return this.get('displayNameChangeForm').find('[name=displayName]');
     }
 
     /**
@@ -41,5 +43,13 @@ class View extends App.View
     setNavbarDisplayName(displayName)
     {
         this.get('navbarDisplayName').text(displayName);
+    }
+
+    /**
+     * @returns {string}
+     */
+    passwordChangeFormData()
+    {
+        return this.get('passwordChangeForm').serialize();
     }
 }

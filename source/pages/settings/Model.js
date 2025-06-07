@@ -23,4 +23,17 @@ class Model extends App.Model
             .body(data)
             .send();
     }
+
+    /**
+     * @param {string} data
+     * @returns {Promise}
+     */
+    changePassword(data)
+    {
+        return this.post()
+            .handler('account')
+            .action('change-password')
+            .body(data)
+            .send();
+    }
 }
