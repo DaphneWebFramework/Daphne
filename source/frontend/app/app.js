@@ -35,7 +35,7 @@ class View extends Leuce.MVC.View
     {
         super();
         this.set('root', ':root');
-        this.set('logout', '#logout');
+        this.set('logout', '#navbarLogout');
     }
 
     /**

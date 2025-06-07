@@ -67,7 +67,7 @@ if ($account === null) {
 	$dropdownItems[] = new NavbarDropdownDivider();
 	$dropdownItems[] = new NavbarDropdownItem([
 		':label' => 'Log out',
-		':id' => 'logout'
+		':id' => 'navbarLogout'
 	]);
 	$navItems[] = new NavbarDropdown([
 		':label' => \htmlspecialchars($account->displayName,

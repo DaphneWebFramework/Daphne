@@ -48,7 +48,7 @@ QUnit.module('App', function()
     {
         QUnit.test('constructor() sets root and logout elements', function(assert)
         {
-            $('#qunit-fixture').html('<a id="logout"></a>');
+            $('#qunit-fixture').html('<a id="navbarLogout"></a>');
             const view = new App.View();
             assert.ok(view.get('logout') instanceof jQuery);
             assert.ok(view.get('root') instanceof jQuery);
@@ -85,7 +85,7 @@ QUnit.module('App', function()
 
         QUnit.test('logout click triggers logout and reloads on success', function(assert)
         {
-            $('#qunit-fixture').html('<a id="logout"></a>');
+            $('#qunit-fixture').html('<a id="navbarLogout"></a>');
             assert.expect(2);
             const model = new App.Model();
             const view = new App.View();
@@ -109,7 +109,7 @@ QUnit.module('App', function()
 
         QUnit.test('logout click triggers notifyError with response message on failure', function(assert)
         {
-            $('#qunit-fixture').html('<a id="logout"></a>');
+            $('#qunit-fixture').html('<a id="navbarLogout"></a>');
             assert.expect(3);
             const model = new App.Model();
             const view = new App.View();
