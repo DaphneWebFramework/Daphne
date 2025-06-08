@@ -104,9 +104,9 @@ $account = $page->LoggedInAccount();
 					new Generic('section', null, [
 						new Generic('h5', null, 'Delete account'),
 						new Generic('p', null, 'Deleting your account will permanently erase all your data. This action cannot be undone.'),
-						new Form(null, [
+						new Form(['id' => 'accountDeleteForm'], [
 							new FormCheck([
-								':label' => 'I understand this deletion is permanent.',
+								':label' => 'I understand my account cannot be recovered after deletion.',
 								':required' => true,
 								'class' => 'mb-3'
 							]),

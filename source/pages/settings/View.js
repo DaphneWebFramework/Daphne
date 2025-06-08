@@ -19,6 +19,9 @@ class View extends App.View
         this.set('displayNameChangeButton', '#displayNameChangeForm button[type=submit]');
         this.set('passwordChangeForm', '#passwordChangeForm');
         this.set('passwordChangeButton', '#passwordChangeForm button[type=submit]');
+        this.set('accountDeleteForm', '#accountDeleteForm');
+        this.set('accountDeleteCheckbox', '#accountDeleteForm input[type=checkbox]');
+        this.set('accountDeleteButton', '#accountDeleteForm button[type=submit]');
     }
 
     /**

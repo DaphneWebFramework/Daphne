@@ -15,8 +15,19 @@ require 'autoload.php';
 use \Peneus\Api\Dispatcher;
 use \Peneus\Api\HandlerRegistry;
 use \Peneus\Api\Handlers\AccountHandler;
+use \Peneus\Api\Hooks\AccountRoleDeletionHook;
+use \Peneus\Services\AccountService;
 
+// Must be initialized first to catch fatal errors via shutdown handler
+$dispatcher = new Dispatcher();
+
+// Register account deletion hooks
+$accountService = AccountService::Instance();
+$accountService->RegisterDeletionHook(new AccountRoleDeletionHook());
+
+// Register API handlers
 $handlerRegistry = HandlerRegistry::Instance();
 $handlerRegistry->RegisterHandler('account', AccountHandler::class);
-$dispatcher = new Dispatcher();
+
+// Dispatch incoming request
 $dispatcher->DispatchRequest();

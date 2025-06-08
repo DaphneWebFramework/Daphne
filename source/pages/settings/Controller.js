@@ -22,6 +22,10 @@ class Controller extends App.Controller
             .on('submit', this.#onDisplayNameChangeFormSubmit.bind(this));
         this.view.get('passwordChangeForm')
             .on('submit', this.#onPasswordChangeFormSubmit.bind(this));
+        this.view.get('accountDeleteCheckbox')
+            .on('change', this.#onAccountDeleteCheckChange.bind(this));
+        this.view.get('accountDeleteForm')
+            .on('submit', this.#onAccountDeleteFormSubmit.bind(this));
     }
 
     /**
@@ -51,6 +55,30 @@ class Controller extends App.Controller
         this.model.changePassword(this.view.passwordChangeFormData()).then(response => {
             this.view.get('passwordChangeButton').setButtonLoading(false);
             if (!response.isSuccess()) {
+                Leuce.UI.notifyError(response.body.message, 3000);
+            }
+        });
+    }
+
+    #onAccountDeleteCheckChange()
+    {
+        const checkbox = this.view.get('accountDeleteCheckbox');
+        const button = this.view.get('accountDeleteButton');
+        button.prop('disabled', !checkbox.prop('checked'));
+    }
+
+    /**
+     * @param {jQuery.Event} event
+     */
+    #onAccountDeleteFormSubmit(event)
+    {
+        event.preventDefault();
+        this.view.get('accountDeleteButton').setButtonLoading(true);
+        this.model.deleteAccount().then(response => {
+            if (response.isSuccess()) {
+                Controller.reloadPage();
+            } else {
+                this.view.get('accountDeleteButton').setButtonLoading(false);
                 Leuce.UI.notifyError(response.body.message, 3000);
             }
         });

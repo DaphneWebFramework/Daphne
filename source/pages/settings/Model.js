@@ -36,4 +36,14 @@ class Model extends App.Model
             .body(data)
             .send();
     }
+
+    /**
+     * @returns {Promise}
+     */
+    deleteAccount() {
+        return this.post()
+            .handler('account')
+            .action('delete')
+            .send();
+    }
 }
