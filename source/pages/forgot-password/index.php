@@ -20,37 +20,37 @@ use \Charis\Generic;
 use \Peneus\Systems\PageSystem\Page;
 
 $page = (new Page(__DIR__))
-	->SetTitle('Forgot Password')
+	->SetTitle(_T('forgot_password.page_title'))
 	->SetMasterPage('basic');
 ?>
 <?php $page->Begin()?>
-	<main role="main" class="container">
-		<div class="d-flex justify-content-center mt-5">
-			<div class="card">
-				<div class="card-header">
-					<h5 class="card-title">Forgot your password?</h5>
-				</div>
-				<div class="card-body">
-					<?=new Form(null, [
+	<?=new Generic('main', ['role' => 'main', 'class' => 'container mt-5'], [
+		new Generic('div', ['class' => 'd-flex justify-content-center'], [
+			new Generic('div', ['class' => 'card'], [
+				new Generic('h5', ['class' => 'card-header'],
+					_T('forgot_password.card_header')
+				),
+				new Generic('div', ['class' => 'card-body'], [
+					new Form(null, [
 						new FormHiddenInput([
 							'name' => $page->CsrfTokenName(),
 							'value' => $page->CsrfTokenValue()
 						]),
 						new FormEmailFL([
-							':label' => 'Email address',
+							':label' => _T('email_address'),
 							':name' => 'email',
 							':autocomplete' => 'off',
 							':required' => true,
-							':help' => "We'll send a password reset link to this address if it's registered."
+							':help' => _T('forgot_password.email_help')
 						]),
 						new Generic('div', ['class' => 'd-flex justify-content-end'], [
 							new Button([
 								'type' => 'submit'
-							], 'Send')
+							], _T('send'))
 						])
-					])?>
-				</div><!-- .card-body -->
-			</div><!-- .card -->
-		</div><!-- .d-flex -->
-	</main>
+					])
+				])
+			])
+		])
+	])?>
 <?php $page->End()?>

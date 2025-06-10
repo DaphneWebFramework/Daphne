@@ -10,10 +10,12 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
+use \App\Translation;
 use \Harmonia\Config;
 use \Harmonia\Core\CPath;
 use \Harmonia\Resource;
 
+// Register autoloader for loading classes from the backend directory
 \spl_autoload_register(function(string $className): void {
     $classPath = \rtrim(__DIR__, '/\\')
         . '/backend/'
@@ -25,5 +27,17 @@ use \Harmonia\Resource;
     require $classPath;
 });
 
+// Load configuration options from the application root directory
 Config::Instance()->Load(CPath::Join(__DIR__, 'config.inc.php'));
+
+// Initialize resource with the application root directory
 Resource::Instance()->Initialize(__DIR__);
+
+// Define global shorthand function for retrieving translations
+function _T(string $key, mixed ...$args): string {
+    static $translation = null;
+    if ($translation === null) {
+        $translation = Translation::Instance();
+    }
+    return $translation->Get($key, ...$args);
+}

@@ -17,7 +17,7 @@ use \Harmonia\Http\StatusCode;
 use \Peneus\Systems\PageSystem\Page;
 
 $page = (new Page(__DIR__))
-	->SetTitle('Error')
+	->SetTitle(_T('error.page_title'))
 	->SetMasterPage('basic')
 	->RemoveLibrary('jquery')
 	->RemoveLibrary('leuce')

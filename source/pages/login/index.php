@@ -22,33 +22,34 @@ use \Peneus\Resource;
 use \Peneus\Systems\PageSystem\Page;
 
 $page = (new Page(__DIR__))
-	->SetTitle('Login')
+	->SetTitle(_T('login.page_title'))
 	->SetMasterPage('basic');
 
 $resource = Resource::Instance();
 ?>
 <?php $page->Begin()?>
-	<main role="main" class="container">
-		<div class="d-flex justify-content-center mt-5">
-<?php if ($page->LoggedInAccount() === null):?>
-			<div class="card">
-				<div class="card-header">
-					<h5 class="card-title">Welcome back</h5>
-				</div>
-				<div class="card-body">
-					<?=new Form(null, [
+	<?=new Generic('main', ['role' => 'main', 'class' => 'container mt-5'], [
+		new Generic('div', ['class' => 'd-flex justify-content-center'], [
+			$page->LoggedInAccount() === null
+			?
+			new Generic('div', ['class' => 'card'], [
+				new Generic('h5', ['class' => 'card-header'],
+					_T('login.card_header')
+				),
+				new Generic('div', ['class' => 'card-body'], [
+					new Form(null, [
 						new FormHiddenInput([
 							'name' => $page->CsrfTokenName(),
 							'value' => $page->CsrfTokenValue()
 						]),
 						new FormEmailFL([
-							':label' => 'Email address',
+							':label' => _T('email_address'),
 							':name' => 'email',
 							':autocomplete' => 'username',
 							':required' => true
 						]),
 						new FormPasswordFL([
-							':label' => 'Password',
+							':label' => _T('password'),
 							':name' => 'password',
 							':autocomplete' => 'current-password',
 							':required' => true
@@ -56,39 +57,39 @@ $resource = Resource::Instance();
 						new Generic('div', ['class' => 'd-flex justify-content-between align-items-center'], [
 							new Generic('a', [
 								'href' => $resource->PageUrl('forgot-password')
-							], 'Forgot your password?'),
+							], _T('forgot_your_password')),
 							new Button([
 								'type' => 'submit'
-							], 'Log in')
+							], _T('log_in'))
 						])
-					])?>
-				</div><!-- .card-body -->
-				<div class="card-footer text-center">
-					Don't have an account?
-					<a href="<?=$resource->PageUrl('register-account')?>">
-						Register
-					</a>
-				</div><!-- .card-footer -->
-			</div><!-- .card -->
-<?php else:?>
-			<div class="card">
-				<div class="card-header">
-					<h5 class="card-title">You've successfully logged in</h5>
-				</div>
-				<div class="card-body">
-					<p>You can return to the home page or log out to use a different account.</p>
-					<?=new Generic('div', ['class' => 'd-flex justify-content-between align-items-center'], [
+					])
+				]),
+				new Generic('div', ['class' => 'card-footer text-center'], [
+					_T('login.card_footer'),
+					' ',
+					new Generic('a', [
+						'href' => $resource->PageUrl('register-account')
+					], _T('register'))
+				])
+			])
+			:
+			new Generic('div', ['class' => 'card'], [
+				new Generic('h5', ['class' => 'card-header'],
+					_T('login.done.card_header')
+				),
+				new Generic('div', ['class' => 'card-body'], [
+					new Generic('p', null, _T('login.done.card_body')),
+					new Generic('div', ['class' => 'd-flex justify-content-between align-items-center'], [
 						new Generic('a', [
 							'href' => $resource->PageUrl('home')
-						], 'Home page'),
+						], _T('home_page')),
 						new Button([
 							'id' => 'logoutButton',
 							'class' => 'btn-secondary'
-						], 'Log out')
-					])?>
-				</div>
-			</div>
-<?php endif?>
-		</div><!-- .d-flex -->
-	</main>
+						], _T('log_out'))
+					])
+				])
+			])
+		])
+	])?>
 <?php $page->End()?>

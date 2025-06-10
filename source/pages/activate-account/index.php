@@ -14,6 +14,7 @@ require '../../autoload.php';
 
 use \Charis\Form;
 use \Charis\FormControls\FormHiddenInput;
+use \Charis\Generic;
 use \Harmonia\Http\Request;
 use \Harmonia\Http\Response;
 use \Harmonia\Http\StatusCode;
@@ -22,7 +23,7 @@ use \Peneus\Resource;
 use \Peneus\Systems\PageSystem\Page;
 
 $page = (new Page(__DIR__))
-	->SetTitle('Activate Account')
+	->SetTitle(_T('activate_account.page_title'))
 	->SetMasterPage('basic');
 
 function getCode(): string {
@@ -35,18 +36,22 @@ function getCode(): string {
 }
 ?>
 <?php $page->Begin()?>
-	<main role="main" class="container">
-		<div class="d-flex justify-content-center mt-5">
-			<div class="card">
-				<div class="card-header d-flex align-items-baseline justify-content-between">
-					<h5 class="card-title">Activating account</h5>
-					<div id="spinner" class="spinner-border spinner-border-sm" role="status">
-						<span class="visually-hidden">Loading...</span>
-					</div>
-				</div>
-				<div class="card-body">
-					Please wait while we activate your account.
-					<?=new Form(['class' => 'd-none'], [
+	<?=new Generic('main', ['role' => 'main', 'class' => 'container mt-5'], [
+		new Generic('div', ['class' => 'd-flex justify-content-center'], [
+			new Generic('div', ['class' => 'card'], [
+				new Generic('div', ['class' => 'card-header d-flex align-items-baseline justify-content-between'], [
+					new Generic('h5', ['class' => 'mb-0'],
+						_T('activate_account.card_header')
+					),
+					new Generic('div', [
+						'id' => 'spinner',
+						'class' => 'spinner-border spinner-border-sm',
+						'role' => 'status'
+					], new Generic('span', ['class' => 'visually-hidden'], _T('loading')))
+				]),
+				new Generic('div', ['class' => 'card-body'], [
+					_T('activate_account.card_body'),
+					new Form(['class' => 'd-none'], [
 						new FormHiddenInput([
 							'name' => $page->CsrfTokenName(),
 							'value' => $page->CsrfTokenValue()
@@ -55,9 +60,9 @@ function getCode(): string {
 							'name' => 'activationCode',
 							'value' => getCode()
 						])
-					])?>
-				</div><!-- .card-body -->
-			</div><!-- .card -->
-		</div><!-- .d-flex -->
-	</main>
+					])
+				])
+			])
+		])
+	])?>
 <?php $page->End()?>

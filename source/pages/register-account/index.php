@@ -23,55 +23,56 @@ use \Peneus\Resource;
 use \Peneus\Systems\PageSystem\Page;
 
 $page = (new Page(__DIR__))
-	->SetTitle('Register Account')
+	->SetTitle(_T('register_account.page_title'))
 	->SetMasterPage('basic');
 
 $resource = Resource::Instance();
 ?>
 <?php $page->Begin()?>
-	<main role="main" class="container">
-		<div class="d-flex justify-content-center mt-5">
-			<div class="card">
-				<div class="card-header">
-					<h5 class="card-title">Create your account</h5>
-				</div>
-				<div class="card-body">
-					<?=new Form(null, [
+	<?=new Generic('main', ['role' => 'main', 'class' => 'container mt-5'], [
+		new Generic('div', ['class' => 'd-flex justify-content-center'], [
+			new Generic('div', ['class' => 'card'], [
+				new Generic('h5', ['class' => 'card-header'],
+					_T('register_account.card_header')
+				),
+				new Generic('div', ['class' => 'card-body'], [
+					new Form(null, [
 						new FormHiddenInput([
 							'name' => $page->CsrfTokenName(),
 							'value' => $page->CsrfTokenValue()
 						]),
 						new FormEmailFL([
-							':label' => 'Email address',
+							':label' => _T('email_address'),
 							':name' => 'email',
 							':autocomplete' => 'off',
 							':required' => true
 						]),
 						new FormPasswordFL([
-							':label' => 'Password',
+							':label' => _T('password'),
 							':name' => 'password',
 							':autocomplete' => 'new-password',
 							':required' => true
 						]),
 						new FormTextFL([
-							':label' => 'Display name',
+							':label' => _T('display_name'),
 							':name' => 'displayName',
 							':required' => true
 						]),
 						new Generic('div', ['class' => 'd-flex justify-content-end'], [
 							new Button([
 								'type' => 'submit'
-							], 'Register')
+							], _T('register'))
 						])
-					])?>
-				</div><!-- .card-body -->
-				<div class="card-footer text-center">
-					Already have an account?
-					<a href="<?=$resource->LoginPageUrl('home')?>">
-						Log in
-					</a>
-				</div><!-- .card-footer -->
-			</div><!-- .card -->
-		</div><!-- .d-flex -->
-	</main>
+					])
+				]),
+				new Generic('div', ['class' => 'card-footer text-center'], [
+					_T('register_account.card_footer'),
+					' ',
+					new Generic('a', [
+						'href' => $resource->LoginPageUrl('home')
+					], _T('log_in'))
+				])
+			])
+		])
+	])?>
 <?php $page->End()?>

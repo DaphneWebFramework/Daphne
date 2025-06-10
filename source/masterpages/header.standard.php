@@ -37,36 +37,36 @@ $wideLayout = $this->Property('wideLayout', false);
 
 if ($account === null) {
 	$navItems[] = new NavbarItem([
-		':label' => 'Register',
+		':label' => _T('register'),
 		':href' => $resource->PageUrl('register-account')
 	]);
 	$navItems[] = new NavbarItem([
-		':label' => 'Login',
+		':label' => _T('log_in'),
 		':href' => $resource->LoginPageUrl()
 	]);
 } else {
 	$dropdownItems = [
 		new NavbarDropdownItem([
-			':label' => 'Settings',
+			':label' => _T('settings'),
 			':href' => $resource->PageUrl('settings')
 		])
 	];
 	if ($role->value >= Role::Editor->value) {
 		$dropdownItems[] = new NavbarDropdownDivider();
 		$dropdownItems[] = new NavbarDropdownItem([
-			':label' => 'Editor',
+			':label' => _T('editor'),
 			':href' => $resource->PageUrl('editor')
 		]);
 	}
 	if ($role->value >= Role::Admin->value) {
 		$dropdownItems[] = new NavbarDropdownItem([
-			':label' => 'Admin',
+			':label' => _T('admin'),
 			':href' => $resource->PageUrl('admin')
 		]);
 	}
 	$dropdownItems[] = new NavbarDropdownDivider();
 	$dropdownItems[] = new NavbarDropdownItem([
-		':label' => 'Log out',
+		':label' => _T('log_out'),
 		':id' => 'navbarLogout'
 	]);
 	$navItems[] = new NavbarDropdown([

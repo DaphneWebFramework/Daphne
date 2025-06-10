@@ -26,7 +26,7 @@ use \Peneus\Resource;
 use \Peneus\Systems\PageSystem\Page;
 
 $page = (new Page(__DIR__))
-	->SetTitle('Reset Password')
+	->SetTitle(_T('reset_password.page_title'))
 	->SetMasterPage('basic');
 
 function getCode(): string {
@@ -39,14 +39,14 @@ function getCode(): string {
 }
 ?>
 <?php $page->Begin()?>
-	<main role="main" class="container">
-		<div class="d-flex justify-content-center mt-5">
-			<div class="card">
-				<div class="card-header">
-					<h5 class="card-title">Choose a new password</h5>
-				</div>
-				<div class="card-body">
-					<?=new Form(null, [
+	<?=new Generic('main', ['role' => 'main', 'class' => 'container mt-5'], [
+		new Generic('div', ['class' => 'd-flex justify-content-center'], [
+			new Generic('div', ['class' => 'card'], [
+				new Generic('h5', ['class' => 'card-header'],
+					_T('reset_password.card_header')
+				),
+				new Generic('div', ['class' => 'card-body'], [
+					new Form(null, [
 						new FormHiddenInput([
 							'name' => $page->CsrfTokenName(),
 							'value' => $page->CsrfTokenValue()
@@ -61,7 +61,7 @@ function getCode(): string {
 							'autocomplete' => 'username'
 						]),
 						new FormPasswordFL([
-							':label' => 'New password',
+							':label' => _T('new_password'),
 							':name' => 'newPassword',
 							':autocomplete' => 'new-password',
 							':required' => true
@@ -69,11 +69,11 @@ function getCode(): string {
 						new Generic('div', ['class' => 'd-flex justify-content-end'], [
 							new Button([
 								'type' => 'submit'
-							], 'Reset Password')
+							], _T('change'))
 						])
-					])?>
-				</div><!-- .card-body -->
-			</div><!-- .card -->
-		</div><!-- .d-flex -->
-	</main>
+					])
+				])
+			])
+		])
+	])?>
 <?php $page->End()?>

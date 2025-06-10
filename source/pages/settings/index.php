@@ -28,7 +28,7 @@ use \Peneus\Resource;
 use \Peneus\Systems\PageSystem\Page;
 
 $page = (new Page(__DIR__))
-	->SetTitle('Settings')
+	->SetTitle(_T('settings.page_title'))
 	->SetMasterPage('standard')
 	->RequireLogin()
 	->AddLibrary('bootstrap-icons')
@@ -38,26 +38,26 @@ $resource = Resource::Instance();
 $account = $page->LoggedInAccount();
 ?>
 <?php $page->Begin()?>
-	<main role="main">
-		<?=new VerticalPillTabNavigation(['class' => '-align-items-start'], [
+	<?=new Generic('main', ['role' => 'main'], [
+		new VerticalPillTabNavigation(['class' => '-align-items-start'], [
 			new VerticalPillTabs(['class' => '-me-3 bg-light'], [
 				new PillTab([':key' => 'account', ':active' => true], [
 					new Generic('i', ['class' => 'bi bi-person-circle']),
-					new Generic('span', ['class' => 'label'], 'Account')
+					new Generic('span', ['class' => 'label'], _T('settings.account'))
 				]),
 				new PillTab([':key' => 'preferences'], [
 					new Generic('i', ['class' => 'bi bi-sliders']),
-					new Generic('span', ['class' => 'label'], 'Preferences')
-				]),
+					new Generic('span', ['class' => 'label'], _T('settings.preferences'))
+				])
 			]),
 			new TabPanes([], [
 				new TabPane([':key' => 'account', ':active' => true], [
-					new Generic('h3', null, 'Account'),
+					new Generic('h3', null, _T('settings.account')),
 					new Generic('section', null, [
 						new Form(['id' => 'displayNameChangeForm'], [
 							new Generic('div', ['class' => 'd-flex align-items-end gap-2 mb-3'], [
 								new FormText([
-									':label' => 'Display name',
+									':label' => _T('display_name'),
 									':name' => 'displayName',
 									':value' => $account->displayName,
 									':required' => true,
@@ -66,12 +66,12 @@ $account = $page->LoggedInAccount();
 								new Button([
 									'type' => 'submit',
 									'class' => 'btn-outline-secondary'
-								], 'Change')
+								], _T('change'))
 							])
 						])
 					]),
 					new Generic('section', null, [
-						new Generic('h5', null, 'Change password'),
+						new Generic('h5', null, _T('settings.change_password')),
 						new Form(['id' => 'passwordChangeForm'], [
 							new FormEmailInput([
 								'class' => 'd-none',
@@ -79,13 +79,13 @@ $account = $page->LoggedInAccount();
 								'autocomplete' => 'username'
 							]),
 							new FormPassword([
-								':label' => 'Current password',
+								':label' => _T('current_password'),
 								':name' => 'currentPassword',
 								':autocomplete' => 'off',
 								':required' => true
 							]),
 							new FormPassword([
-								':label' => 'New password',
+								':label' => _T('new_password'),
 								':name' => 'newPassword',
 								':autocomplete' => 'new-password',
 								':required' => true
@@ -93,20 +93,20 @@ $account = $page->LoggedInAccount();
 							new Generic('div', ['class' => 'd-flex justify-content-between align-items-center'], [
 								new Generic('a', [
 									'href' => $resource->PageUrl('forgot-password')
-								], 'Forgot your password?'),
+								], _T('forgot_your_password')),
 								new Button([
 									'type' => 'submit',
 									'class' => 'btn-outline-secondary'
-								], 'Change')
+								], _T('change'))
 							])
 						])
 					]),
 					new Generic('section', null, [
-						new Generic('h5', null, 'Delete account'),
-						new Generic('p', null, 'Deleting your account will permanently erase all your data. This action cannot be undone.'),
+						new Generic('h5', null, _T('settings.delete_account')),
+						new Generic('p', null, _T('settings.delete_account_paragraph')),
 						new Form(['id' => 'accountDeleteForm'], [
 							new FormCheck([
-								':label' => 'I understand my account cannot be recovered after deletion.',
+								':label' => _T('settings.delete_account_checkbox'),
 								':required' => true,
 								'class' => 'mb-3'
 							]),
@@ -114,15 +114,15 @@ $account = $page->LoggedInAccount();
 								'type' => 'submit',
 								'class' => 'btn-outline-danger',
 								'disabled' => true
-							], 'Delete Account')
+							], _T('settings.delete_account_button'))
 						])
 					])
 				]),
 				new TabPane([':key' => 'preferences'], [
-					new Generic('h3', null, 'Preferences'),
-					new Generic('p', null, 'Set your language, theme, and notification preferences.')
+					new Generic('h3', null, _T('settings.preferences')),
+					// todo: Language, theme, notification preferences, etc.
 				])
 			])
-		])?>
-	</main>
+		])
+	])?>
 <?php $page->End()?>

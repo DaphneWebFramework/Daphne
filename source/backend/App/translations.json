@@ -1,0 +1,176 @@
+{
+  "home_page": {
+    "en": "Home page",
+    "tr": "Ana sayfa"
+  },
+  "register": {
+    "en": "Register",
+    "tr": "Kayıt ol"
+  },
+  "log_in": {
+    "en": "Log in",
+    "tr": "Giriş yap"
+  },
+  "log_out": {
+    "en": "Log out",
+    "tr": "Çıkış yap"
+  },
+  "settings": {
+    "en": "Settings",
+    "tr": "Ayarlar"
+  },
+  "editor": {
+    "en": "Editor",
+    "tr": "Editör"
+  },
+  "admin": {
+    "en": "Admin",
+    "tr": "Yönetici"
+  },
+  "email_address": {
+    "en": "Email address",
+    "tr": "E-posta adresi"
+  },
+  "password": {
+    "en": "Password",
+    "tr": "Şifre"
+  },
+  "current_password": {
+    "en": "Current password",
+    "tr": "Mevcut şifre"
+  },
+  "new_password": {
+    "en": "New password",
+    "tr": "Yeni şifre"
+  },
+  "display_name": {
+    "en": "Display name",
+    "tr": "Görünen ad"
+  },
+  "loading": {
+    "en": "Loading...",
+    "tr": "Yükleniyor..."
+  },
+  "send": {
+    "en": "Send",
+    "tr": "Gönder"
+  },
+  "change": {
+    "en": "Change",
+    "tr": "Değiştir"
+  },
+  "forgot_your_password": {
+    "en": "Forgot your password?",
+    "tr": "Şifrenizi mi unuttunuz?"
+  },
+
+  "error.page_title": {
+    "en": "Error",
+    "tr": "Hata"
+  },
+
+  "home.heading": {
+    "en": "Welcome to Daphne",
+    "tr": "Daphne'ye Hoş Geldiniz"
+  },
+  "home.subheading": {
+    "en": "A full-stack framework for building database-driven web applications with ease.",
+    "tr": "Veritabanı odaklı web uygulamaları geliştirmeyi kolaylaştıran tam kapsamlı bir framework."
+  },
+
+  "register_account.page_title": {
+    "en": "Register Account",
+    "tr": "Hesap Oluştur"
+  },
+  "register_account.card_header": {
+    "en": "Create your account",
+    "tr": "Hesabınızı oluşturun"
+  },
+  "register_account.card_footer": {
+    "en": "Already have an account?",
+    "tr": "Zaten bir hesabınız var mı?"
+  },
+
+  "activate_account.page_title": {
+    "en": "Activate Account",
+    "tr": "Hesabı Etkinleştir"
+  },
+  "activate_account.card_header": {
+    "en": "Activating account",
+    "tr": "Hesap etkinleştiriliyor"
+  },
+  "activate_account.card_body": {
+    "en": "Please wait while we activate your account.",
+    "tr": "Hesabınız etkinleştirilirken lütfen bekleyin."
+  },
+
+  "login.page_title": {
+    "en": "Login",
+    "tr": "Giriş"
+  },
+  "login.card_header": {
+    "en": "Welcome back",
+    "tr": "Tekrar hoş geldiniz"
+  },
+  "login.card_footer": {
+    "en": "Don't have an account?",
+    "tr": "Hesabınız yok mu?"
+  },
+  "login.done.card_header": {
+    "en": "You've successfully logged in",
+    "tr": "Başarıyla giriş yaptınız"
+  },
+  "login.done.card_body": {
+    "en": "You can return to the home page or log out to use a different account.",
+    "tr": "Ana sayfaya dönebilir ya da farklı bir hesapla oturum açmak için çıkış yapabilirsiniz."
+  },
+
+  "forgot_password.page_title": {
+    "en": "Forgot Password",
+    "tr": "Şifremi Unuttum"
+  },
+  "forgot_password.card_header": "forgot_your_password",
+  "forgot_password.email_help": {
+    "en": "We'll send a password reset link to this address if it's registered.",
+    "tr": "Eğer bu adres sistemde kayıtlıysa, size bir şifre sıfırlama bağlantısı göndereceğiz."
+  },
+
+  "reset_password.page_title": {
+    "en": "Reset Password",
+    "tr": "Şifreyi Sıfırla"
+  },
+  "reset_password.card_header": {
+    "en": "Choose a new password",
+    "tr": "Yeni bir şifre belirleyin"
+  },
+
+  "settings.page_title": "settings",
+  "settings.account": {
+    "en": "Account",
+    "tr": "Hesap"
+  },
+  "settings.change_password": {
+    "en": "Change password",
+    "tr": "Şifreyi değiştir"
+  },
+  "settings.delete_account": {
+    "en": "Delete account",
+    "tr": "Hesabı sil"
+  },
+  "settings.delete_account_paragraph": {
+    "en": "Deleting your account will permanently erase all your data. This action cannot be undone.",
+    "tr": "Hesabınızı silmek tüm verilerinizi kalıcı olarak silecektir. Bu işlem geri alınamaz."
+  },
+  "settings.delete_account_checkbox": {
+    "en": "I understand my account cannot be recovered after deletion.",
+    "tr": "Silme işleminden sonra hesabımın geri getirilemeyeceğini anlıyorum."
+  },
+  "settings.delete_account_button": {
+    "en": "Delete account",
+    "tr": "Hesabı sil"
+  },
+  "settings.preferences": {
+    "en": "Preferences",
+    "tr": "Tercihler"
+  }
+}
