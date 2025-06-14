@@ -10,22 +10,24 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-if (!isset($this) || !$this instanceof \Peneus\Systems\PageSystem\Page) {
-	exit;
-}
-
 use \Charis\Container;
 use \Charis\Generic;
 use \Harmonia\Config;
+use \Peneus\Systems\PageSystem\Page;
 
-$config = Config::Instance();
-$wideLayout = $this->Property('wideLayout', false);
+if (!isset($this) || !$this instanceof Page) {
+	exit;
+}
 ?>
 	<?=new Generic('footer', null, [
-		new Container(['class' => $wideLayout ? 'container-fluid' : 'container'], [
+		new Container([
+			'class' => $this->Property('wideLayout', false)
+				? 'container-fluid'
+				: 'container'
+		], [
 			new Generic('hr', ['class' => 'mb-2'], [], true),
 			new Generic('span', ['class' => 'small text-muted'],
-				'&copy; ' . \date('Y') . ' ' . $config->Option('AppName')
+				'&copy; ' . \date('Y') . ' ' . Config::Instance()->Option('AppName')
 			)
 		])
 	])?>

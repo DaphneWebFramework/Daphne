@@ -10,10 +10,6 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-if (!isset($this) || !$this instanceof \Peneus\Systems\PageSystem\Page) {
-	exit;
-}
-
 use \Charis\Container;
 use \Charis\Navbar;
 use \Charis\NavbarBrand;
@@ -29,6 +25,10 @@ use \Peneus\Model\Role;
 use \Peneus\Resource;
 use \Peneus\Services\LanguageService;
 use \Peneus\Systems\PageSystem\Page;
+
+if (!isset($this) || !$this instanceof Page) {
+	exit;
+}
 
 function escapeLabel(string $label): string {
 	return \htmlspecialchars(

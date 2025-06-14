@@ -10,7 +10,9 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-if (!isset($this) || !$this instanceof \Peneus\Systems\PageSystem\Page) {
+use \Peneus\Systems\PageSystem\Page;
+
+if (!isset($this) || !$this instanceof Page) {
 	exit;
 }
 ?>
