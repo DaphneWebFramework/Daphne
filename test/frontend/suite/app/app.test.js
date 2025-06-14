@@ -230,5 +230,30 @@ QUnit.module('App', function()
                 done();
             });
         });
+
+        QUnit.test('language click on current language does nothing', function(assert)
+        {
+            $('#qunit-fixture').html(`
+                <span id="navbarLanguage" data-csrf-token="csrf123">en</span>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" data-language-code="en">English</a>
+                </div>
+            `);
+            assert.expect(1);
+            const model = new App.Model();
+            const view = new App.View();
+            const controller = new App.Controller(model, view);
+            model.changeLanguage = function() {
+                assert.ok(false, 'changeLanguage should not be called');
+            };
+            App.Controller.reloadPage = function() {
+                assert.ok(false, 'reloadPage should not be called');
+            };
+            Leuce.UI.notifyError = function() {
+                assert.ok(false, 'notifyError should not be called');
+            };
+            view.get('languageItems').trigger('click');
+            assert.strictEqual(view.get('root')[0].style.cursor, '');
+        });
     }); // Controller
 });

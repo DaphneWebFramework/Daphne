@@ -107,11 +107,14 @@ class Controller extends Leuce.MVC.Controller
     {
         event.preventDefault();
         const $language = this.view.get('language');
-        const languageCode = $(event.currentTarget).data('language-code');
-        const prevLanguageCode = $language.text();
-        $language.text(languageCode);
+        const currentLanguageCode = $language.text();
+        const targetLanguageCode = $(event.currentTarget).data('language-code');
+        if (targetLanguageCode === currentLanguageCode) {
+            return;
+        }
+        $language.text(targetLanguageCode);
         const data = {
-            languageCode: languageCode,
+            languageCode: targetLanguageCode,
             csrfToken: $language.data('csrf-token')
         };
         this.view.setLoading(true);
@@ -119,7 +122,7 @@ class Controller extends Leuce.MVC.Controller
             if (response.isSuccess()) {
                 Controller.reloadPage();
             } else {
-                $language.text(prevLanguageCode);
+                $language.text(currentLanguageCode);
                 this.view.setLoading(false);
                 Leuce.UI.notifyError(response.body.message);
             }
