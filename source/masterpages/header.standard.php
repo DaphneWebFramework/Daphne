@@ -93,7 +93,7 @@ function createLanguageNavItems(array &$navItems, Page $page): void {
 	foreach ($languageService->Languages() as $label => $code) {
 		$dropdownItems[] = new NavbarDropdownItem([
 			':label' => $label,
-			':link:data-language-code' => $code,
+			':link:data-language-code' => $code
 		]);
 	}
 	$navItems[] = new NavbarDropdown([

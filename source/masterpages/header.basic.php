@@ -17,10 +17,41 @@ if (!isset($this) || !$this instanceof \Peneus\Systems\PageSystem\Page) {
 use \Charis\Container;
 use \Charis\Navbar;
 use \Charis\NavbarBrand;
+use \Charis\NavbarCollapse;
+use \Charis\NavbarDropdown;
+use \Charis\NavbarDropdownItem;
+use \Charis\NavbarNav;
+use \Charis\NavbarToggler;
 use \Harmonia\Config;
 use \Peneus\Resource;
+use \Peneus\Services\LanguageService;
+use \Peneus\Systems\PageSystem\Page;
+
+function createLanguageNavItems(array &$navItems, Page $page): void {
+	$languageService = LanguageService::Instance();
+	$wideLayout = $page->Property('wideLayout', false);
+	$dropdownItems = [];
+	foreach ($languageService->Languages() as $label => $code) {
+		$dropdownItems[] = new NavbarDropdownItem([
+			':label' => $label,
+			':link:data-language-code' => $code
+		]);
+	}
+	$navItems[] = new NavbarDropdown([
+		':label' => $languageService->CurrentLanguage(),
+		':link:id' => 'navbarLanguage',
+		':link:data-csrf-token' => $languageService->CsrfTokenValue(),
+		':menu:class' => $wideLayout ? 'dropdown-menu-end' : 'dropdown-menu-start'
+	], $dropdownItems);
+}
+
+function createNavItems(Page $page): array {
+	$navItems = [];
+	createLanguageNavItems($navItems, $page);
+	return $navItems;
+}
 ?>
-	<?=new Navbar(['class' => 'bg-dark', 'data-bs-theme' => 'dark'], [
+	<?=new Navbar(['class' => 'bg-dark navbar-expand-sm', 'data-bs-theme' => 'dark'], [
 		new Container([
 			'class' => $this->Property('wideLayout', false)
 				? 'container-fluid'
@@ -28,6 +59,13 @@ use \Peneus\Resource;
 		], [
 			new NavbarBrand(['href' => Resource::Instance()->AppUrl()],
 				Config::Instance()->Option('AppName')
-			)
+			),
+			new NavbarToggler([
+				'data-bs-target' => '#navbarTogglerTarget',
+				'aria-controls' => 'navbarTogglerTarget'
+			]),
+			new NavbarCollapse(['id' => 'navbarTogglerTarget'], [
+				new NavbarNav(['class' => 'ms-auto'], createNavItems($this))
+			])
 		])
 	])?>
