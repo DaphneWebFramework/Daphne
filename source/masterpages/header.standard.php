@@ -27,15 +27,19 @@ use \Charis\NavbarToggler;
 use \Harmonia\Config;
 use \Peneus\Model\Role;
 use \Peneus\Resource;
+use \Peneus\Services\LanguageService;
+use \Peneus\Systems\PageSystem\Page;
 
-$config = Config::Instance();
-$resource = Resource::Instance();
-$account = $this->LoggedInAccount();
-$role = $this->LoggedInAccountRole();
-$navItems = [];
-$wideLayout = $this->Property('wideLayout', false);
+function escapeLabel(string $label): string {
+	return \htmlspecialchars(
+		$label,
+		\ENT_QUOTES | \ENT_SUBSTITUTE | \ENT_HTML5,
+		'UTF-8'
+	);
+}
 
-if ($account === null) {
+function createGuestNavItems(array &$navItems): void {
+	$resource = Resource::Instance();
 	$navItems[] = new NavbarItem([
 		':label' => _T('register'),
 		':href' => $resource->PageUrl('register-account')
@@ -44,7 +48,13 @@ if ($account === null) {
 		':label' => _T('log_in'),
 		':href' => $resource->LoginPageUrl()
 	]);
-} else {
+}
+
+function createAccountNavItems(array &$navItems, Page $page): void {
+	$resource = Resource::Instance();
+	$account = $page->LoggedInAccount();
+	$role = $page->LoggedInAccountRole();
+	$wideLayout = $page->Property('wideLayout', false);
 	$dropdownItems = [
 		new NavbarDropdownItem([
 			':label' => _T('settings'),
@@ -67,25 +77,59 @@ if ($account === null) {
 	$dropdownItems[] = new NavbarDropdownDivider();
 	$dropdownItems[] = new NavbarDropdownItem([
 		':label' => _T('log_out'),
-		':id' => 'navbarLogout'
+		':link:id' => 'navbarLogout'
 	]);
 	$navItems[] = new NavbarDropdown([
-		':label' => \htmlspecialchars($account->displayName,
-			\ENT_QUOTES | \ENT_SUBSTITUTE | \ENT_HTML5, 'UTF-8'),
-		':id' => 'navbarDisplayName',
-		':alignRight' => $wideLayout ? true : false,
+		':label' => escapeLabel($account->displayName),
+		':link:id' => 'navbarDisplayName',
+		':menu:class' => $wideLayout ? 'dropdown-menu-end' : 'dropdown-menu-start'
 	], $dropdownItems);
+}
+
+function createLanguageNavItems(array &$navItems, Page $page): void {
+	$languageService = LanguageService::Instance();
+	$wideLayout = $page->Property('wideLayout', false);
+	$dropdownItems = [];
+	foreach ($languageService->Languages() as $label => $code) {
+		$dropdownItems[] = new NavbarDropdownItem([
+			':label' => $label,
+			':link:data-language-code' => $code,
+		]);
+	}
+	$navItems[] = new NavbarDropdown([
+		':label' => $languageService->CurrentLanguage(),
+		':link:id' => 'navbarLanguage',
+		':link:data-csrf-token' => $languageService->CsrfTokenValue(),
+		':menu:class' => $wideLayout ? 'dropdown-menu-end' : 'dropdown-menu-start'
+	], $dropdownItems);
+}
+
+function createNavItems(Page $page): array {
+	$navItems = [];
+	if ($page->LoggedInAccount() === null) {
+		createGuestNavItems($navItems);
+	} else {
+		createAccountNavItems($navItems, $page);
+	}
+	createLanguageNavItems($navItems, $page);
+	return $navItems;
 }
 ?>
 	<?=new Navbar(['class' => 'bg-dark navbar-expand-sm', 'data-bs-theme' => 'dark'], [
-		new Container(['class' => $wideLayout ? 'container-fluid' : 'container'], [
-			new NavbarBrand(['href' => $resource->AppUrl()], $config->Option('AppName')),
+		new Container([
+			'class' => $this->Property('wideLayout', false)
+				? 'container-fluid'
+				: 'container'
+		], [
+			new NavbarBrand(['href' => Resource::Instance()->AppUrl()],
+				Config::Instance()->Option('AppName')
+			),
 			new NavbarToggler([
 				'data-bs-target' => '#navbarTogglerTarget',
 				'aria-controls' => 'navbarTogglerTarget'
 			]),
 			new NavbarCollapse(['id' => 'navbarTogglerTarget'], [
-				new NavbarNav(['class' => 'ms-auto'], $navItems)
+				new NavbarNav(['class' => 'ms-auto'], createNavItems($this))
 			])
 		])
 	])?>

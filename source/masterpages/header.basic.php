@@ -19,15 +19,15 @@ use \Charis\Navbar;
 use \Charis\NavbarBrand;
 use \Harmonia\Config;
 use \Peneus\Resource;
-
-$config = Config::Instance();
-$resource = Resource::Instance();
-$wideLayout = $this->Property('wideLayout', false);
 ?>
 	<?=new Navbar(['class' => 'bg-dark', 'data-bs-theme' => 'dark'], [
-		new Container(['class' => $wideLayout ? 'container-fluid' : 'container'], [
-			new NavbarBrand(['href' => $resource->AppUrl()],
-				$config->Option('AppName')
+		new Container([
+			'class' => $this->Property('wideLayout', false)
+				? 'container-fluid'
+				: 'container'
+		], [
+			new NavbarBrand(['href' => Resource::Instance()->AppUrl()],
+				Config::Instance()->Option('AppName')
 			)
 		])
 	])?>
