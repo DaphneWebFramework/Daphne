@@ -29,7 +29,7 @@ use \Peneus\Services\LanguageService;
 });
 
 // Load configuration options from the application root directory
-Config::Instance()->Load(CPath::Join(__DIR__, 'config.inc.php'));
+Config::Instance()->Load(CPath::Join(__DIR__, 'config.php'));
 
 // Override default language with value from the language cookie
 LanguageService::Instance()->ReadFromCookie(function(string $languageCode): void {

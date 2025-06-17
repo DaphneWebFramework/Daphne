@@ -1,6 +1,6 @@
 <?php
 /**
- * config.inc.php
+ * config.php
  *
  * (C) 2025 by Eylem Ugurel
  *
@@ -18,19 +18,19 @@ return [
     'Language' => "en",
     'Locale' => "en_US",
     'Viewport' => "width=device-width, initial-scale=1, shrink-to-fit=no",
-    'IsDebug' => true,
+    'IsDebug' => false,
     'LogFile' => 'default.log',
-    'LogLevel' => 3,
-    'DatabaseHost' => "localhost",
-    'DatabaseUsername' => "root",
+    'LogLevel' => 0,
+    'DatabaseHost' => "",
+    'DatabaseUsername' => "",
     'DatabasePassword' => "",
     'DatabaseCharset' => "utf8mb4",
-    'DatabaseName' => "daphne",
-    'MailerHost' => "localhost",
+    'DatabaseName' => "",
+    'MailerHost' => "",
     'MailerPort' => 587,
     'MailerEncryption' => "tls",
-    'MailerUsername' => "noreply@localhost",
+    'MailerUsername' => "",
     'MailerPassword' => "",
-    'SupportEmail' => "support@localhost",
+    'SupportEmail' => "",
 //}}OPTIONS
 ];
