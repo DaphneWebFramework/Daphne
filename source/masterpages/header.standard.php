@@ -64,14 +64,8 @@ function createAccountNavItems(array &$navItems, Page $page): void {
 	if ($role->value >= Role::Editor->value) {
 		$dropdownItems[] = new NavbarDropdownDivider();
 		$dropdownItems[] = new NavbarDropdownItem([
-			':label' => _T('editor'),
-			':href' => $resource->PageUrl('editor')
-		]);
-	}
-	if ($role->value >= Role::Admin->value) {
-		$dropdownItems[] = new NavbarDropdownItem([
-			':label' => _T('admin'),
-			':href' => $resource->PageUrl('admin')
+			':label' => _T('management'),
+			':href' => $resource->PageUrl('management')
 		]);
 	}
 	$dropdownItems[] = new NavbarDropdownDivider();

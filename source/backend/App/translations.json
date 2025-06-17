@@ -19,13 +19,9 @@
     "en": "Settings",
     "tr": "Ayarlar"
   },
-  "editor": {
-    "en": "Editor",
-    "tr": "Editör"
-  },
-  "admin": {
-    "en": "Admin",
-    "tr": "Yönetici"
+  "management": {
+    "en": "Management",
+    "tr": "Yönetim"
   },
   "email_address": {
     "en": "Email address",
