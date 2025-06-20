@@ -4,3 +4,5 @@ __MACOSX
 /.vagrant/
 /Vagrant*
 /Submodule*.bat
+/.deploy/
+__pycache__/
