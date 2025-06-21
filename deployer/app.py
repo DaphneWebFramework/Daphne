@@ -23,7 +23,7 @@ import sys
 
 def parseArgs(argv):
     parser = argparse.ArgumentParser(
-        description='Deployment pipeline for the Daphne Web Framework.'
+        description='Deployment tool for the Daphne Web Framework.'
     )
     parser.add_argument(
         '--sourcedir',

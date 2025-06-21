@@ -1,7 +1,5 @@
 {
-  "css": [
-    "index.css"
-  ],
+  "css": "index",
   "js": [
     "Model",
     "View",

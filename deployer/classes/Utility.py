@@ -38,14 +38,14 @@ class Utility:
         *,
         isMinified: bool = False
     ) -> Path:
-        # Note: We use `with_name` instead of `with_suffix` to correctly append
-        # the desired suffix. For example, given a file named "bootstrap.bundle",
-        # using `with_suffix(".min.js")` would incorrectly produce "bootstrap.min.js",
-        # interpreting "bundle" as a suffix.
         if isMinified:
             suffix = f'.min.{suffix}'
         else:
             suffix = f'.{suffix}'
+        # Note: We use `with_name` instead of `with_suffix` to correctly append
+        # the desired suffix. For example, given a file named "bootstrap.bundle",
+        # using `with_suffix(".min.js")` would incorrectly produce "bootstrap.min.js",
+        # interpreting "bundle" as a suffix.
         return path.with_name(path.name + suffix)
 
     @staticmethod

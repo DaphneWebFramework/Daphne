@@ -2,19 +2,13 @@
   "bootstrap": {
     "css": "bootstrap-5.3.6/css/bootstrap",
     "js": "bootstrap-5.3.6/js/bootstrap.bundle",
-    "*": [
-      "bootstrap-5.3.6/css/bootstrap.min.css.map",
-      "bootstrap-5.3.6/js/bootstrap.bundle.min.js.map"
-    ],
     "default": true
   },
   "bootstrap-icons": {
-    "css": "bootstrap-icons-1.13.1/bootstrap-icons",
-    "*": "bootstrap-icons-1.13.1/fonts/*"
+    "css": "bootstrap-icons-1.13.1/bootstrap-icons"
   },
   "jquery": {
     "js": "jquery-3.7.1/jquery-3.7.1",
-    "*": "jquery-3.7.1/jquery-3.7.1.min.map",
     "default": true
   },
   "leuce": {
