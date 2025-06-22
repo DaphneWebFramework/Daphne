@@ -10,7 +10,7 @@
 ##
 
 from .Context import Context
-from .ManifestLoader import ManifestLoader, ManifestBlock
+from .ManifestService import ManifestService, ManifestBlock
 from .Stage import Stage
 from .Utility import Utility
 from pathlib import Path
@@ -49,7 +49,7 @@ class DeployPagesStage(Stage):
         manifestFilePath = sourcePageDirectoryPath / self._MANIFEST_FILENAME
         # Presence of page-level manifest is optional.
         if manifestFilePath.is_file():
-            manifestBlock = ManifestLoader.loadPageManifest(manifestFilePath)
+            manifestBlock = ManifestService.loadPageManifest(manifestFilePath)
             self._deployManifestBlock(
                 context,
                 manifestBlock,

@@ -1,5 +1,5 @@
 ##
-# ManifestLoader.py
+# ManifestService.py
 #
 # (C) 2025 by Eylem Ugurel
 #
@@ -27,7 +27,7 @@ class ManifestBlock:
     # 3. Trailing underscore avoids conflict with the reserved keyword `default`.
     default_: bool | None = None
 
-class ManifestLoader:
+class ManifestService:
     @classmethod
     def loadPageManifest(
         cls,

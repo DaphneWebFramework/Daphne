@@ -10,7 +10,7 @@
 ##
 
 from .Context import Context
-from .ManifestLoader import ManifestLoader, ManifestBlock
+from .ManifestService import ManifestService, ManifestBlock
 from .Stage import Stage
 from .Utility import Utility
 from pathlib import Path
@@ -26,7 +26,7 @@ class DeployFrontendStage(Stage):
             context.sourceDirectoryPath / self._SUBDIRECTORY_NAME)
         targetSubdirectoryPath = (
             context.targetDirectoryPath / self._SUBDIRECTORY_NAME)
-        manifestBlocks = ManifestLoader.loadFrontendManifest(
+        manifestBlocks = ManifestService.loadFrontendManifest(
             sourceSubdirectoryPath / self._MANIFEST_FILENAME)
         for _, manifestBlock in manifestBlocks.items():
             self._deployManifestBlock(
@@ -35,7 +35,7 @@ class DeployFrontendStage(Stage):
                 sourceSubdirectoryPath,
                 targetSubdirectoryPath
             )
-        ManifestLoader.saveFrontendManifest(
+        ManifestService.saveFrontendManifest(
             manifestBlocks,
             targetSubdirectoryPath / self._MANIFEST_FILENAME
         )
