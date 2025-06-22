@@ -46,14 +46,17 @@ class DeployPagesStage(Stage):
         sourcePageDirectoryPath: Path,
         targetPageDirectoryPath: Path
     ) -> None:
-        manifestBlock = ManifestLoader.loadPageManifest(
-            sourcePageDirectoryPath / self._MANIFEST_FILENAME)
-        self._deployManifestBlock(
-            context,
-            manifestBlock,
-            sourcePageDirectoryPath,
-            targetPageDirectoryPath
-        )
+        manifestFilePath = sourcePageDirectoryPath / self._MANIFEST_FILENAME
+        # Presence of page-level manifest is optional.
+        if manifestFilePath.is_file():
+            manifestBlock = ManifestLoader.loadPageManifest(manifestFilePath)
+            self._deployManifestBlock(
+                context,
+                manifestBlock,
+                sourcePageDirectoryPath,
+                targetPageDirectoryPath
+            )
+        # Regardless of manifest presence, copy remaining static content.
         Utility.copyFilesRecursive(
             context,
             sourcePageDirectoryPath,
