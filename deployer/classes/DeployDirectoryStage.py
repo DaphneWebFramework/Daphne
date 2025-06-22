@@ -11,7 +11,6 @@
 
 from .Context import Context
 from .Stage import Stage
-from .Utility import Utility
 
 class DeployDirectoryStage(Stage):
     _subdirectoryName: str
@@ -20,8 +19,7 @@ class DeployDirectoryStage(Stage):
         self._subdirectoryName = subdirectoryName
 
     def run(self, context: Context) -> None:
-        Utility.copyFilesRecursive(
-            context,
+        context.copier.copyFilesRecursive(
             context.sourceDirectoryPath / self._subdirectoryName,
             context.targetDirectoryPath / self._subdirectoryName
         )

@@ -11,7 +11,6 @@
 
 from .Context import Context
 from .Stage import Stage
-from .Utility import Utility
 
 class DeployRootStage(Stage):
     _SOURCE_CONFIG_FILENAME = 'config.live.php'
@@ -30,8 +29,7 @@ class DeployRootStage(Stage):
             else:
                 # Copy other files as they are
                 targetFileName = sourceFilePath.name
-            Utility.copyFile(
-                context,
+            context.copier.copyFile(
                 sourceFilePath,
                 context.targetDirectoryPath / targetFileName,
                 createTargetDirectory = False

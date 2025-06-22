@@ -35,8 +35,7 @@ class DeployFrontendStage(Stage):
                 sourceSubdirectoryPath,
                 targetSubdirectoryPath
             )
-        Utility.copyFilesRecursive(
-            context,
+        context.copier.copyFilesRecursive(
             sourceSubdirectoryPath,
             targetSubdirectoryPath,
             # Skip JS and CSS files; their deployment is driven by the manifest.
@@ -98,8 +97,7 @@ class DeployFrontendStage(Stage):
         # the author's intent — either they provided only a minified file, or
         # deliberately chose not to apply minification.
         if assetPath.suffix == f'.{assetType}':
-            Utility.copyFile(
-                context,
+            context.copier.copyFile(
                 sourceSubdirectoryPath / assetPath,
                 targetSubdirectoryPath / assetPath
             )
@@ -110,8 +108,7 @@ class DeployFrontendStage(Stage):
         sourceMinifiedAssetPath = sourceSubdirectoryPath / minifiedAssetPath
         targetMinifiedAssetPath = targetSubdirectoryPath / minifiedAssetPath
         if sourceMinifiedAssetPath.is_file():
-            Utility.copyFile(
-                context,
+            context.copier.copyFile(
                 sourceMinifiedAssetPath,
                 targetMinifiedAssetPath
             )

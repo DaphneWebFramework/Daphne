@@ -9,6 +9,7 @@
 # see <http://creativecommons.org/licenses/by/4.0/>.
 ##
 
+from .Copier import Copier
 from .IgnoreRules import IgnoreRules
 from .Minifier import Minifier
 from pathlib import Path
@@ -16,8 +17,9 @@ from pathlib import Path
 class Context:
     sourceDirectoryPath: Path
     targetDirectoryPath: Path
-    minifier: Minifier
     ignoreRules: IgnoreRules
+    copier: Copier
+    minifier: Minifier
 
     def __init__(
         self,
@@ -27,5 +29,6 @@ class Context:
     ):
         self.sourceDirectoryPath = sourceDirectoryPath
         self.targetDirectoryPath = targetDirectoryPath
-        self.minifier = minifier
         self.ignoreRules = IgnoreRules(sourceDirectoryPath)
+        self.copier = Copier(self.ignoreRules)
+        self.minifier = minifier

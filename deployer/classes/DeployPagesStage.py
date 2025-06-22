@@ -57,8 +57,7 @@ class DeployPagesStage(Stage):
                 targetPageDirectoryPath
             )
         # Regardless of manifest presence, copy remaining static content.
-        Utility.copyFilesRecursive(
-            context,
+        context.copier.copyFilesRecursive(
             sourcePageDirectoryPath,
             targetPageDirectoryPath,
             # Skip JS and CSS files; their deployment is driven by the manifest.

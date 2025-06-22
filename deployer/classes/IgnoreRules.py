@@ -9,6 +9,7 @@
 # see <http://creativecommons.org/licenses/by/4.0/>.
 ##
 
+from .Utility import Utility
 from fnmatch import fnmatch
 from pathlib import Path
 from typing import List
@@ -30,7 +31,7 @@ class IgnoreRules:
                     rule = line.strip()
                     if not rule or rule.startswith('#'):
                         continue  # Skip empty lines and comments
-                    rule = rule.replace('\\', '/')
+                    rule = Utility.normalizeSlashes(rule)
                     if rule.endswith('/') and '*' not in rule and '?' not in rule:
                         self._ignoredDirectoryPaths.append(rule.rstrip('/'))
                     else:
@@ -43,8 +44,9 @@ class IgnoreRules:
             try:
                 path = path.relative_to(self._baseDirectoryPath)
             except ValueError:
-                return False  # path is outside of base directory
-        path = str(path).replace('\\', '/')
+                print(f"Warning: Path is outside of the base directory: {path}")
+                return False
+        path = Utility.normalizeSlashes(path)
         for pattern in self._ignoredPatterns:
             if fnmatch(path, pattern):
                 return True
