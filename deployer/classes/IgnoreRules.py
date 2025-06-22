@@ -35,6 +35,8 @@ class IgnoreRules:
                         self._ignoredDirectoryPaths.append(rule.rstrip('/'))
                     else:
                         self._ignoredPatterns.append(rule)
+        # Always exclude the ".deployignore" file from deployment
+        self._ignoredPatterns.append(self._IGNORE_FILENAME)
 
     def isIgnored(self, path: Path) -> bool:
         if path.is_absolute():

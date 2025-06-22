@@ -1,4 +1,3 @@
-.deployignore
 .gitignore
 *.log
 backend/.gitkeep
