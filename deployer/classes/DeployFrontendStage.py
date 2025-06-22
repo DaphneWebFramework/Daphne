@@ -35,15 +35,23 @@ class DeployFrontendStage(Stage):
                 sourceSubdirectoryPath,
                 targetSubdirectoryPath
             )
+        ManifestLoader.saveFrontendManifest(
+            manifestBlocks,
+            targetSubdirectoryPath / self._MANIFEST_FILENAME
+        )
         context.copier.copyFilesRecursive(
             sourceSubdirectoryPath,
             targetSubdirectoryPath,
             # Skip JS and CSS files; their deployment is driven by the manifest.
-            excludePatterns={'*.js', '*.css'}
+            # Also skip "manifest.json" since it has already been minified and
+            # copied above.
+            excludePatterns={'*.js', '*.css', self._MANIFEST_FILENAME}
         )
 
     def status(self) -> str:
         return f"Deploying '{self._SUBDIRECTORY_NAME}' directory..."
+
+    #region private ------------------------------------------------------------
 
     def _deployManifestBlock(
         self,
@@ -147,3 +155,5 @@ class DeployFrontendStage(Stage):
             context.minifier.minifyCss(sourceAssetPath, targetAssetPath)
         else:
             raise ValueError(f'Unknown asset type: {assetType}')
+
+    #endregion private

@@ -19,15 +19,28 @@ TManifestValue = str | list[str]
 class ManifestBlock:
     css: TManifestValue | None
     js: TManifestValue | None
+    # 1. The "default" field is not used by deployment logic, but retained to
+    #    help ensure no fields are missing when minifying frontend manifests.
+    # 2. Although not used in page manifests, the "default" field is present to
+    #    avoid splitting manifest parsing into separate dataclasses; it has no
+    #    impact on page deployment logic.
+    # 3. Trailing underscore avoids conflict with the reserved keyword `default`.
+    default_: bool | None = None
 
 class ManifestLoader:
     @classmethod
-    def loadPageManifest(cls, path: Path) -> ManifestBlock:
+    def loadPageManifest(
+        cls,
+        path: Path
+    ) -> ManifestBlock:
         data = cls._loadJson(path)
         return cls._parseBlock(data)
 
     @classmethod
-    def loadFrontendManifest(cls, path: Path) -> dict[str, ManifestBlock]:
+    def loadFrontendManifest(
+        cls,
+        path: Path
+    ) -> dict[str, ManifestBlock]:
         data = cls._loadJson(path)
         result: dict[str, ManifestBlock] = {}
         for name, block in data.items():
@@ -39,20 +52,63 @@ class ManifestLoader:
         return result
 
     @classmethod
-    def _parseBlock(cls, block: dict[str, object]) -> ManifestBlock:
+    def saveFrontendManifest(
+        cls,
+        manifestBlocks: dict[str, ManifestBlock],
+        path: Path
+    ) -> None:
+        with open(path, 'w', encoding='utf-8') as file:
+            json.dump({
+                name: {
+                    key: value
+                    for key, value in {
+                        "css": block.css,
+                        "js": block.js,
+                        "default": block.default_
+                    }.items() if value is not None
+                }
+                for name, block in manifestBlocks.items()
+            }, file, separators=(',', ':'))
+
+    #region private ------------------------------------------------------------
+
+    @classmethod
+    def _loadJson(cls, path: Path) -> dict[str, object]:
+        if not path.is_file():
+            raise FileNotFoundError(f'Manifest file not found: {path}')
+        with open(path, 'r', encoding='utf-8') as file:
+            data = json.load(file)
+        if not isinstance(data, dict):
+            raise ValueError('Manifest file must contain a JSON object.')
+        return data
+
+    @classmethod
+    def _parseBlock(
+        cls,
+        block: dict[str, object]
+    ) -> ManifestBlock:
         return ManifestBlock(
-            css = cls._parseField(block, 'css'),
-            js = cls._parseField(block, 'js')
+            css = cls._parseAssetBlock(block, 'css'),
+            js = cls._parseAssetBlock(block, 'js'),
+            default_ = cls._parseBooleanValue(block, 'default')
         )
 
     @classmethod
-    def _parseField(cls, block: dict[str, object], key: str) -> TManifestValue | None:
+    def _parseAssetBlock(
+        cls,
+        block: dict[str, object],
+        key: str
+    ) -> TManifestValue | None:
         if key not in block:
             return None
-        return cls._parseValue(block[key], key)
+        return cls._parseAssetValue(block[key], key)
 
     @classmethod
-    def _parseValue(cls, value: object, key: str) -> TManifestValue:
+    def _parseAssetValue(
+        cls,
+        value: object,
+        key: str
+    ) -> TManifestValue:
         if isinstance(value, str):
             value = value.strip()
             if (value == ''):
@@ -71,11 +127,16 @@ class ManifestLoader:
         raise ValueError(f'Field "{key}" must be a string or an array of strings.')
 
     @classmethod
-    def _loadJson(cls, path: Path) -> dict[str, object]:
-        if not path.is_file():
-            raise FileNotFoundError(f'Manifest file not found: {path}')
-        with open(path, 'r', encoding='utf-8') as file:
-            data = json.load(file)
-        if not isinstance(data, dict):
-            raise ValueError('Manifest file must contain a JSON object.')
-        return data
+    def _parseBooleanValue(
+        cls,
+        block: dict[str, object],
+        key: str
+    ) -> bool | None:
+        if key not in block:
+            return None
+        value = block[key]
+        if not isinstance(value, bool):
+            raise ValueError(f'Field "{key}" must be a boolean.')
+        return value
+
+    #endregion private
