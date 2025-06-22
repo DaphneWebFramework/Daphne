@@ -10,6 +10,8 @@
 ##
 
 from .IgnoreRules import IgnoreRules
+from .Utility import Utility
+from fnmatch import fnmatch
 from pathlib import Path
 from shutil import copy2
 
@@ -42,13 +44,15 @@ class Copier:
         sourceDirectoryPath: Path,
         targetDirectoryPath: Path,
         *,
-        excludeSuffixes: set[str] = None
+        excludePatterns: set[str] = None
     ) -> None:
         for sourceFilePath in sourceDirectoryPath.rglob('*'):
             if sourceFilePath.is_dir():
                 continue
-            if excludeSuffixes and sourceFilePath.suffix in excludeSuffixes:
-                continue
             relativePath = sourceFilePath.relative_to(sourceDirectoryPath)
+            if excludePatterns:
+                if any(fnmatch(Utility.normalizeSlashes(relativePath), pattern)
+                    for pattern in excludePatterns):
+                    continue
             targetFilePath = targetDirectoryPath / relativePath
             self.copyFile(sourceFilePath, targetFilePath)

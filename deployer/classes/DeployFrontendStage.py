@@ -39,7 +39,7 @@ class DeployFrontendStage(Stage):
             sourceSubdirectoryPath,
             targetSubdirectoryPath,
             # Skip JS and CSS files; their deployment is driven by the manifest.
-            excludeSuffixes={'.js', '.css'}
+            excludePatterns={'*.js', '*.css'}
         )
 
     def status(self) -> str:
