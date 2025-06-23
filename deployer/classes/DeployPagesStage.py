@@ -40,6 +40,8 @@ class DeployPagesStage(Stage):
     def status(self) -> str:
         return f"Deploying '{self._SUBDIRECTORY_NAME}' directory..."
 
+    #region private ------------------------------------------------------------
+
     def _deployPage(
         self,
         context: Context,
@@ -49,6 +51,8 @@ class DeployPagesStage(Stage):
         manifestFilePath = sourcePageDirectoryPath / self._MANIFEST_FILENAME
         # Presence of page-level manifest is optional.
         if manifestFilePath.is_file():
+            # 1. Load and deploy manifest-declared assets, bundling them into
+            #    "page.min.js" and "page.min.css".
             manifestBlock = ManifestService.loadPageManifest(manifestFilePath)
             self._deployManifestBlock(
                 context,
@@ -56,12 +60,18 @@ class DeployPagesStage(Stage):
                 sourcePageDirectoryPath,
                 targetPageDirectoryPath
             )
-        # Regardless of manifest presence, copy remaining static content.
+            # 2. Save a minified, transformed copy of "manifest.json" reflecting
+            #    bundled assets.
+            ManifestService.savePageManifest(
+                self._transformManifestBlock(manifestBlock),
+                targetPageDirectoryPath / self._MANIFEST_FILENAME
+            )
+        # 3. Copy remaining files (images, fonts, etc.) excluding js/css and the
+        #    manifest file.
         context.copier.copyFilesRecursive(
             sourcePageDirectoryPath,
             targetPageDirectoryPath,
-            # Skip JS and CSS files; their deployment is driven by the manifest.
-            excludePatterns={'*.js', '*.css'}
+            excludePatterns={'*.js', '*.css', self._MANIFEST_FILENAME}
         )
 
     def _deployManifestBlock(
@@ -153,3 +163,31 @@ class DeployPagesStage(Stage):
             # through the minifier.
             sourceAssetPaths.append(sourceAssetPath)
         return sourceAssetPaths
+
+    def _transformManifestBlock(
+        self,
+        manifestBlock: ManifestBlock
+    ) -> ManifestBlock:
+        """
+        Returns a new ManifestBlock with local asset references replaced by
+        page.min.js/css, and remote URLs preserved. Single-item lists are
+        flattened into a string if only one path remains.
+        """
+        def classifyAssets(assetPaths):
+            remote, local = [], []
+            for path in assetPaths:
+                (remote if Utility.isUrl(path) else local).append(path)
+            return remote, local
+        def transformAssetBlock(assetPaths, targetFilename):
+            assetPaths = Utility.ensureList(assetPaths or [])
+            remote, local = classifyAssets(assetPaths)
+            transformed = ([targetFilename] if local else []) + remote
+            if not transformed:
+                return None
+            return transformed[0] if len(transformed) == 1 else transformed
+        return ManifestBlock(
+            js=transformAssetBlock(manifestBlock.js,  self._TARGET_FILENAME_JS),
+            css=transformAssetBlock(manifestBlock.css, self._TARGET_FILENAME_CSS)
+        )
+
+    #endregion private

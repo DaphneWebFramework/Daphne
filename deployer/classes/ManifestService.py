@@ -52,23 +52,37 @@ class ManifestService:
         return result
 
     @classmethod
+    def savePageManifest(
+        cls,
+        manifestBlock: ManifestBlock,
+        path: Path
+    ) -> None:
+        data = {}
+        if manifestBlock.css is not None:
+            data['css'] = manifestBlock.css
+        if manifestBlock.js is not None:
+            data['js'] = manifestBlock.js
+        with open(path, 'w', encoding='utf-8') as file:
+            json.dump(data, file, separators=(',', ':'))
+
+    @classmethod
     def saveFrontendManifest(
         cls,
         manifestBlocks: dict[str, ManifestBlock],
         path: Path
     ) -> None:
+        data = {}
+        for name, block in manifestBlocks.items():
+            blockData = {}
+            if block.css is not None:
+                blockData['css'] = block.css
+            if block.js is not None:
+                blockData['js'] = block.js
+            if block.default_ is not None:
+                blockData['default'] = block.default_
+            data[name] = blockData
         with open(path, 'w', encoding='utf-8') as file:
-            json.dump({
-                name: {
-                    key: value
-                    for key, value in {
-                        "css": block.css,
-                        "js": block.js,
-                        "default": block.default_
-                    }.items() if value is not None
-                }
-                for name, block in manifestBlocks.items()
-            }, file, separators=(',', ':'))
+            json.dump(data, file, separators=(',', ':'))
 
     #region private ------------------------------------------------------------
 

@@ -26,6 +26,7 @@ class DeployFrontendStage(Stage):
             context.sourceDirectoryPath / self._SUBDIRECTORY_NAME)
         targetSubdirectoryPath = (
             context.targetDirectoryPath / self._SUBDIRECTORY_NAME)
+        # 1. Load and deploy manifest-declared assets.
         manifestBlocks = ManifestService.loadFrontendManifest(
             sourceSubdirectoryPath / self._MANIFEST_FILENAME)
         for _, manifestBlock in manifestBlocks.items():
@@ -35,16 +36,16 @@ class DeployFrontendStage(Stage):
                 sourceSubdirectoryPath,
                 targetSubdirectoryPath
             )
+        # 2. Save a minified copy of "manifest.json".
         ManifestService.saveFrontendManifest(
             manifestBlocks,
             targetSubdirectoryPath / self._MANIFEST_FILENAME
         )
+        # 3. Copy remaining files (images, fonts, etc.) excluding js/css and the
+        #    manifest file.
         context.copier.copyFilesRecursive(
             sourceSubdirectoryPath,
             targetSubdirectoryPath,
-            # Skip JS and CSS files; their deployment is driven by the manifest.
-            # Also skip "manifest.json" since it has already been minified and
-            # copied above.
             excludePatterns={'*.js', '*.css', self._MANIFEST_FILENAME}
         )
 
