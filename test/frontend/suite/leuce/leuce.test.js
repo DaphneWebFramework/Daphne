@@ -361,51 +361,67 @@ QUnit.module('Leuce', function()
 
         QUnit.module('View', function()
         {
-            QUnit.test('set() stores single element', function(assert)
+            QUnit.test('set() stores and returns jQuery for single-matching selector', function(assert)
             {
                 $('#qunit-fixture').html('<input id="username">');
                 var view = new Leuce.MVC.View();
-                view.set('Username', '#username');
-                var $username = view.get('Username');
-                assert.ok($username instanceof jQuery);
-                assert.strictEqual($username.attr('id'), 'username');
+                var $stored = view.set('Username', '#username');
+                assert.ok($stored instanceof jQuery);
+                assert.strictEqual($stored.attr('id'), 'username');
             });
 
-            QUnit.test('set() stores multiple elements', function(assert)
+            QUnit.test('set() stores and returns jQuery for multiple-matching selector', function(assert)
             {
-                $('#qunit-fixture').html('<input id="email"><button id="submit"></button>');
+                $('#qunit-fixture').html('<input class="username"><input class="username">');
                 var view = new Leuce.MVC.View();
-                view.set('Email', '#email')
-                    .set('Submit', '#submit');
-                var $email = view.get('Email');
-                var $submit = view.get('Submit');
-                assert.strictEqual($email.attr('id'), 'email');
-                assert.strictEqual($submit.prop('tagName'), 'BUTTON');
+                var $stored = view.set('Username', '.username');
+                assert.ok($stored instanceof jQuery);
+                assert.strictEqual($stored.length, 2);
+                assert.strictEqual($stored[0].className, 'username');
+                assert.strictEqual($stored[1].className, 'username');
+            });
+
+            QUnit.test('set() returns null for non-matching selector', function(assert)
+            {
+                var view = new Leuce.MVC.View();
+                var $stored = view.set('Username', '#username');
+                assert.strictEqual($stored, null);
             });
 
             QUnit.test('has() returns true for stored element', function(assert)
             {
-                $('#qunit-fixture').html('<div id="item"></div>');
+                $('#qunit-fixture').html('<input id="username">');
                 var view = new Leuce.MVC.View();
-                view.set('Item', '#item');
-                assert.ok(view.has('Item'));
+                view.set('Username', '#username');
+                assert.ok(view.has('Username'));
             });
 
             QUnit.test('has() returns false for non-existent element', function(assert)
             {
                 $('#qunit-fixture').html('');
                 var view = new Leuce.MVC.View();
-                view.set('Ghost', '#ghost');
-                assert.notOk(view.has('Ghost'));
+                view.set('Username', '#username');
+                assert.notOk(view.has('Username'));
+            });
+
+            QUnit.test('get() returns jQuery for stored element', function(assert)
+            {
+                $('#qunit-fixture').html('<input id="username">');
+                var view = new Leuce.MVC.View();
+                var $stored = view.set('Username', '#username');
+                var $retrieved = view.get('Username');
+                assert.ok($retrieved instanceof jQuery);
+                assert.strictEqual($retrieved.attr('id'), 'username');
+                assert.strictEqual($retrieved, $stored);
             });
 
             QUnit.test('get() returns null for non-existent element', function(assert)
             {
                 $('#qunit-fixture').html('');
                 var view = new Leuce.MVC.View();
-                view.set('nonExistent', '#nonExistent');
-                var result = view.get('nonExistent');
-                assert.strictEqual(result, null);
+                view.set('Username', '#username');
+                var $result = view.get('Username');
+                assert.strictEqual($result, null);
             });
         }); // View
 

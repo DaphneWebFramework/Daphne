@@ -334,15 +334,16 @@ class View
     /**
      * @param {string} name
      * @param {string|HTMLElement|Array<HTMLElement>|jQuery} selector
-     * @returns {View}
+     * @returns {jQuery|null}
      */
     set(name, selector)
     {
         const $el = $(selector);
-        if ($el.length) {
-            this.#store[name] = $el;
+        if (!$el.length) {
+            return null;
         }
-        return this;
+        this.#store[name] = $el;
+        return $el;
     }
 
     /**
@@ -577,6 +578,7 @@ $.fn.setButtonLoading = function(isLoading) {
         Leuce.UI.setButtonLoading($(this), isLoading);
     });
 };
+
 })(jQuery);
 
 //#endregion jQuery Plugins
