@@ -27,9 +27,9 @@ class Controller extends App.Controller
     #onFormSubmit(event)
     {
         event.preventDefault();
-        this.view.get('submitButton').setButtonLoading(true);
+        this.view.get('submitButton').leuceButton().setLoading(true);
         this.model.sendPasswordReset(this.view.formData()).then(response => {
-            this.view.get('submitButton').setButtonLoading(false);
+            this.view.get('submitButton').leuceButton().setLoading(false);
             if (response.isSuccess()) {
                 Leuce.UI.notifySuccess(response.body.message);
             } else {

@@ -15,9 +15,9 @@ class View extends App.View
     {
         super();
         if (this.set('form', 'form')) {
-            this.set('loginButton', 'form button[type=submit]');
+            this.set('loginButton', 'form button[type=submit]').leuceButton();
         } else {
-            this.set('logoutButton', '#logoutButton');
+            this.set('logoutButton', '#logoutButton').leuceButton();
         }
     }
 

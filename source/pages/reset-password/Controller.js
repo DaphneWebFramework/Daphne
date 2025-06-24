@@ -27,12 +27,12 @@ class Controller extends App.Controller
     #onFormSubmit(event)
     {
         event.preventDefault();
-        this.view.get('submitButton').setButtonLoading(true);
+        this.view.get('submitButton').leuceButton().setLoading(true);
         this.model.resetPassword(this.view.formData()).then(response => {
             if (response.isSuccess()) {
                 window.location.replace(response.body.redirectUrl);
             } else {
-                this.view.get('submitButton').setButtonLoading(false);
+                this.view.get('submitButton').leuceButton().setLoading(false);
                 Leuce.UI.notifyError(response.body.message);
             }
         });

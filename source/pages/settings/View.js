@@ -16,12 +16,12 @@ class View extends App.View
         super();
         this.set('navbarDisplayName', '#navbarDisplayName');
         this.set('displayNameChangeForm', '#displayNameChangeForm');
-        this.set('displayNameChangeButton', '#displayNameChangeForm button[type=submit]');
+        this.set('displayNameChangeButton', '#displayNameChangeForm button[type=submit]').leuceButton();
         this.set('passwordChangeForm', '#passwordChangeForm');
-        this.set('passwordChangeButton', '#passwordChangeForm button[type=submit]');
+        this.set('passwordChangeButton', '#passwordChangeForm button[type=submit]').leuceButton();
         this.set('accountDeleteForm', '#accountDeleteForm');
         this.set('accountDeleteCheckbox', '#accountDeleteForm input[type=checkbox]');
-        this.set('accountDeleteButton', '#accountDeleteForm button[type=submit]');
+        this.set('accountDeleteButton', '#accountDeleteForm button[type=submit]').leuceButton();
     }
 
     /**

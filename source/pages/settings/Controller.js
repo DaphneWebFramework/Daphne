@@ -34,9 +34,9 @@ class Controller extends App.Controller
     #onDisplayNameChangeFormSubmit(event)
     {
         event.preventDefault();
-        this.view.get('displayNameChangeButton').setButtonLoading(true);
+        this.view.get('displayNameChangeButton').leuceButton().setLoading(true);
         this.model.changeDisplayName(this.view.displayNameChangeFormData()).then(response => {
-            this.view.get('displayNameChangeButton').setButtonLoading(false);
+            this.view.get('displayNameChangeButton').leuceButton().setLoading(false);
             if (response.isSuccess()) {
                 this.view.setNavbarDisplayName(this.view.displayNameInput().val());
             } else {
@@ -51,9 +51,9 @@ class Controller extends App.Controller
     #onPasswordChangeFormSubmit(event)
     {
         event.preventDefault();
-        this.view.get('passwordChangeButton').setButtonLoading(true);
+        this.view.get('passwordChangeButton').leuceButton().setLoading(true);
         this.model.changePassword(this.view.passwordChangeFormData()).then(response => {
-            this.view.get('passwordChangeButton').setButtonLoading(false);
+            this.view.get('passwordChangeButton').leuceButton().setLoading(false);
             if (!response.isSuccess()) {
                 Leuce.UI.notifyError(response.body.message, 3000);
             }
@@ -73,12 +73,12 @@ class Controller extends App.Controller
     #onAccountDeleteFormSubmit(event)
     {
         event.preventDefault();
-        this.view.get('accountDeleteButton').setButtonLoading(true);
+        this.view.get('accountDeleteButton').leuceButton().setLoading(true);
         this.model.deleteAccount().then(response => {
             if (response.isSuccess()) {
                 Controller.reloadPage();
             } else {
-                this.view.get('accountDeleteButton').setButtonLoading(false);
+                this.view.get('accountDeleteButton').leuceButton().setLoading(false);
                 Leuce.UI.notifyError(response.body.message, 3000);
             }
         });
