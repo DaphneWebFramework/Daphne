@@ -440,99 +440,6 @@ QUnit.module('Leuce', function()
 
     QUnit.module('UI', function()
     {
-        QUnit.module('setButtonLoading', function()
-        {
-            const dataKey = name => `Leuce.UI.setButtonLoading.${name}`;
-
-            QUnit.test('Activates loading state', function(assert)
-            {
-                $('#qunit-fixture').html('<button id="btn">Submit</button>');
-                const $btn = $('#btn');
-                const originalHtml = $btn.html();
-                Leuce.UI.setButtonLoading($btn, true);
-                assert.true($btn.data(dataKey('isLoading')));
-                assert.strictEqual($btn.data(dataKey('htmlBackup')), originalHtml);
-                assert.ok($btn.html().includes('spinner-border'));
-                assert.strictEqual($btn.css('width'), $btn.css('width')); // width is set
-                assert.true($btn.prop('disabled'));
-                assert.strictEqual($btn.attr('aria-busy'), 'true');
-            });
-
-            QUnit.test('Restores original state', function(assert)
-            {
-                $('#qunit-fixture').html('<button id="btn">Submit</button>');
-                const $btn = $('#btn');
-                const originalHtml = $btn.html();
-                Leuce.UI.setButtonLoading($btn, true);
-                Leuce.UI.setButtonLoading($btn, false);
-                assert.strictEqual($btn.html(), originalHtml);
-                assert.false($btn.prop('disabled'));
-                assert.strictEqual($btn[0].style.width, '');
-                assert.notOk($btn.data(dataKey('isLoading')));
-                assert.strictEqual($btn.attr('aria-busy'), undefined);
-            });
-
-            QUnit.test('Preserves inline width style', function(assert)
-            {
-                $('#qunit-fixture').html('<button id="btn" style="width: 250px">Submit</button>');
-                const $btn = $('#btn');
-                Leuce.UI.setButtonLoading($btn, true);
-                Leuce.UI.setButtonLoading($btn, false);
-                assert.strictEqual($btn[0].style.width, '250px');
-            });
-
-            QUnit.test('Does not enable a button that was originally disabled', function(assert)
-            {
-                $('#qunit-fixture').html('<button id="btn" disabled>Submit</button>');
-                const $btn = $('#btn');
-                Leuce.UI.setButtonLoading($btn, true);
-                Leuce.UI.setButtonLoading($btn, false);
-                assert.true($btn.prop('disabled')); // stays disabled
-            });
-
-            QUnit.test('Calling with the same state twice does nothing', function(assert)
-            {
-                $('#qunit-fixture').html('<button id="btn">Submit</button>');
-                const $btn = $('#btn');
-                Leuce.UI.setButtonLoading($btn, true);
-                const htmlAfterFirst = $btn.html();
-                Leuce.UI.setButtonLoading($btn, true); // Second call should not alter state
-                const htmlAfterSecond = $btn.html();
-                assert.strictEqual(htmlAfterFirst, htmlAfterSecond);
-            });
-
-            QUnit.test('Calling with false initially has no effect', function(assert)
-            {
-                $('#qunit-fixture').html('<button id="btn">Submit</button>');
-                const $btn = $('#btn');
-                const originalHtml = $btn.html();
-                Leuce.UI.setButtonLoading($btn, false); // Should be a no-op
-                assert.strictEqual($btn.html(), originalHtml);
-                assert.strictEqual($btn.prop('disabled'), false);
-                assert.strictEqual($btn.attr('aria-busy'), undefined);
-            });
-
-            QUnit.test('Skips unsupported elements', function(assert)
-            {
-                $('#qunit-fixture').html('<div id="not-a-button">Text</div>');
-                const $div = $('#not-a-button');
-                const originalHtml = $div.html();
-                Leuce.UI.setButtonLoading($div, true);
-                assert.strictEqual($div.html(), originalHtml);
-                assert.strictEqual($div.data(dataKey('isLoading')), undefined);
-            });
-
-            QUnit.test('Cleans up all data attributes', function(assert)
-            {
-                $('#qunit-fixture').html('<button id="btn">Submit</button>');
-                const $btn = $('#btn');
-                Leuce.UI.setButtonLoading($btn, true);
-                Leuce.UI.setButtonLoading($btn, false);
-                assert.strictEqual(Object.keys($btn.data()).filter(k =>
-                    k.startsWith('Leuce.UI.setButtonLoading.')).length, 0);
-            });
-        }); // setButtonLoading
-
         QUnit.module('notify', function(hooks)
         {
             hooks.beforeEach(function()
@@ -617,6 +524,82 @@ QUnit.module('Leuce', function()
                 assert.true($item.hasClass('alert-danger'));
             });
         }); // notifyError
+
+        QUnit.module('Button', function()
+        {
+            QUnit.test('Throws error on unsupported elements', function(assert) {
+                $('#qunit-fixture').html('<div id="not-a-button">Text</div>');
+                const $div = $('#not-a-button');
+                assert.throws(
+                    () => new Leuce.UI.Button($div),
+                    'Leuce: Only button elements are supported.'
+                );
+            });
+
+            QUnit.test('setLoading(true) applies loading state', function(assert) {
+                $('#qunit-fixture').html('<button id="btn">Submit</button>');
+                const btn = $('#btn').leuceButton();
+                const originalHtml = $('#btn').html();
+                btn.setLoading(true);
+                const $btn = $('#btn');
+                assert.true(btn.isLoading());
+                assert.notEqual($btn.html(), originalHtml);
+                assert.ok($btn.html().includes('spinner-border'));
+                assert.strictEqual($btn.css('width'), $btn.css('width'));
+                assert.true($btn.prop('disabled'));
+                assert.strictEqual($btn.attr('aria-busy'), 'true');
+            });
+
+            QUnit.test('setLoading(false) restores original state', function(assert) {
+                $('#qunit-fixture').html('<button id="btn">Submit</button>');
+                const btn = $('#btn').leuceButton();
+                const $btn = $('#btn');
+                const originalHtml = $btn.html();
+                btn.setLoading(true);
+                btn.setLoading(false);
+                assert.strictEqual($btn.html(), originalHtml);
+                assert.false($btn.prop('disabled'));
+                assert.strictEqual($btn[0].style.width, '');
+                assert.false(btn.isLoading());
+                assert.strictEqual($btn.attr('aria-busy'), undefined);
+            });
+
+            QUnit.test('setLoading preserves inline width style', function(assert) {
+                $('#qunit-fixture').html('<button id="btn" style="width: 250px">Submit</button>');
+                const btn = $('#btn').leuceButton();
+                btn.setLoading(true);
+                btn.setLoading(false);
+                assert.strictEqual($('#btn')[0].style.width, '250px');
+            });
+
+            QUnit.test('setLoading does not re-enable originally disabled buttons', function(assert) {
+                $('#qunit-fixture').html('<button id="btn" disabled>Submit</button>');
+                const btn = $('#btn').leuceButton();
+                btn.setLoading(true);
+                btn.setLoading(false);
+                assert.true($('#btn').prop('disabled'));
+            });
+
+            QUnit.test('setLoading is idempotent on repeated calls', function(assert) {
+                $('#qunit-fixture').html('<button id="btn">Submit</button>');
+                const btn = $('#btn').leuceButton();
+                btn.setLoading(true);
+                const htmlAfterFirst = $('#btn').html();
+                btn.setLoading(true);
+                const htmlAfterSecond = $('#btn').html();
+                assert.strictEqual(htmlAfterFirst, htmlAfterSecond);
+            });
+
+            QUnit.test('setLoading(false) initially is a no-op', function(assert) {
+                $('#qunit-fixture').html('<button id="btn">Submit</button>');
+                const btn = $('#btn').leuceButton();
+                const originalHtml = $('#btn').html();
+                btn.setLoading(false);
+                assert.strictEqual($('#btn').html(), originalHtml);
+                assert.strictEqual($('#btn').prop('disabled'), false);
+                assert.strictEqual($('#btn').attr('aria-busy'), undefined);
+            });
+        }); // Button
     }); // UI
 
     QUnit.module('Utility', function()

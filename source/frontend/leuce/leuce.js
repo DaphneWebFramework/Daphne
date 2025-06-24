@@ -410,59 +410,6 @@ class Controller
 class UI
 {
     /**
-     * @param {jQuery} $button
-     * @param {boolean} isLoading
-     */
-    static setButtonLoading($button, isLoading)
-    {
-        const dataKey = name => `Leuce.UI.setButtonLoading.${name}`;
-        if (!$button.is('button')) {
-            console.warn('Leuce: Only button elements are supported.');
-            return;
-        }
-        if ($button.data(dataKey('isLoading')) === isLoading) {
-            console.warn('Leuce: Button is already in the requested state.');
-            return;
-        }
-        if (isLoading) {
-            const htmlBackup = $button.html();
-            const alreadyDisabled = $button.prop('disabled');
-            const inlineWidth = $button[0].style.width;
-            $button.data(dataKey('isLoading'), true);
-            $button.data(dataKey('htmlBackup'), htmlBackup);
-            $button.data(dataKey('alreadyDisabled'), alreadyDisabled);
-            $button.data(dataKey('inlineWidth'), inlineWidth);
-            $button.css('width', $button.outerWidth() + 'px');
-            $button.html(
-                '<span class="spinner-border spinner-border-sm" aria-hidden="true"></span>' +
-                '<span class="visually-hidden" role="status">Loading...</span>'
-            );
-            if (!alreadyDisabled) {
-                $button.prop('disabled', true);
-            }
-            $button.attr('aria-busy', 'true');
-        } else {
-            const htmlBackup = $button.data(dataKey('htmlBackup'));
-            const alreadyDisabled = $button.data(dataKey('alreadyDisabled'));
-            const inlineWidth = $button.data(dataKey('inlineWidth'));
-            if (htmlBackup !== undefined) {
-                $button.html(htmlBackup);
-            }
-            if (!alreadyDisabled) {
-                $button.prop('disabled', false);
-            }
-            $button.css('width', inlineWidth || '');
-            $button.removeData([
-                dataKey('isLoading'),
-                dataKey('htmlBackup'),
-                dataKey('alreadyDisabled'),
-                dataKey('inlineWidth')
-            ].join(' '));
-            $button.removeAttr('aria-busy');
-        }
-    }
-
-    /**
      * @param {string} message
      * @param {string} [type]
      * @param {number} [timeout]
@@ -511,6 +458,84 @@ class UI
         this.notify(message, 'danger', timeout);
     }
 }
+
+class Button
+{
+    /** @type {jQuery} */
+    #$button;
+
+    /** @type {boolean} */
+    #isLoading = false;
+
+    /** @type {string|null} */
+    #htmlBackup = null;
+
+    /** @type {boolean} */
+    #alreadyDisabled = false;
+
+    /** @type {string} */
+    #inlineWidth = '';
+
+    /**
+     * @param {jQuery} $button
+     */
+    constructor($button)
+    {
+        if (!$button.is('button')) {
+            throw new Error('Leuce: Only button elements are supported.');
+        }
+        this.#$button = $button;
+    }
+
+    /**
+     * @param {boolean} isLoading
+     */
+    setLoading(isLoading)
+    {
+        if (this.#isLoading === isLoading) {
+            console.warn('Leuce: Button is already in the requested state.');
+            return;
+        }
+        if (isLoading) {
+            this.#htmlBackup = this.#$button.html();
+            this.#alreadyDisabled = this.#$button.prop('disabled');
+            this.#inlineWidth = this.#$button[0].style.width;
+            this.#$button.css('width', this.#$button.outerWidth() + 'px');
+            this.#$button.html(
+                '<span class="spinner-border spinner-border-sm" aria-hidden="true"></span>' +
+                '<span class="visually-hidden" role="status">Loading...</span>'
+            );
+            if (!this.#alreadyDisabled) {
+                this.#$button.prop('disabled', true);
+            }
+            this.#$button.attr('aria-busy', 'true');
+            this.#isLoading = true;
+        } else {
+            if (this.#htmlBackup !== null) {
+                this.#$button.html(this.#htmlBackup);
+            }
+            if (!this.#alreadyDisabled) {
+                this.#$button.prop('disabled', false);
+            }
+            this.#$button.css('width', this.#inlineWidth || '');
+            this.#$button.removeAttr('aria-busy');
+            this.#isLoading = false;
+            this.#htmlBackup = null;
+            this.#alreadyDisabled = false;
+            this.#inlineWidth = '';
+        }
+    }
+
+    /**
+     * @returns {boolean}
+     */
+    isLoading()
+    {
+        return this.#isLoading;
+    }
+}
+
+UI.Button = Button;
 
 //#endregion UI
 
@@ -570,13 +595,16 @@ global.Leuce.Utility = Utility;
 'use strict';
 
 /**
- * @param {boolean} isLoading
- * @returns {jQuery}
+ * @returns {Leuce.UI.Button}
  */
-$.fn.setButtonLoading = function(isLoading) {
-    return this.each(function() {
-        Leuce.UI.setButtonLoading($(this), isLoading);
-    });
+$.fn.leuceButton = function() {
+    const $button = this.first();
+    let instance = $button.data('leuce.button');
+    if (!instance) {
+        instance = new Leuce.UI.Button($button);
+        $button.data('leuce.button', instance);
+    }
+    return instance;
 };
 
 })(jQuery);
