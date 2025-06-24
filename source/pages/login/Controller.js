@@ -18,7 +18,7 @@ class Controller extends App.Controller
     constructor(model, view)
     {
         super(model, view);
-        if (this.view.isLoginMode) {
+        if (this.view.has('form')) {
             this.view.get('form').on('submit', this.#onFormSubmit.bind(this));
         } else {
             this.view.get('logoutButton').on('click', this.#onLogoutButtonClick.bind(this));
