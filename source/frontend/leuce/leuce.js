@@ -546,6 +546,9 @@ class Table
     /** @type {jQuery} */
     #$tbody;
 
+    /** @type {jQuery} */
+    #$overlay;
+
     /**
      * @type {Array<{
      *   key: string | null,
@@ -567,7 +570,14 @@ class Table
         }
         this.#$table = $table;
         this.#$thead = $table.find('thead').first();
+        if (this.#$thead.length === 0) {
+            throw new Error('Leuce: Table requires a `thead` element.');
+        }
         this.#$tbody = $table.find('tbody').first();
+        if (this.#$tbody.length === 0) {
+            throw new Error('Leuce: Table requires a `tbody` element.');
+        }
+        this.#$overlay = null;
         this.#columns = this.#parseColumns();
         this.#formatters = {};
     }
@@ -610,6 +620,43 @@ class Table
             this.#$tbody.append($tr);
         }
         return this;
+    }
+
+    /**
+     * @param {boolean} isLoading
+     */
+    setLoading(isLoading)
+    {
+        if (isLoading) {
+            if (this.#$overlay === null) {
+                this.#$overlay = $(`
+                    <div class="leuce-table-overlay">
+                        <span class="spinner-border" aria-hidden="true"></span>
+                        <span class="visually-hidden" role="status">Loading...</span>
+                    </div>
+                `);
+                this.#$table.after(this.#$overlay);
+            }
+            const offset = this.#$table.offset();
+            const width = this.#$table.outerWidth();
+            const height = this.#$table.outerHeight();
+            const tableZ = parseInt(this.#$table.css('z-index'), 10);
+            const overlayZ = Number.isNaN(tableZ) ? 1 : tableZ + 1;
+            this.#$overlay.css({
+                top: offset.top,
+                left: offset.left,
+                width: width,
+                height: height,
+                zIndex: overlayZ
+            });
+            this.#$overlay.find('.spinner-border').css({
+                position: 'relative',
+                top: this.#$thead.outerHeight()
+            });
+        } else if (this.#$overlay) {
+            this.#$overlay.remove();
+            this.#$overlay = null;
+        }
     }
 
     /**

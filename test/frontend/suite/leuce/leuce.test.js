@@ -626,9 +626,42 @@ QUnit.module('Leuce', function()
                 );
             });
 
+            QUnit.test('Throws error if table header is missing',
+            function(assert) {
+                $('#qunit-fixture').html(`
+                    <table id="tbl">
+                        <tbody><tr><td>Row</td></tr></tbody>
+                    </table>
+                `);
+                const $tbl = $('#tbl');
+                assert.throws(
+                    () => new Leuce.UI.Table($tbl),
+                    'Leuce: Table requires a `thead` element.'
+                );
+            });
+
+            QUnit.test('Throws error if table body is missing',
+            function(assert) {
+                $('#qunit-fixture').html(`
+                    <table id="tbl">
+                        <thead><tr><th>Col</th></tr></thead>
+                    </table>
+                `);
+                const $tbl = $('#tbl');
+                assert.throws(
+                    () => new Leuce.UI.Table($tbl),
+                    'Leuce: Table requires a `tbody` element.'
+                );
+            });
+
             QUnit.test('Initializes table instance',
             function(assert) {
-                $('#qunit-fixture').html(`<table id="tbl"></table>`);
+                $('#qunit-fixture').html(`
+                    <table id="tbl">
+                        <thead><tr><th>Col</th></tr></thead>
+                        <tbody><tr><td>Row</td></tr></tbody>
+                    </table>
+                `);
                 const $tbl = $('#tbl');
                 const tbl = $tbl.leuceTable();
                 assert.ok(tbl instanceof Leuce.UI.Table);
