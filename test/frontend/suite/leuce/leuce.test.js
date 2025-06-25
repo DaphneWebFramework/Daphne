@@ -600,6 +600,429 @@ QUnit.module('Leuce', function()
                 assert.strictEqual($('#btn').attr('aria-busy'), undefined);
             });
         }); // Button
+
+        QUnit.module('Table', function(hooks)
+        {
+            let warnMessages;
+            let originalWarn;
+
+            hooks.beforeEach(function() {
+                warnMessages = [];
+                originalWarn = console.warn;
+                console.warn = msg => warnMessages.push(msg);
+            });
+
+            hooks.afterEach(function() {
+                console.warn = originalWarn;
+            });
+
+            QUnit.test('Throws error on unsupported elements',
+            function(assert) {
+                $('#qunit-fixture').html('<div id="not-a-table"></div>');
+                const $div = $('#not-a-table');
+                assert.throws(
+                    () => new Leuce.UI.Table($div),
+                    'Leuce: Only table elements are supported.'
+                );
+            });
+
+            QUnit.test('Initializes table instance',
+            function(assert) {
+                $('#qunit-fixture').html(`<table id="tbl"></table>`);
+                const $tbl = $('#tbl');
+                const tbl = $tbl.leuceTable();
+                assert.ok(tbl instanceof Leuce.UI.Table);
+            });
+
+            QUnit.test('Stores row id in row data',
+            function(assert) {
+                $('#qunit-fixture').html(`
+                    <table id="tbl">
+                        <thead>
+                            <tr>
+                                <th data-key="name"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                `);
+                const $tbl = $('#tbl');
+                const tbl = $tbl.leuceTable();
+                tbl.setData([{ id: 123, name: 'Alice' }]);
+                const $row = $tbl.find('tbody tr').first();
+                assert.strictEqual($row.data('id'), 123);
+            });
+
+            QUnit.test('Renders row without id field',
+            function(assert) {
+                $('#qunit-fixture').html(`
+                    <table id="tbl">
+                        <thead>
+                            <tr>
+                                <th data-key="name"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                `);
+                const $tbl = $('#tbl');
+                const tbl = $tbl.leuceTable();
+                tbl.setData([{ name: 'Bob' }]);
+                const $row = $tbl.find('tbody tr').first();
+                assert.ok($row.length === 1);
+                assert.strictEqual($row.data('id'), undefined);
+            });
+
+            QUnit.test('Renders one row per data item',
+            function(assert) {
+                $('#qunit-fixture').html(`
+                    <table id="tbl">
+                        <thead>
+                            <tr>
+                                <th data-key="name"></th>
+                                <th data-key="age"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                `);
+                const $tbl = $('#tbl');
+                const tbl = $tbl.leuceTable();
+                const data = [
+                    { id: 1, name: 'Alice', age: 30 },
+                    { id: 2, name: 'Bob', age: 25 },
+                    { id: 3, name: 'Charlie', age: 40 }
+                ];
+                tbl.setData(data);
+                const $rows = $tbl.find('tbody tr');
+                assert.strictEqual($rows.length, 3);
+            });
+
+            QUnit.test('Renders bound fields in correct cells',
+            function(assert) {
+                $('#qunit-fixture').html(`
+                    <table id="tbl">
+                        <thead>
+                            <tr>
+                                <th data-key="name"></th>
+                                <th data-key="age"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                `);
+                const $tbl = $('#tbl');
+                const tbl = $tbl.leuceTable();
+                const data = [
+                    { id: 1, name: 'Alice', age: 30 }
+                ];
+                tbl.setData(data);
+                const $cells = $tbl.find('tbody tr').first().children('td');
+                assert.strictEqual($cells.eq(0).text(), 'Alice');
+                assert.strictEqual($cells.eq(1).text(), '30');
+            });
+
+            QUnit.test('Renders empty cell for unbound column',
+            function(assert) {
+                $('#qunit-fixture').html(`
+                    <table id="tbl">
+                        <thead>
+                            <tr>
+                                <th>Unbound</th>
+                                <th data-key="name"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                `);
+                const $tbl = $('#tbl');
+                const tbl = $tbl.leuceTable();
+                tbl.setData([{ id: 1, name: 'Alice' }]);
+                const $cells = $tbl.find('tbody tr').first().children('td');
+                assert.strictEqual($cells.eq(0).text(), '');
+                assert.strictEqual($cells.eq(1).text(), 'Alice');
+            });
+
+            QUnit.test('Renders correctly with mixed column order',
+            function(assert) {
+                $('#qunit-fixture').html(`
+                    <table id="tbl">
+                        <thead>
+                            <tr>
+                                <th>Unbound 1</th>
+                                <th data-key="age"></th>
+                                <th>Unbound 2</th>
+                                <th data-key="name"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                `);
+                const $tbl = $('#tbl');
+                const tbl = $tbl.leuceTable();
+                tbl.setData([{ id: 1, name: 'Alice', age: 30 }]);
+                const $cells = $tbl.find('tbody tr').first().children('td');
+                assert.strictEqual($cells.length, 4);
+                assert.strictEqual($cells.eq(0).text(), '');
+                assert.strictEqual($cells.eq(1).text(), '30');
+                assert.strictEqual($cells.eq(2).text(), '');
+                assert.strictEqual($cells.eq(3).text(), 'Alice');
+            });
+
+            QUnit.test('Parses and applies various formats',
+            function(assert) {
+                $('#qunit-fixture').html(`
+                    <table id="tbl">
+                        <thead>
+                            <tr>
+                                <th data-key="a" data-format="plain"></th>
+                                <th data-key="b" data-format="plain:"></th>
+                                <th data-key="c" data-format="  plain  "></th>
+                                <th data-key="d" data-format="plain:42"></th>
+                                <th data-key="e" data-format="plain :42"></th>
+                                <th data-key="f" data-format="plain: 42"></th>
+                                <th data-key="g" data-format="plain :  42  "></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                `);
+                const calls = [];
+                const $tbl = $('#tbl');
+                const tbl = $tbl.leuceTable();
+                tbl.setFormatters({
+                    plain: (val, arg) => {
+                        calls.push({ val, arg });
+                        if (arg === undefined) {
+                            return `PLAIN:${val}`;
+                        } else {
+                            return `PLAIN(${arg}):${val}`;
+                        }
+                    }
+                });
+                tbl.setData([{a: 'A', b: 'B', c: 'C', d: 'D', e: 'E', f: 'F', g: 'G'}]);
+                const expectedFormat = [
+                    { val: 'A', arg: undefined },
+                    { val: 'B', arg: undefined },
+                    { val: 'C', arg: undefined },
+                    { val: 'D', arg: '42' },
+                    { val: 'E', arg: '42' },
+                    { val: 'F', arg: '42' },
+                    { val: 'G', arg: '42' }
+                ];
+                assert.strictEqual(calls.length, expectedFormat.length);
+                calls.forEach((entry, i) => {
+                    assert.strictEqual(entry.val, expectedFormat[i].val);
+                    assert.strictEqual(entry.arg, expectedFormat[i].arg);
+                });
+                const $cells = $tbl.find('tbody tr').first().children('td');
+                const expectedText = [
+                    'PLAIN:A',
+                    'PLAIN:B',
+                    'PLAIN:C',
+                    'PLAIN(42):D',
+                    'PLAIN(42):E',
+                    'PLAIN(42):F',
+                    'PLAIN(42):G'
+                ];
+                expectedText.forEach((text, i) => {
+                    assert.strictEqual($cells.eq(i).text(), text);
+                });
+            });
+
+            QUnit.test('Warns when column format is non-string',
+            function(assert) {
+                $('#qunit-fixture').html(`
+                    <table id="tbl">
+                        <thead>
+                            <tr>
+                                <th data-key="a" data-format="true"></th>
+                                <th data-key="b" data-format="false"></th>
+                                <th data-key="c" data-format="123"></th>
+                                <th data-key="d" data-format="null"></th>
+                                <th data-key="e" data-format="{}"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                `);
+                const $tbl = $('#tbl');
+                const tbl = $tbl.leuceTable();
+                tbl.setData([{ a: 'A', b: 'B', c: 'C', d: 'D', e: 'E' }]);
+                assert.strictEqual(warnMessages.length, 5);
+                warnMessages.forEach(msg => {
+                    assert.strictEqual(msg, "Leuce: Column attribute "
+                        + "'data-format' must be a string.");
+                });
+                const $cells = $tbl.find('tbody tr').first().children('td');
+                const expected = ['A', 'B', 'C', 'D', 'E'];
+                expected.forEach((val, i) => {
+                    assert.strictEqual($cells.eq(i).text(), val);
+                });
+            });
+
+            QUnit.test('Warns when column format is empty or whitespace',
+            function(assert) {
+                $('#qunit-fixture').html(`
+                    <table id="tbl">
+                        <thead>
+                            <tr>
+                                <th data-key="a" data-format=""></th>
+                                <th data-key="b" data-format="  "></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                `);
+                const $tbl = $('#tbl');
+                const tbl = $tbl.leuceTable();
+                tbl.setData([{ a: 'A', b: 'B' }]);
+                assert.strictEqual(warnMessages.length, 2);
+                warnMessages.forEach(msg => {
+                    assert.strictEqual(msg, "Leuce: Column attribute "
+                        + "'data-format' must be a nonempty string.");
+                });
+                const $cells = $tbl.find('tbody tr').first().children('td');
+                const expected = ['A', 'B'];
+                expected.forEach((val, i) => {
+                    assert.strictEqual($cells.eq(i).text(), val);
+                });
+            });
+
+            QUnit.test('Warns when column format has no name',
+            function(assert) {
+                $('#qunit-fixture').html(`
+                    <table id="tbl">
+                        <thead>
+                            <tr>
+                                <th data-key="a" data-format=":"></th>
+                                <th data-key="b" data-format="  :  "></th>
+                                <th data-key="c" data-format=":arg"></th>
+                                <th data-key="d" data-format="  :arg  "></th>
+                                <th data-key="e" data-format="  :  arg  "></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                `);
+                const $tbl = $('#tbl');
+                const tbl = $tbl.leuceTable();
+                tbl.setData([{ a: 'A', b: 'B', c: 'C', d: 'D', e: 'E' }]);
+                assert.strictEqual(warnMessages.length, 5);
+                warnMessages.forEach(msg => {
+                    assert.strictEqual(msg, "Leuce: Column attribute "
+                        + "'data-format' must have a nonempty name.");
+                });
+                const $cells = $tbl.find('tbody tr').first().children('td');
+                const expected = ['A', 'B', 'C', 'D', 'E'];
+                expected.forEach((val, i) => {
+                    assert.strictEqual($cells.eq(i).text(), val);
+                });
+            });
+
+            QUnit.test('Warns when formatter is missing',
+            function(assert) {
+                $('#qunit-fixture').html(`
+                    <table id="tbl">
+                        <thead>
+                            <tr>
+                                <th data-key="value" data-format="missing"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                `);
+                const $tbl = $('#tbl');
+                const tbl = $tbl.leuceTable();
+                tbl.setFormatters({});
+                tbl.setData([{ value: 'Raw text' }]);
+                assert.strictEqual(warnMessages.length, 1);
+                assert.strictEqual(
+                    warnMessages[0],
+                    'Leuce: No formatter found for "missing".'
+                );
+                const cellText = $tbl.find('tbody td').first().text();
+                assert.strictEqual(cellText, 'Raw text');
+            });
+
+            QUnit.test('Warns when column key is non-string',
+            function(assert) {
+                $('#qunit-fixture').html(`
+                    <table id="tbl">
+                        <thead>
+                            <tr>
+                                <th data-key="null"></th>
+                                <th data-key="42"></th>
+                                <th data-key="true"></th>
+                                <th data-key="{}"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                `);
+                const $tbl = $('#tbl');
+                const tbl = $tbl.leuceTable();
+                tbl.setData([{ null: 'A', 42: 'B', true: 'C', '{}': 'D' }]);
+                assert.strictEqual(warnMessages.length, 4);
+                warnMessages.forEach(msg => {
+                    assert.strictEqual(msg, "Leuce: Column attribute "
+                        + "'data-key' must be a string.");
+                });
+                const $cells = $tbl.find('tbody tr').first().children('td');
+                $cells.each((i, cell) => {
+                    assert.strictEqual($(cell).text(), '');
+                });
+            });
+
+            QUnit.test('Warns when column key is empty or whitespace',
+            function(assert) {
+                $('#qunit-fixture').html(`
+                    <table id="tbl">
+                        <thead>
+                            <tr>
+                                <th data-key=""></th>
+                                <th data-key="  "></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                `);
+                const $tbl = $('#tbl');
+                const tbl = $tbl.leuceTable();
+                tbl.setData([{ '': 'X', '  ': 'Y' }]);
+                assert.strictEqual(warnMessages.length, 2);
+                warnMessages.forEach(msg => {
+                    assert.strictEqual(msg, "Leuce: Column attribute "
+                        + "'data-key' must be a nonempty string.");
+                });
+                const $cells = $tbl.find('tbody tr').first().children('td');
+                $cells.each((i, cell) => {
+                    assert.strictEqual($(cell).text(), '');
+                });
+            });
+
+            QUnit.test('Warns when key is missing in row data',
+            function(assert) {
+                $('#qunit-fixture').html(`
+                    <table id="tbl">
+                        <thead>
+                            <tr>
+                                <th data-key="age"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                `);
+                const $tbl = $('#tbl');
+                const tbl = $tbl.leuceTable();
+                tbl.setData([{ name: 'Alice' }]);
+                assert.strictEqual(warnMessages.length, 1);
+                assert.strictEqual(
+                    warnMessages[0],
+                    'Leuce: Key "age" not found in row data.'
+                );
+            });
+        }); // Table
     }); // UI
 
     QUnit.module('Utility', function()

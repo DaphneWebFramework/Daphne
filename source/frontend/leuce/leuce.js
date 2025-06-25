@@ -535,7 +535,166 @@ class Button
     }
 }
 
+class Table
+{
+    /** @type {jQuery} */
+    #$table;
+
+    /** @type {jQuery} */
+    #$thead;
+
+    /** @type {jQuery} */
+    #$tbody;
+
+    /**
+     * @type {Array<{
+     *   key: string | null,
+     *   format: { name: string, arg?: string } | null
+     * }>}
+     */
+    #columns;
+
+    /** @type {Object.<string, function>} */
+    #formatters;
+
+    /**
+     * @param {jQuery} $table
+     */
+    constructor($table)
+    {
+        if (!$table.is('table')) {
+            throw new Error('Leuce: Only table elements are supported.');
+        }
+        this.#$table = $table;
+        this.#$thead = $table.find('thead').first();
+        this.#$tbody = $table.find('tbody').first();
+        this.#columns = this.#parseColumns();
+        this.#formatters = {};
+    }
+
+    /**
+     * @param {Object.<string, function>} formatters
+     * @returns {Leuce.UI.Table}
+     */
+    setFormatters(formatters)
+    {
+        this.#formatters = formatters;
+        return this;
+    }
+
+    /**
+     * @param {Array.<Object>} data
+     * @returns {Leuce.UI.Table}
+     */
+    setData(data)
+    {
+        this.#$tbody.empty();
+        for (const row of data) {
+            const $tr = $('<tr>');
+            if ('id' in row) {
+                $tr.data('id', row.id);
+            }
+            for (const { key, format } of this.#columns) {
+                let value = '';
+                if (key !== null) {
+                    if (!(key in row)) {
+                        console.warn(`Leuce: Key "${key}" not found in row data.`);
+                    }
+                    value = row[key];
+                    if (format !== null) {
+                        value = this.#callFormatter(value, format);
+                    }
+                }
+                $tr.append($('<td>').text(value));
+            }
+            this.#$tbody.append($tr);
+        }
+        return this;
+    }
+
+    /**
+     * @returns {Array<{
+     *   key: string | null,
+     *   format: { name: string, arg?: string } | null
+     * }>}
+     */
+    #parseColumns()
+    {
+        const result = [];
+        for (const th of this.#$thead.find('th').get()) {
+            const $th = $(th);
+            const key = this.#readColumnData($th, 'key');
+            let format = this.#readColumnData($th, 'format');
+            if (format !== null) {
+                format = this.#parseColumnFormat(format);
+            }
+            result.push({ key, format });
+        }
+        return result;
+    }
+
+    /**
+     * @param {jQuery} $th
+     * @param {string} name
+     * @returns {string|null}
+     */
+    #readColumnData($th, name)
+    {
+        let value = $th.data(name);
+        if (value === undefined) {
+            return null;
+        }
+        if (typeof value !== 'string') {
+            console.warn(`Leuce: Column attribute 'data-${name}' must be a string.`);
+            return null;
+        }
+        value = value.trim();
+        if (value === '') {
+            console.warn(`Leuce: Column attribute 'data-${name}' must be a nonempty string.`);
+            return null;
+        }
+        return value;
+    }
+
+    /**
+     * @param {string} format
+     * @returns {{ name: string, arg?: string }}
+     */
+    #parseColumnFormat(format)
+    {
+        let [name, arg] = format.split(':');
+        name = name.trim();
+        if (name === '') {
+            console.warn("Leuce: Column attribute 'data-format' must have a nonempty name.");
+            return null;
+        }
+        if (arg !== undefined) {
+            arg = arg.trim();
+            if (arg === '') {
+                arg = undefined;
+            }
+        }
+        return { name, arg };
+    }
+
+    /**
+     * @param {*} value
+     * @param {{ name: string, arg?: string }} format
+     * @returns {*}
+     */
+    #callFormatter(value, format)
+    {
+        const fn = this.#formatters[format.name];
+        if (typeof fn !== 'function') {
+            console.warn(`Leuce: No formatter found for "${format.name}".`);
+            return value;
+        }
+        return fn(value, format.arg);
+    }
+}
+
 UI.Button = Button;
+UI.Table = Table;
 
 //#endregion UI
 
@@ -603,6 +762,19 @@ $.fn.leuceButton = function() {
     if (!instance) {
         instance = new Leuce.UI.Button($button);
         $button.data('leuce.button', instance);
+    }
+    return instance;
+};
+
+/**
+ * @returns {Leuce.UI.Table}
+ */
+$.fn.leuceTable = function() {
+    const $table = this.first();
+    let instance = $table.data('leuce.table');
+    if (!instance) {
+        instance = new Leuce.UI.Table($table);
+        $table.data('leuce.table', instance);
     }
     return instance;
 };
