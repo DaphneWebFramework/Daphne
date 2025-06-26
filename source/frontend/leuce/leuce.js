@@ -557,8 +557,11 @@ class Table
      */
     #columns;
 
-    /** @type {Object.<string, function>} */
+    /** @type {Object.<string, function>} | null */
     #formatters;
+
+    /** @type {Object.<string, function> | null} */
+    #renderers;
 
     /**
      * @param {jQuery} $table
@@ -579,7 +582,8 @@ class Table
         }
         this.#$overlay = null;
         this.#columns = this.#parseColumns();
-        this.#formatters = {};
+        this.#formatters = null;
+        this.#renderers = null;
     }
 
     /**
@@ -589,6 +593,16 @@ class Table
     setFormatters(formatters)
     {
         this.#formatters = formatters;
+        return this;
+    }
+
+    /**
+     * @param {Object.<string, function>} renderers
+     * @returns {Leuce.UI.Table}
+     */
+    setRenderers(renderers)
+    {
+        this.#renderers = renderers;
         return this;
     }
 
@@ -604,7 +618,7 @@ class Table
             if ('id' in row) {
                 $tr.data('id', row.id);
             }
-            for (const { key, format } of this.#columns) {
+            for (const { key, format, render } of this.#columns) {
                 let value = '';
                 if (key !== null) {
                     if (!(key in row)) {
@@ -612,10 +626,18 @@ class Table
                     }
                     value = row[key];
                     if (format !== null) {
-                        value = this.#callFormatter(value, format);
+                        value = this.#callFormatter(format, row, value);
                     }
+                } else if (render !== null) {
+                    value = this.#callRenderer(render, row);
                 }
-                $tr.append($('<td>').text(value));
+                const $td = $('<td>');
+                if (value instanceof jQuery) {
+                    $td.append(value);
+                } else {
+                    $td.text(value);
+                }
+                $tr.append($td);
             }
             this.#$tbody.append($tr);
         }
@@ -662,7 +684,8 @@ class Table
     /**
      * @returns {Array<{
      *   key: string | null,
-     *   format: { name: string, arg?: string } | null
+     *   format: { name: string, arg?: string } | null,
+     *   render: string | null
      * }>}
      */
     #parseColumns()
@@ -675,7 +698,11 @@ class Table
             if (format !== null) {
                 format = this.#parseColumnFormat(format);
             }
-            result.push({ key, format });
+            let render = null;
+            if (key === null) {
+                render = this.#readColumnData($th, 'render');
+            }
+            result.push({ key, format, render });
         }
         return result;
     }
@@ -725,18 +752,34 @@ class Table
     }
 
     /**
-     * @param {*} value
      * @param {{ name: string, arg?: string }} format
+     * @param {Object} row
+     * @param {*} value
      * @returns {*}
      */
-    #callFormatter(value, format)
+    #callFormatter(format, row, value)
     {
-        const fn = this.#formatters[format.name];
+        const fn = this.#formatters?.[format.name];
         if (typeof fn !== 'function') {
             console.warn(`Leuce: No formatter found for "${format.name}".`);
             return value;
         }
-        return fn(value, format.arg);
+        return fn(row, value, format.arg);
+    }
+
+    /**
+     * @param {string} name
+     * @param {Object} row
+     * @returns {*}
+     */
+    #callRenderer(name, row)
+    {
+        const fn = this.#renderers?.[name];
+        if (typeof fn !== 'function') {
+            console.warn(`Leuce: No renderer found for "${name}".`);
+            return '';
+        }
+        return fn(row);
     }
 }
 

@@ -824,7 +824,7 @@ QUnit.module('Leuce', function()
                 const $tbl = $('#tbl');
                 const tbl = $tbl.leuceTable();
                 tbl.setFormatters({
-                    plain: (val, arg) => {
+                    plain: (row, val, arg) => {
                         calls.push({ val, arg });
                         if (arg === undefined) {
                             return `PLAIN:${val}`;
@@ -1055,6 +1055,83 @@ QUnit.module('Leuce', function()
                     'Leuce: Key "age" not found in row data.'
                 );
             });
+
+            QUnit.test('Column renderer outputs correctly',
+            function(assert) {
+                $('#qunit-fixture').html(`
+                    <table id="tbl">
+                        <thead>
+                            <tr>
+                                <th data-render="textOnly"></th>
+                                <th data-render="buttonGroup"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                `);
+                const $tbl = $('#tbl');
+                const tbl = $tbl.leuceTable();
+                tbl.setRenderers({
+                    textOnly: row => {
+                        return 'Plain text';
+                    },
+                    buttonGroup: row => {
+                        return $('<div class="btn-group">')
+                            .append('<button>Edit</button>');
+                    }
+                });
+                tbl.setData([{ id: 1 }]);
+                const $cells = $tbl.find('tbody tr').first().children('td');
+                assert.strictEqual($cells.eq(0).text(), 'Plain text');
+                assert.strictEqual($cells.eq(1).find('button').text(), 'Edit');
+            });
+
+            QUnit.test('Skips column renderer if column key is present',
+            function(assert) {
+                $('#qunit-fixture').html(`
+                    <table id="tbl">
+                        <thead>
+                            <tr>
+                                <th data-key="name" data-render="ignoredRenderer"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                `);
+                const $tbl = $('#tbl');
+                const tbl = $tbl.leuceTable();
+                tbl.setRenderers({
+                    ignoredRenderer: row => {
+                        return 'Should not render';
+                    }
+                });
+                tbl.setData([{ name: 'Alice' }]);
+                assert.strictEqual($tbl.find('tbody td').first().text(), 'Alice');
+            });
+
+            QUnit.test('Warns when renderer is missing',
+            function(assert) {
+                $('#qunit-fixture').html(`
+                    <table id="tbl">
+                        <thead>
+                            <tr>
+                                <th data-render="missing"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                `);
+                const $tbl = $('#tbl');
+                const tbl = $tbl.leuceTable();
+                tbl.setRenderers({});
+                tbl.setData([{ id: 1 }]);
+                assert.strictEqual(warnMessages.length, 1);
+                assert.strictEqual(
+                    warnMessages[0],
+                    'Leuce: No renderer found for "missing".'
+                );
+            });
+
         }); // Table
     }); // UI
 
