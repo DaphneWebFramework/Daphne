@@ -672,8 +672,7 @@ class Table
                 zIndex: overlayZ
             });
             this.#$overlay.find('.spinner-border').css({
-                position: 'relative',
-                top: this.#$thead.outerHeight()
+                top: this.#$thead.outerHeight() + 8
             });
         } else if (this.#$overlay) {
             this.#$overlay.remove();
