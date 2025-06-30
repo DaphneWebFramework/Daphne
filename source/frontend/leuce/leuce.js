@@ -538,6 +538,9 @@ class Button
 class Table
 {
     /** @type {jQuery} */
+    #$wrapper;
+
+    /** @type {jQuery} */
     #$table;
 
     /** @type {jQuery} */
@@ -570,6 +573,11 @@ class Table
     {
         if (!$table.is('table')) {
             throw new Error('Leuce: Only table elements are supported.');
+        }
+        this.#$wrapper = $table.parent('.leuce-table');
+        if (this.#$wrapper.length === 0) {
+            $table.wrap('<div class="leuce-table table-responsive">');
+            this.#$wrapper = $table.parent();
         }
         this.#$table = $table;
         this.#$thead = $table.find('thead').first();
@@ -652,31 +660,16 @@ class Table
         if (isLoading) {
             if (this.#$overlay === null) {
                 this.#$overlay = $(`
-                    <div class="leuce-table-overlay">
+                    <div class="leuce-table-overlay hidden">
                         <span class="spinner-border" aria-hidden="true"></span>
                         <span class="visually-hidden" role="status">Loading...</span>
                     </div>
                 `);
-                this.#$table.after(this.#$overlay);
+                this.#$wrapper.append(this.#$overlay);
             }
-            const offset = this.#$table.offset();
-            const width = this.#$table.outerWidth();
-            const height = this.#$table.outerHeight();
-            const tableZ = parseInt(this.#$table.css('z-index'), 10);
-            const overlayZ = Number.isNaN(tableZ) ? 1 : tableZ + 1;
-            this.#$overlay.css({
-                top: offset.top,
-                left: offset.left,
-                width: width,
-                height: height,
-                zIndex: overlayZ
-            });
-            this.#$overlay.find('.spinner-border').css({
-                top: this.#$thead.outerHeight() + 8
-            });
+            this.#$overlay.removeClass('hidden');
         } else if (this.#$overlay) {
-            this.#$overlay.remove();
-            this.#$overlay = null;
+            this.#$overlay.addClass('hidden');
         }
     }
 
