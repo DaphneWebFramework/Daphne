@@ -623,6 +623,7 @@ class Table
         this.#columns = this.#parseColumns();
         this.#formatters = null;
         this.#renderers = null;
+        this.#decorateSortableHeaders();
     }
 
     /**
@@ -782,6 +783,22 @@ class Table
             }
         }
         return { name, arg };
+    }
+
+    #decorateSortableHeaders()
+    {
+        for (const th of this.#$thead.find('th[data-key]').get()) {
+            const $th = $(th);
+            const label = $th.text().trim();
+            $th .addClass('leuce-table-header-sortable')
+                .empty()
+                .append(
+                    $('<span>').append(
+                        label,
+                        $('<i class="bi bi-chevron-expand">')
+                    )
+                );
+        }
     }
 
     /**

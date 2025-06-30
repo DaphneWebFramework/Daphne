@@ -746,6 +746,30 @@ QUnit.module('Leuce', function()
                 assert.ok(tbl instanceof Leuce.UI.Table);
             });
 
+            QUnit.test('Sortable headers are decorated automatically',
+            function(assert) {
+                $('#qunit-fixture').html(`
+                    <table id="tbl">
+                        <thead>
+                            <tr>
+                                <th data-key="name">Name</th>
+                                <th>Not sortable</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                `);
+                const $tbl = $('#tbl');
+                $tbl.leuceTable();
+                const $th = $tbl.find('th[data-key]');
+                assert.ok($th.hasClass('leuce-table-header-sortable'));
+                const $span = $th.children('span');
+                assert.strictEqual($span.length, 1);
+                assert.strictEqual($span.contents().first().text(), 'Name');
+                const $icon = $span.find('i.bi.bi-chevron-expand');
+                assert.strictEqual($icon.length, 1);
+            });
+
             QUnit.test('Stores row id in row data',
             function(assert) {
                 $('#qunit-fixture').html(`
