@@ -409,6 +409,37 @@ class Controller
 
 class UI
 {
+    /** @type {string} */
+    static language = $('html').attr('lang');
+
+    /** @type {Object.<string, Object<string, string>>} */
+    static translations = {
+        "table.no_data": {
+            "en": "No matching records found",
+            "tr": "Eşleşen kayıt bulunamadı"
+        }
+    };
+
+    /**
+     * @param {string} key
+     * @param {...string} args
+     * @returns {string}
+     */
+    static translate(key, ...args)
+    {
+        const unit = this.translations[key];
+        if (unit === undefined) {
+            return key;
+        }
+        let value = unit[this.language];
+        if (value === undefined) {
+            return key;
+        }
+        return value.replace(/%s/g, function() {
+            return args.shift() ?? '';
+        });
+    }
+
     /**
      * @param {string} message
      * @param {string} [type]
@@ -621,6 +652,16 @@ class Table
     setData(data)
     {
         this.#$tbody.empty();
+        if (data.length === 0) {
+            const $tr = $('<tr>');
+            const $td = $('<td>');
+            $td.attr('colspan', this.#columns.length)
+               .addClass('text-center text-muted')
+               .text(UI.translate('table.no_data'));
+            $tr.append($td);
+            this.#$tbody.append($tr);
+            return this;
+        }
         for (const row of data) {
             const $tr = $('<tr>');
             if ('id' in row) {

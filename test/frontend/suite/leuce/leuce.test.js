@@ -440,6 +440,82 @@ QUnit.module('Leuce', function()
 
     QUnit.module('UI', function()
     {
+        QUnit.module('translate', function(hooks)
+        {
+            let originalTranslations;
+            let originalLanguage;
+
+            hooks.beforeEach(function() {
+                originalTranslations = Leuce.UI.translations;
+                originalLanguage = Leuce.UI.language;
+            });
+
+            hooks.afterEach(function() {
+                Leuce.UI.translations = originalTranslations;
+                Leuce.UI.language = originalLanguage;
+            });
+
+            QUnit.test('Returns translation based on current language',
+            function(assert) {
+                Leuce.UI.language = 'en';
+                assert.strictEqual(
+                    Leuce.UI.translate('table.no_data'),
+                    'No matching records found'
+                );
+
+                Leuce.UI.language = 'tr';
+                assert.strictEqual(
+                    Leuce.UI.translate('table.no_data'),
+                    'Eşleşen kayıt bulunamadı'
+                );
+            });
+
+            QUnit.test('Returns key if translation unit is missing',
+            function(assert) {
+                assert.strictEqual(
+                    Leuce.UI.translate('nonexistent.key'),
+                    'nonexistent.key'
+                );
+            });
+
+            QUnit.test('Returns key if language is not available in unit',
+            function(assert) {
+                Leuce.UI.language = 'eo'; // Esperanto (unsupported)
+                assert.strictEqual(
+                    Leuce.UI.translate('table.no_data'),
+                    'table.no_data'
+                );
+            });
+
+            QUnit.test('Correctly replaces multiple placeholders',
+            function(assert) {
+                Leuce.UI.translations = {
+                    'greeting': {
+                        en: 'Hello, %s %s!'
+                    }
+                };
+                Leuce.UI.language = 'en';
+                assert.strictEqual(
+                    Leuce.UI.translate('greeting', 'Ada', 'Lovelace'),
+                    'Hello, Ada Lovelace!'
+                );
+            });
+
+            QUnit.test('Missing args are replaced with empty strings',
+            function(assert) {
+                Leuce.UI.translations = {
+                    'incomplete': {
+                        en: 'Missing %s and %s'
+                    }
+                };
+                Leuce.UI.language = 'en';
+                assert.strictEqual(
+                    Leuce.UI.translate('incomplete', 'onlyOne'),
+                    'Missing onlyOne and '
+                );
+            });
+        }); // translate
+
         QUnit.module('notify', function(hooks)
         {
             hooks.beforeEach(function()
@@ -605,15 +681,18 @@ QUnit.module('Leuce', function()
         {
             let warnMessages;
             let originalWarn;
+            let originalLanguage;
 
             hooks.beforeEach(function() {
                 warnMessages = [];
                 originalWarn = console.warn;
                 console.warn = msg => warnMessages.push(msg);
+                originalLanguage = Leuce.UI.language;
             });
 
             hooks.afterEach(function() {
                 console.warn = originalWarn;
+                Leuce.UI.language = originalLanguage;
             });
 
             QUnit.test('Throws error on unsupported elements',
@@ -1132,6 +1211,30 @@ QUnit.module('Leuce', function()
                 );
             });
 
+            QUnit.test('Displays no-data message in selected language',
+            function(assert) {
+                $('#qunit-fixture').html(`
+                    <table id="tbl">
+                        <thead>
+                            <tr>
+                                <th data-key="name"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                `);
+                const $tbl = $('#tbl');
+                const cases = {
+                    en: 'No matching records found',
+                    tr: 'Eşleşen kayıt bulunamadı'
+                };
+                for (const [language, message] of Object.entries(cases)) {
+                    Leuce.UI.language = language;
+                    $tbl.leuceTable().setData([]);
+                    const $cell = $tbl.find('tbody td').first();
+                    assert.strictEqual($cell.text(), message);
+                }
+            });
         }); // Table
     }); // UI
 
