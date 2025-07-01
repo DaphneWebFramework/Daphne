@@ -597,6 +597,16 @@ class Table
     /** @type {Object.<string, function> | null} */
     #renderers;
 
+    /** @type {(action: string, payload: object|null) => void} | null */
+    #actionHandler = null;
+
+    /** @type {Object.<string, string>} */
+    #sortIconClasses = {
+        'none': 'bi bi-chevron-expand',
+        'asc':  'bi bi-chevron-down',
+        'desc': 'bi bi-chevron-up'
+    };
+
     /**
      * @param {jQuery} $table
      */
@@ -624,6 +634,7 @@ class Table
         this.#formatters = null;
         this.#renderers = null;
         this.#decorateSortableHeaders();
+        this.#bindHeaderClickHandler();
     }
 
     /**
@@ -643,6 +654,16 @@ class Table
     setRenderers(renderers)
     {
         this.#renderers = renderers;
+        return this;
+    }
+
+    /**
+     * @param {(action: string, payload: object|null) => void} actionHandler
+     * @returns {Leuce.UI.Table}
+     */
+    setActionHandler(actionHandler)
+    {
+        this.#actionHandler = actionHandler;
         return this;
     }
 
@@ -785,6 +806,9 @@ class Table
         return { name, arg };
     }
 
+    /**
+     * @returns {void}
+     */
     #decorateSortableHeaders()
     {
         for (const th of this.#$thead.find('th[data-key]').get()) {
@@ -795,7 +819,7 @@ class Table
                 .append(
                     $('<span>').append(
                         label,
-                        $('<i class="bi bi-chevron-expand">')
+                        $('<i>').attr('class', this.#sortIconClasses.none)
                     )
                 );
         }
@@ -809,12 +833,12 @@ class Table
      */
     #callFormatter(format, row, value)
     {
-        const fn = this.#formatters?.[format.name];
-        if (typeof fn !== 'function') {
+        const formatter = this.#formatters?.[format.name];
+        if (typeof formatter !== 'function') {
             console.warn(`Leuce: No formatter found for "${format.name}".`);
             return value;
         }
-        return fn(row, value, format.arg);
+        return formatter(row, value, format.arg);
     }
 
     /**
@@ -824,12 +848,60 @@ class Table
      */
     #callRenderer(name, row)
     {
-        const fn = this.#renderers?.[name];
-        if (typeof fn !== 'function') {
+        const renderer = this.#renderers?.[name];
+        if (typeof renderer !== 'function') {
             console.warn(`Leuce: No renderer found for "${name}".`);
             return '';
         }
-        return fn(row);
+        return renderer(row);
+    }
+
+    /**
+     * @returns {void}
+     */
+    #bindHeaderClickHandler()
+    {
+        const $headers = this.#$thead.find('th[data-key]');
+        $headers.on('click', this.#onHeaderClick.bind(this));
+    }
+
+    /**
+     * @param {jQuery.Event} event
+     * @returns {void}
+     */
+    #onHeaderClick(event)
+    {
+        const $clickedHeader = $(event.currentTarget);
+        const clickedKey = $clickedHeader.data('key');
+        const clickedIconClass = $clickedHeader.find('i').attr('class');
+        let currentDirection;
+        for (const [direction, iconClass] of Object.entries(this.#sortIconClasses)) {
+            if (clickedIconClass === iconClass) {
+                currentDirection = direction;
+                break;
+            }
+        }
+        let newDirection;
+        switch (currentDirection) {
+        case 'asc':  newDirection = 'desc'; break;
+        case 'desc': newDirection = 'none'; break;
+        default:     newDirection = 'asc';
+        }
+        for (const th of this.#$thead.find('th[data-key]').get()) {
+            const $th = $(th);
+            let direction;
+            if (clickedKey === $th.data('key')) {
+                direction = newDirection;
+            } else {
+                direction = 'none';
+            }
+            $th.find('i').attr('class', this.#sortIconClasses[direction]);
+        }
+        this.#actionHandler?.('sort',
+            newDirection === 'none'
+                ? null
+                : { key: clickedKey, direction: newDirection }
+        );
     }
 }
 
