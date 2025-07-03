@@ -418,6 +418,10 @@ class UI
             "en": "No matching records found",
             "tr": "Eşleşen kayıt bulunamadı"
         },
+        "table.search": {
+            "en": "Search...",
+            "tr": "Ara..."
+        },
         "table.add": {
             "en": "Add",
             "tr": "Ekle"
@@ -633,11 +637,7 @@ class Table
         if (!$table.is('table')) {
             throw new Error('Leuce: Only table elements are supported.');
         }
-        this.#$wrapper = $table.parent('.leuce-table');
-        if (this.#$wrapper.length === 0) {
-            $table.wrap('<div class="leuce-table table-responsive">');
-            this.#$wrapper = $table.parent();
-        }
+        this.#$wrapper = this.#wrap($table);
         this.#$table = $table;
         this.#$thead = $table.find('thead').first();
         if (this.#$thead.length === 0) {
@@ -789,6 +789,21 @@ class Table
         this.#$wrapper.find('[data-action="nextPage"]').prop('disabled', atLastPage);
         this.#$wrapper.find('[data-action="lastPage"]').prop('disabled', atLastPage);
         return totalPages;
+    }
+
+    /**
+     * @param {jQuery} $table
+     * @returns {jQuery}
+     */
+    #wrap($table)
+    {
+        let $responsive = $table.parent('.table-responsive');
+        if ($responsive.length === 0) {
+            $table.wrap($('<div>', { class: 'table-responsive' }));
+            $responsive = $table.parent();
+        }
+        $responsive.wrap($('<div>', { class: 'leuce-table' }));
+        return $responsive.parent();
     }
 
     /**
@@ -958,7 +973,7 @@ class Table
     #createToolbar()
     {
         const $toolbar = $('<div>', {
-            class: 'leuce-table-controls mb-2'
+            class: 'leuce-table-controls mb-3'
         }).append(
             this.#createSearchBox(),
             this.#createActionButtons()
@@ -993,7 +1008,7 @@ class Table
                 type: 'search',
                 class: 'form-control form-control-sm',
                 'data-action': 'search-input',
-                placeholder: 'Search...',
+                placeholder: UI.translate('table.search'),
                 css: { minWidth: '100px', maxWidth: '150px' }
             }),
             $('<button>', {
@@ -1026,7 +1041,7 @@ class Table
     #createPaginator()
     {
         const $paginator = $('<div>', {
-            class: 'leuce-table-controls'
+            class: 'leuce-table-controls mt-3'
         }).append(this.#createPageSizeSelector())
           .append(this.#createPageNavigator());
         this.#$wrapper.append($paginator);

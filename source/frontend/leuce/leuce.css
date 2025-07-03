@@ -36,7 +36,7 @@
   position: relative;
 }
 .leuce-table .table {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0;
 }
 .leuce-table .leuce-table-overlay {
   position: absolute;
@@ -64,8 +64,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  /* Vertical padding to accommodate form-select's 0.25rem box-shadow spread */
-  padding: 0.25rem 0;
+  flex-wrap: wrap;
+  /* Ensure vertical spacing between control groups when
+     they wrap on narrow screens */
+  row-gap: 0.5rem;
 }
 .leuce-table .leuce-table-controls-group {
   display: flex;
