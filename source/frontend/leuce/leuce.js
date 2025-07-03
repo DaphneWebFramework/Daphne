@@ -616,6 +616,7 @@ class Table
      * @type {Array<{
      *   key: string | null,
      *   format: { name: string, arg?: string } | null
+     *   render: string | null
      * }>}
      */
     #columns;
@@ -666,22 +667,30 @@ class Table
     }
 
     /**
-     * @param {Object.<string, function>} formatters
+     * @param {string} name
+     * @param {(row: Object, value: *, arg?: string) => *} formatter
      * @returns {Leuce.UI.Table}
      */
-    setFormatters(formatters)
+    setFormatter(name, formatter)
     {
-        this.#formatters = formatters;
+        if (!this.#formatters) {
+            this.#formatters = {};
+        }
+        this.#formatters[name] = formatter;
         return this;
     }
 
     /**
-     * @param {Object.<string, function>} renderers
+     * @param {string} name
+     * @param {(row: Object) => string|jQuery} renderer
      * @returns {Leuce.UI.Table}
      */
-    setRenderers(renderers)
+    setRenderer(name, renderer)
     {
-        this.#renderers = renderers;
+        if (!this.#renderers) {
+            this.#renderers = {};
+        }
+        this.#renderers[name] = renderer;
         return this;
     }
 
@@ -1045,6 +1054,7 @@ class Table
         }).append(this.#createPageSizeSelector())
           .append(this.#createPageNavigator());
         this.#$wrapper.append($paginator);
+
         $paginator.find('[data-action="pageSize"]').on('change', (event) => {
             this.#actionHandler?.('pageSize', parseInt(event.target.value, 10));
         });

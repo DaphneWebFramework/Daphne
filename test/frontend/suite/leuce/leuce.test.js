@@ -926,14 +926,12 @@ QUnit.module('Leuce', function()
                 const calls = [];
                 const $tbl = $('#tbl');
                 const tbl = $tbl.leuceTable();
-                tbl.setFormatters({
-                    plain: (row, val, arg) => {
-                        calls.push({ val, arg });
-                        if (arg === undefined) {
-                            return `PLAIN:${val}`;
-                        } else {
-                            return `PLAIN(${arg}):${val}`;
-                        }
+                tbl.setFormatter('plain', (row, val, arg) => {
+                    calls.push({ val, arg });
+                    if (arg === undefined) {
+                        return `PLAIN:${val}`;
+                    } else {
+                        return `PLAIN(${arg}):${val}`;
                     }
                 });
                 tbl.setData([{a: 'A', b: 'B', c: 'C', d: 'D', e: 'E', f: 'F', g: 'G'}]);
@@ -1070,7 +1068,6 @@ QUnit.module('Leuce', function()
                 `);
                 const $tbl = $('#tbl');
                 const tbl = $tbl.leuceTable();
-                tbl.setFormatters({});
                 tbl.setData([{ value: 'Raw text' }]);
                 assert.strictEqual(warnMessages.length, 1);
                 assert.strictEqual(
@@ -1174,14 +1171,11 @@ QUnit.module('Leuce', function()
                 `);
                 const $tbl = $('#tbl');
                 const tbl = $tbl.leuceTable();
-                tbl.setRenderers({
-                    textOnly: row => {
-                        return 'Plain text';
-                    },
-                    buttonGroup: row => {
-                        return $('<div class="btn-group">')
-                            .append('<button>Edit</button>');
-                    }
+                tbl.setRenderer('textOnly', row => {
+                    return 'Plain text';
+                }).setRenderer('buttonGroup', row => {
+                    return $('<div class="btn-group">')
+                        .append('<button>Edit</button>');
                 });
                 tbl.setData([{ id: 1 }]);
                 const $cells = $tbl.find('tbody tr').first().children('td');
@@ -1203,10 +1197,8 @@ QUnit.module('Leuce', function()
                 `);
                 const $tbl = $('#tbl');
                 const tbl = $tbl.leuceTable();
-                tbl.setRenderers({
-                    ignoredRenderer: row => {
-                        return 'Should not render';
-                    }
+                tbl.setRenderer('ignoredRenderer', row => {
+                    return 'Should not render';
                 });
                 tbl.setData([{ name: 'Alice' }]);
                 assert.strictEqual($tbl.find('tbody td').first().text(), 'Alice');
@@ -1226,7 +1218,6 @@ QUnit.module('Leuce', function()
                 `);
                 const $tbl = $('#tbl');
                 const tbl = $tbl.leuceTable();
-                tbl.setRenderers({});
                 tbl.setData([{ id: 1 }]);
                 assert.strictEqual(warnMessages.length, 1);
                 assert.strictEqual(
