@@ -35,6 +35,9 @@
 .leuce-table {
   position: relative;
 }
+.leuce-table .table {
+  margin-bottom: 0.5rem;
+}
 .leuce-table .leuce-table-overlay {
   position: absolute;
   inset: 0;
@@ -57,14 +60,14 @@
   display: inline-flex;
   gap: 0.25rem;
 }
-.leuce-table .leuce-table-paginator {
+.leuce-table .leuce-table-controls {
   display: flex;
   justify-content: space-between;
   align-items: center;
   /* Vertical padding to accommodate form-select's 0.25rem box-shadow spread */
   padding: 0.25rem 0;
 }
-.leuce-table .leuce-table-paginator-subgroup {
+.leuce-table .leuce-table-controls-group {
   display: flex;
   align-items: baseline;
   gap: 0.5rem;

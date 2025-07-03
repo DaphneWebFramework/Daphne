@@ -418,6 +418,14 @@ class UI
             "en": "No matching records found",
             "tr": "Eşleşen kayıt bulunamadı"
         },
+        "table.add": {
+            "en": "Add",
+            "tr": "Ekle"
+        },
+        "table.reload": {
+            "en": "Reload",
+            "tr": "Yenile"
+        },
         "table.records_per_page": {
             "en": "Show {count} records per page",
             "tr": "Sayfada {count} kayıt göster"
@@ -644,6 +652,7 @@ class Table
         this.#formatters = null;
         this.#renderers = null;
         this.#actionHandler = null;
+        this.#createToolbar();
         this.#decorateHeaders();
         this.#createPaginator();
     }
@@ -763,9 +772,8 @@ class Table
      */
     updatePaginator(totalRecords, pageSize, currentPage)
     {
-        const $paginator = this.#$wrapper.find('.leuce-table-paginator');
         const totalPages = Math.ceil(totalRecords / pageSize);
-        const $select = $paginator.find('[data-action="currentPage"]');
+        const $select = this.#$wrapper.find('[data-action="currentPage"]');
         $select.empty();
         for (let i = 1; i <= totalPages; ++i) {
             const $option = $('<option>').val(i).text(i);
@@ -776,10 +784,10 @@ class Table
         }
         const atFirstPage = currentPage === 1;
         const atLastPage = currentPage === totalPages || totalPages === 0;
-        $paginator.find('[data-action="firstPage"]').prop('disabled', atFirstPage);
-        $paginator.find('[data-action="previousPage"]').prop('disabled', atFirstPage);
-        $paginator.find('[data-action="nextPage"]').prop('disabled', atLastPage);
-        $paginator.find('[data-action="lastPage"]').prop('disabled', atLastPage);
+        this.#$wrapper.find('[data-action="firstPage"]').prop('disabled', atFirstPage);
+        this.#$wrapper.find('[data-action="previousPage"]').prop('disabled', atFirstPage);
+        this.#$wrapper.find('[data-action="nextPage"]').prop('disabled', atLastPage);
+        this.#$wrapper.find('[data-action="lastPage"]').prop('disabled', atLastPage);
         return totalPages;
     }
 
@@ -947,10 +955,78 @@ class Table
     /**
      * @returns {void}
      */
+    #createToolbar()
+    {
+        const $toolbar = $('<div>', {
+            class: 'leuce-table-controls mb-2'
+        }).append(
+            this.#createSearchBox(),
+            this.#createActionButtons()
+        );
+        this.#$wrapper.prepend($toolbar);
+
+        $toolbar.find('[data-action="search"]').on('click', () => {
+            this.#actionHandler?.('search', $toolbar.find('[data-action="search-input"]').val().trim());
+        });
+        $toolbar.find('[data-action="search-input"]').on('keydown', (event) => {
+            if (event.key === 'Enter') {
+                this.#actionHandler?.('search', $(event.currentTarget).val().trim());
+            }
+        });
+        $toolbar.find('[data-action="add"]').on('click', () => {
+            this.#actionHandler?.('add');
+        });
+        $toolbar.find('[data-action="reload"]').on('click', () => {
+            this.#actionHandler?.('reload');
+        });
+    }
+
+    /**
+     * @returns {jQuery}
+     */
+    #createSearchBox()
+    {
+        const $inputGroup = $('<div>', {
+            class: 'input-group flex-nowrap'
+        }).append(
+            $('<input>', {
+                type: 'search',
+                class: 'form-control form-control-sm',
+                'data-action': 'search-input',
+                placeholder: 'Search...',
+                css: { minWidth: '100px', maxWidth: '150px' }
+            }),
+            $('<button>', {
+                type: 'button',
+                class: 'leuce-table-button btn btn-sm',
+                'data-action': 'search'
+            }).append($('<i>', { class: 'bi bi-search' }))
+        );
+        return $('<div>', {
+            class: 'leuce-table-controls-group'
+        }).append($inputGroup);
+    }
+
+    /**
+     * @returns {jQuery}
+     */
+    #createActionButtons()
+    {
+        return $('<div>', {
+            class: 'leuce-table-controls-group'
+        }).append(
+            this.#createButton('add', 'bi bi-plus-lg', UI.translate('table.add')),
+            this.#createButton('reload', 'bi bi-arrow-clockwise', UI.translate('table.reload'))
+        );
+    }
+
+    /**
+     * @returns {void}
+     */
     #createPaginator()
     {
         const $paginator = $('<div>', {
-            class: 'leuce-table-paginator'
+            class: 'leuce-table-controls'
         }).append(this.#createPageSizeSelector())
           .append(this.#createPageNavigator());
         this.#$wrapper.append($paginator);
@@ -958,19 +1034,19 @@ class Table
             this.#actionHandler?.('pageSize', parseInt(event.target.value, 10));
         });
         $paginator.find('[data-action="firstPage"]').on('click', () => {
-            this.#actionHandler?.('firstPage', null);
+            this.#actionHandler?.('firstPage');
         });
         $paginator.find('[data-action="previousPage"]').on('click', () => {
-            this.#actionHandler?.('previousPage', null);
+            this.#actionHandler?.('previousPage');
         });
         $paginator.find('[data-action="currentPage"]').on('change', (event) => {
             this.#actionHandler?.('currentPage', parseInt(event.target.value, 10));
         });
         $paginator.find('[data-action="nextPage"]').on('click', () => {
-            this.#actionHandler?.('nextPage', null);
+            this.#actionHandler?.('nextPage');
         });
         $paginator.find('[data-action="lastPage"]').on('click', () => {
-            this.#actionHandler?.('lastPage', null);
+            this.#actionHandler?.('lastPage');
         });
     }
 
@@ -990,7 +1066,7 @@ class Table
         const html = UI.translate('table.records_per_page')
             .replace('{count}', $select.prop('outerHTML'));
         return $('<div>', {
-            class: 'leuce-table-paginator-subgroup'
+            class: 'leuce-table-controls-group'
         }).append(html);
     }
 
@@ -1000,7 +1076,7 @@ class Table
     #createPageNavigator()
     {
         return $('<div>', {
-            class: 'leuce-table-paginator-subgroup'
+            class: 'leuce-table-controls-group'
         }).append(
             this.#createButton('firstPage', 'bi bi-chevron-bar-left'),
             this.#createButton('previousPage', 'bi bi-chevron-left'),
@@ -1025,15 +1101,21 @@ class Table
     /**
      * @param {string} action
      * @param {string} iconClass
+     * @param {string|null} [label=null]
      * @returns {jQuery}
      */
-    #createButton(action, iconClass)
+    #createButton(action, iconClass, label = null)
     {
-        return $('<button>', {
+        const $button = $('<button>', {
             type: 'button',
             class: 'leuce-table-button btn btn-sm',
             'data-action': action
-        }).append($('<i>', { class: iconClass }));
+        });
+        $button.append($('<i>', { class: iconClass }));
+        if (label !== null) {
+            $button.append(' ', label);
+        }
+        return $button;
     }
 }
 
