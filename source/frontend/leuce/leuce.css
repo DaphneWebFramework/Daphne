@@ -46,12 +46,42 @@
 .leuce-table .leuce-table-overlay.hidden {
   display: none !important;
 }
-.leuce-table .leuce-table-header-sortable {
-  cursor: pointer;
+.leuce-table .leuce-table-header {
   user-select: none;
   vertical-align: top;
+}
+.leuce-table .leuce-table-header-sortable {
+  cursor: pointer;
 }
 .leuce-table .leuce-table-header-sortable > span {
   display: inline-flex;
   gap: 0.25rem;
+}
+.leuce-table .leuce-table-paginator {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  /* Vertical padding to accommodate form-select's 0.25rem box-shadow spread */
+  padding: 0.25rem 0;
+}
+.leuce-table .leuce-table-paginator-subgroup {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+.leuce-table .leuce-table-button {
+  --bs-btn-color: var(--bs-body-color);
+  --bs-btn-border-color: var(--bs-border-color);
+  --bs-btn-hover-color: var(--bs-body-color);
+  --bs-btn-hover-bg: rgba(var(--bs-emphasis-color-rgb), 0.075);
+  --bs-btn-hover-border-color: var(--bs-border-color);
+  --bs-btn-focus-shadow-rgb: var(--bs-secondary-rgb);
+  --bs-btn-active-color: var(--bs-body-bg);
+  --bs-btn-active-bg: var(--bs-border-color);
+  --bs-btn-active-border-color: var(--bs-border-color);
+  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --bs-btn-disabled-color: var(--bs-secondary-color);
+  --bs-btn-disabled-bg: transparent;
+  --bs-btn-disabled-border-color: var(--bs-border-color);
+  --bs-gradient: none;
 }

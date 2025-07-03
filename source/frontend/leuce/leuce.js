@@ -410,15 +410,19 @@ class Controller
 class UI
 {
     /** @type {string} */
-    static language = $('html').attr('lang');
+    static LANGUAGE = $('html').attr('lang');
 
     /** @type {Object.<string, Object<string, string>>} */
-    static translations = {
+    static TRANSLATIONS = Object.freeze({
         "table.no_data": {
             "en": "No matching records found",
             "tr": "Eşleşen kayıt bulunamadı"
+        },
+        "table.records_per_page": {
+            "en": "Show {count} records per page",
+            "tr": "Sayfada {count} kayıt göster"
         }
-    };
+    });
 
     /**
      * @param {string} key
@@ -427,11 +431,11 @@ class UI
      */
     static translate(key, ...args)
     {
-        const unit = this.translations[key];
+        const unit = this.TRANSLATIONS[key];
         if (unit === undefined) {
             return key;
         }
-        let value = unit[this.language];
+        let value = unit[this.LANGUAGE];
         if (value === undefined) {
             return key;
         }
@@ -568,6 +572,19 @@ class Button
 
 class Table
 {
+    /** @type {Object.<string, string>} */
+    static #SORT_ICON_CLASSES = Object.freeze({
+        'none': 'bi bi-chevron-expand',
+        'asc':  'bi bi-chevron-down',
+        'desc': 'bi bi-chevron-up'
+    });
+
+    /** @type {number[]} */
+    static #PAGE_SIZE_OPTIONS = Object.freeze([5, 10, 25, 50, 100]);
+
+    /** @type {number} */
+    static #DEFAULT_PAGE_SIZE = 5;
+
     /** @type {jQuery} */
     #$wrapper;
 
@@ -597,15 +614,8 @@ class Table
     /** @type {Object.<string, function> | null} */
     #renderers;
 
-    /** @type {(action: string, payload: object|null) => void} | null */
-    #actionHandler = null;
-
-    /** @type {Object.<string, string>} */
-    #sortIconClasses = {
-        'none': 'bi bi-chevron-expand',
-        'asc':  'bi bi-chevron-down',
-        'desc': 'bi bi-chevron-up'
-    };
+    /** @type {(action: string, payload?: *) => void} | null */
+    #actionHandler;
 
     /**
      * @param {jQuery} $table
@@ -633,8 +643,17 @@ class Table
         this.#columns = this.#parseColumns();
         this.#formatters = null;
         this.#renderers = null;
-        this.#decorateSortableHeaders();
-        this.#bindHeaderClickHandler();
+        this.#actionHandler = null;
+        this.#decorateHeaders();
+        this.#createPaginator();
+    }
+
+    /**
+     * @returns {number}
+     */
+    static defaultPageSize()
+    {
+        return this.#DEFAULT_PAGE_SIZE;
     }
 
     /**
@@ -658,7 +677,7 @@ class Table
     }
 
     /**
-     * @param {(action: string, payload: object|null) => void} actionHandler
+     * @param {(action: string, payload?: *) => void} | null actionHandler
      * @returns {Leuce.UI.Table}
      */
     setActionHandler(actionHandler)
@@ -737,6 +756,34 @@ class Table
     }
 
     /**
+     * @param {number} totalRecords
+     * @param {number} pageSize
+     * @param {number} currentPage
+     * @returns {number} totalPages
+     */
+    updatePaginator(totalRecords, pageSize, currentPage)
+    {
+        const $paginator = this.#$wrapper.find('.leuce-table-paginator');
+        const totalPages = Math.ceil(totalRecords / pageSize);
+        const $select = $paginator.find('[data-action="currentPage"]');
+        $select.empty();
+        for (let i = 1; i <= totalPages; ++i) {
+            const $option = $('<option>').val(i).text(i);
+            if (i === currentPage) {
+                $option.prop('selected', true);
+            }
+            $select.append($option);
+        }
+        const atFirstPage = currentPage === 1;
+        const atLastPage = currentPage === totalPages || totalPages === 0;
+        $paginator.find('[data-action="firstPage"]').prop('disabled', atFirstPage);
+        $paginator.find('[data-action="previousPage"]').prop('disabled', atFirstPage);
+        $paginator.find('[data-action="nextPage"]').prop('disabled', atLastPage);
+        $paginator.find('[data-action="lastPage"]').prop('disabled', atLastPage);
+        return totalPages;
+    }
+
+    /**
      * @returns {Array<{
      *   key: string | null,
      *   format: { name: string, arg?: string } | null,
@@ -807,25 +854,6 @@ class Table
     }
 
     /**
-     * @returns {void}
-     */
-    #decorateSortableHeaders()
-    {
-        for (const th of this.#$thead.find('th[data-key]').get()) {
-            const $th = $(th);
-            const label = $th.text().trim();
-            $th .addClass('leuce-table-header-sortable')
-                .empty()
-                .append(
-                    $('<span>').append(
-                        label,
-                        $('<i>').attr('class', this.#sortIconClasses.none)
-                    )
-                );
-        }
-    }
-
-    /**
      * @param {{ name: string, arg?: string }} format
      * @param {Object} row
      * @param {*} value
@@ -859,10 +887,22 @@ class Table
     /**
      * @returns {void}
      */
-    #bindHeaderClickHandler()
+    #decorateHeaders()
     {
-        const $headers = this.#$thead.find('th[data-key]');
-        $headers.on('click', this.#onHeaderClick.bind(this));
+        for (const th of this.#$thead.find('th').get()) {
+            const $th = $(th);
+            $th.addClass('leuce-table-header');
+            if ($th.is('[data-key]')) {
+                const $span = $('<span>').append(
+                    $th.text().trim(),
+                    $('<i>').attr('class', Table.#SORT_ICON_CLASSES.none)
+                )
+                $th.addClass('leuce-table-header-sortable')
+                   .empty()
+                   .append($span)
+                   .on('click', this.#onHeaderClick.bind(this));
+            }
+        }
     }
 
     /**
@@ -875,7 +915,7 @@ class Table
         const clickedKey = $clickedHeader.data('key');
         const clickedIconClass = $clickedHeader.find('i').attr('class');
         let currentDirection;
-        for (const [direction, iconClass] of Object.entries(this.#sortIconClasses)) {
+        for (const [direction, iconClass] of Object.entries(Table.#SORT_ICON_CLASSES)) {
             if (clickedIconClass === iconClass) {
                 currentDirection = direction;
                 break;
@@ -895,13 +935,105 @@ class Table
             } else {
                 direction = 'none';
             }
-            $th.find('i').attr('class', this.#sortIconClasses[direction]);
+            $th.find('i').attr('class', Table.#SORT_ICON_CLASSES[direction]);
         }
         this.#actionHandler?.('sort',
             newDirection === 'none'
                 ? null
                 : { key: clickedKey, direction: newDirection }
         );
+    }
+
+    /**
+     * @returns {void}
+     */
+    #createPaginator()
+    {
+        const $paginator = $('<div>', {
+            class: 'leuce-table-paginator'
+        }).append(this.#createPageSizeSelector())
+          .append(this.#createPageNavigator());
+        this.#$wrapper.append($paginator);
+        $paginator.find('[data-action="pageSize"]').on('change', (event) => {
+            this.#actionHandler?.('pageSize', parseInt(event.target.value, 10));
+        });
+        $paginator.find('[data-action="firstPage"]').on('click', () => {
+            this.#actionHandler?.('firstPage', null);
+        });
+        $paginator.find('[data-action="previousPage"]').on('click', () => {
+            this.#actionHandler?.('previousPage', null);
+        });
+        $paginator.find('[data-action="currentPage"]').on('change', (event) => {
+            this.#actionHandler?.('currentPage', parseInt(event.target.value, 10));
+        });
+        $paginator.find('[data-action="nextPage"]').on('click', () => {
+            this.#actionHandler?.('nextPage', null);
+        });
+        $paginator.find('[data-action="lastPage"]').on('click', () => {
+            this.#actionHandler?.('lastPage', null);
+        });
+    }
+
+    /**
+     * @returns {jQuery}
+     */
+    #createPageSizeSelector()
+    {
+        const $select = this.#createSelect('pageSize');
+        for (const size of Table.#PAGE_SIZE_OPTIONS) {
+            const $option = $('<option>').val(size).text(size);
+            if (size === Table.#DEFAULT_PAGE_SIZE) {
+                $option.prop('selected', true);
+            }
+            $select.append($option);
+        }
+        const html = UI.translate('table.records_per_page')
+            .replace('{count}', $select.prop('outerHTML'));
+        return $('<div>', {
+            class: 'leuce-table-paginator-subgroup'
+        }).append(html);
+    }
+
+    /**
+     * @returns {jQuery}
+     */
+    #createPageNavigator()
+    {
+        return $('<div>', {
+            class: 'leuce-table-paginator-subgroup'
+        }).append(
+            this.#createButton('firstPage', 'bi bi-chevron-bar-left'),
+            this.#createButton('previousPage', 'bi bi-chevron-left'),
+            this.#createSelect('currentPage').append($('<option>').val(1).text('1')),
+            this.#createButton('nextPage', 'bi bi-chevron-right'),
+            this.#createButton('lastPage', 'bi bi-chevron-bar-right')
+        );
+    }
+
+    /**
+     * @param {string} action
+     * @returns {jQuery}
+     */
+    #createSelect(action)
+    {
+        return $('<select>', {
+            class: 'form-select form-select-sm w-auto',
+            'data-action': action
+        });
+    }
+
+    /**
+     * @param {string} action
+     * @param {string} iconClass
+     * @returns {jQuery}
+     */
+    #createButton(action, iconClass)
+    {
+        return $('<button>', {
+            type: 'button',
+            class: 'leuce-table-button btn btn-sm',
+            'data-action': action
+        }).append($('<i>', { class: iconClass }));
     }
 }
 
