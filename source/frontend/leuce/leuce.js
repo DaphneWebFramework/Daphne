@@ -582,6 +582,177 @@ class Button
     }
 }
 
+class TablePaginator
+{
+    /** @type {number[]} */
+    static #PAGE_SIZE_OPTIONS = Object.freeze([5, 10, 25, 50, 100]);
+
+    /** @type {number} */
+    static #DEFAULT_PAGE_SIZE = 10;
+
+    /** @type {jQuery} */
+    #$root;
+
+    /** @type {(action: string, payload?: *) => void} | null */
+    #actionHandler;
+
+    constructor()
+    {
+        this.#$root = TablePaginator.#createRoot();
+        this.#actionHandler = null;
+        this.#bindEvents();
+    }
+
+    /**
+     * @returns {number}
+     */
+    static defaultPageSize()
+    {
+        return this.#DEFAULT_PAGE_SIZE;
+    }
+
+    /**
+     * @param {(action: string, payload?: *) => void} | null actionHandler
+     * @returns {void}
+     */
+    setActionHandler(actionHandler)
+    {
+        this.#actionHandler = actionHandler;
+    }
+
+    /**
+     * @returns {jQuery}
+     */
+    root()
+    {
+        return this.#$root;
+    }
+
+    /**
+     * @param {number} totalRecords
+     * @param {number} pageSize
+     * @param {number} currentPage
+     * @returns {number} totalPages
+     */
+    update(totalRecords, pageSize, currentPage)
+    {
+        const totalPages = Math.ceil(totalRecords / pageSize);
+        const $select = this.#$root.find('[data-action="currentPage"]');
+        $select.empty();
+        for (let i = 1; i <= totalPages; ++i) {
+            const $option = $('<option>').val(i).text(i);
+            if (i === currentPage) {
+                $option.prop('selected', true);
+            }
+            $select.append($option);
+        }
+        const hasNoPages = totalPages === 0;
+        const atFirstPage = currentPage === 1;
+        const atLastPage = currentPage === totalPages || hasNoPages;
+        this.#$root.find('[data-action="firstPage"]').prop('disabled', atFirstPage);
+        this.#$root.find('[data-action="previousPage"]').prop('disabled', atFirstPage);
+        this.#$root.find('[data-action="currentPage"]').prop('disabled', hasNoPages);
+        this.#$root.find('[data-action="nextPage"]').prop('disabled', atLastPage);
+        this.#$root.find('[data-action="lastPage"]').prop('disabled', atLastPage);
+        return totalPages;
+    }
+
+    /**
+     * @returns {jQuery}
+     */
+    static #createRoot()
+    {
+        return $('<div>', { class: 'leuce-table-controls' })
+            .append(this.#createSizeSelector())
+            .append(this.#createNavigator());
+    }
+
+    /**
+     * @returns {jQuery}
+     */
+    static #createSizeSelector()
+    {
+        const $select = this.#createSelect('pageSize');
+        for (const size of this.#PAGE_SIZE_OPTIONS) {
+            const $option = $('<option>').val(size).text(size);
+            if (size === this.#DEFAULT_PAGE_SIZE) {
+                $option.attr('selected', 'selected');
+            }
+            $select.append($option);
+        }
+        return $('<div>', {
+            class: 'leuce-table-controls-group'
+        }).append(UI.translate('table.show_per_page', $select.prop('outerHTML')));
+    }
+
+    /**
+     * @returns {jQuery}
+     */
+    static #createNavigator()
+    {
+        return $('<div>', {
+            class: 'leuce-table-controls-group'
+        }).append(
+            this.#createButton('firstPage', 'bi bi-chevron-bar-left'),
+            this.#createButton('previousPage', 'bi bi-chevron-left'),
+            this.#createSelect('currentPage').append($('<option>').val(1).text('1')),
+            this.#createButton('nextPage', 'bi bi-chevron-right'),
+            this.#createButton('lastPage', 'bi bi-chevron-bar-right')
+        );
+    }
+
+    /**
+     * @param {string} action
+     * @returns {jQuery}
+     */
+    static #createSelect(action)
+    {
+        return $('<select>', {
+            class: 'form-select form-select-sm w-auto',
+            'data-action': action
+        });
+    }
+
+    /**
+     * @param {string} action
+     * @param {string} iconClass
+     * @returns {jQuery}
+     */
+    static #createButton(action, iconClass)
+    {
+        return $('<button>', {
+            type: 'button',
+            class: 'leuce-table-button btn btn-sm',
+            'data-action': action
+        }).append($('<i>', { class: iconClass }));
+    }
+
+    /**
+     * @returns {void}
+     */
+    #bindEvents()
+    {
+        this.#$root.find('[data-action="pageSize"]').on('change', (event) => {
+            this.#actionHandler?.('pageSize', parseInt(event.target.value, 10));
+        });
+        this.#$root.find('[data-action="firstPage"]').on('click', () => {
+            this.#actionHandler?.('firstPage');
+        });
+        this.#$root.find('[data-action="previousPage"]').on('click', () => {
+            this.#actionHandler?.('previousPage');
+        });
+        this.#$root.find('[data-action="currentPage"]').on('change', (event) => {
+            this.#actionHandler?.('currentPage', parseInt(event.target.value, 10));
+        });
+        this.#$root.find('[data-action="nextPage"]').on('click', () => {
+            this.#actionHandler?.('nextPage');
+        });
+        this.#$root.find('[data-action="lastPage"]').on('click', () => {
+            this.#actionHandler?.('lastPage');
+        });
+    }
+}
+
 class Table
 {
     /** @type {Object.<string, string>} */
@@ -594,12 +765,6 @@ class Table
     /** @type {string} */
     static #INLINE_ACTIONS_RENDERER_NAME = 'inlineActions';
 
-    /** @type {number[]} */
-    static #PAGE_SIZE_OPTIONS = Object.freeze([5, 10, 25, 50, 100]);
-
-    /** @type {number} */
-    static #DEFAULT_PAGE_SIZE = 10;
-
     /** @type {jQuery} */
     #$wrapper;
 
@@ -611,6 +776,9 @@ class Table
 
     /** @type {jQuery} */
     #$tbody;
+
+    /** @type {TablePaginator} */
+    #paginator;
 
     /** @type {jQuery} */
     #$overlay;
@@ -652,13 +820,14 @@ class Table
             throw new Error('Leuce: Table requires a `tbody` element.');
         }
         this.#decorateHeaders();
+        this.#paginator = new TablePaginator();
+        this.#$wrapper.append(this.#paginator.root().addClass('mt-3'));
         this.#$overlay = null;
         this.#columns = this.#parseColumns();
         this.#formatters = null;
         this.#renderers = null;
         this.#actionHandler = null;
         this.#createToolbar();
-        this.#createPaginator();
         this.setRenderer(
             Table.#INLINE_ACTIONS_RENDERER_NAME,
             this.#renderInlineActions.bind(this)
@@ -671,7 +840,7 @@ class Table
      */
     static defaultPageSize()
     {
-        return this.#DEFAULT_PAGE_SIZE;
+        return TablePaginator.defaultPageSize();
     }
 
     /**
@@ -709,6 +878,7 @@ class Table
     setActionHandler(actionHandler)
     {
         this.#actionHandler = actionHandler;
+        this.#paginator?.setActionHandler(actionHandler);
         return this;
     }
 
@@ -789,23 +959,7 @@ class Table
      */
     updatePaginator(totalRecords, pageSize, currentPage)
     {
-        const totalPages = Math.ceil(totalRecords / pageSize);
-        const $select = this.#$wrapper.find('[data-action="currentPage"]');
-        $select.empty();
-        for (let i = 1; i <= totalPages; ++i) {
-            const $option = $('<option>').val(i).text(i);
-            if (i === currentPage) {
-                $option.prop('selected', true);
-            }
-            $select.append($option);
-        }
-        const atFirstPage = currentPage === 1;
-        const atLastPage = currentPage === totalPages || totalPages === 0;
-        this.#$wrapper.find('[data-action="firstPage"]').prop('disabled', atFirstPage);
-        this.#$wrapper.find('[data-action="previousPage"]').prop('disabled', atFirstPage);
-        this.#$wrapper.find('[data-action="nextPage"]').prop('disabled', atLastPage);
-        this.#$wrapper.find('[data-action="lastPage"]').prop('disabled', atLastPage);
-        return totalPages;
+        return this.#paginator.update(totalRecords, pageSize, currentPage);
     }
 
     /**
@@ -1053,64 +1207,6 @@ class Table
     }
 
     /**
-     * @returns {void}
-     */
-    #createPaginator()
-    {
-        const $paginator = $('<div>', {
-            class: 'leuce-table-controls mt-3'
-        }).append(this.#createPaginatorSizeSelector())
-          .append(this.#createPaginatorNavigator());
-        this.#$wrapper.append($paginator);
-    }
-
-    /**
-     * @returns {jQuery}
-     */
-    #createPaginatorSizeSelector()
-    {
-        const $select = this.#createSelect('pageSize');
-        for (const size of Table.#PAGE_SIZE_OPTIONS) {
-            const $option = $('<option>').val(size).text(size);
-            if (size === Table.#DEFAULT_PAGE_SIZE) {
-                $option.attr('selected', 'selected');
-            }
-            $select.append($option);
-        }
-        return $('<div>', {
-            class: 'leuce-table-controls-group'
-        }).append(UI.translate('table.show_per_page', $select.prop('outerHTML')));
-    }
-
-    /**
-     * @returns {jQuery}
-     */
-    #createPaginatorNavigator()
-    {
-        return $('<div>', {
-            class: 'leuce-table-controls-group'
-        }).append(
-            this.#createButton('firstPage', 'bi bi-chevron-bar-left'),
-            this.#createButton('previousPage', 'bi bi-chevron-left'),
-            this.#createSelect('currentPage').append($('<option>').val(1).text('1')),
-            this.#createButton('nextPage', 'bi bi-chevron-right'),
-            this.#createButton('lastPage', 'bi bi-chevron-bar-right')
-        );
-    }
-
-    /**
-     * @param {string} action
-     * @returns {jQuery}
-     */
-    #createSelect(action)
-    {
-        return $('<select>', {
-            class: 'form-select form-select-sm w-auto',
-            'data-action': action
-        });
-    }
-
-    /**
      * @param {string} action
      * @param {string} iconClass
      * @param {string|null} [label=null]
@@ -1163,26 +1259,6 @@ class Table
         this.#$tbody.on('click', '[data-action="delete"]', event => {
             const id = $(event.currentTarget).closest('tr').data('id');
             this.#actionHandler?.('delete', id);
-        });
-
-        // Paginator
-        this.#$wrapper.find('[data-action="pageSize"]').on('change', (event) => {
-            this.#actionHandler?.('pageSize', parseInt(event.target.value, 10));
-        });
-        this.#$wrapper.find('[data-action="firstPage"]').on('click', () => {
-            this.#actionHandler?.('firstPage');
-        });
-        this.#$wrapper.find('[data-action="previousPage"]').on('click', () => {
-            this.#actionHandler?.('previousPage');
-        });
-        this.#$wrapper.find('[data-action="currentPage"]').on('change', (event) => {
-            this.#actionHandler?.('currentPage', parseInt(event.target.value, 10));
-        });
-        this.#$wrapper.find('[data-action="nextPage"]').on('click', () => {
-            this.#actionHandler?.('nextPage');
-        });
-        this.#$wrapper.find('[data-action="lastPage"]').on('click', () => {
-            this.#actionHandler?.('lastPage');
         });
     }
 }
