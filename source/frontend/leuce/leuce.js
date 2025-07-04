@@ -414,6 +414,10 @@ class UI
 
     /** @type {Object.<string, Object<string, string>>} */
     static TRANSLATIONS = Object.freeze({
+        "loading": {
+            "en": "Loading...",
+            "tr": "Yükleniyor..."
+        },
         "table.no_data": {
             "en": "No matching records found",
             "tr": "Eşleşen kayıt bulunamadı"
@@ -548,10 +552,10 @@ class Button
             this.#alreadyDisabled = this.#$button.prop('disabled');
             this.#inlineWidth = this.#$button[0].style.width;
             this.#$button.css('width', this.#$button.outerWidth() + 'px');
-            this.#$button.html(
-                '<span class="spinner-border spinner-border-sm" aria-hidden="true"></span>' +
-                '<span class="visually-hidden" role="status">Loading...</span>'
-            );
+            this.#$button.html(`
+                <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                <span class="visually-hidden" role="status">${UI.translate('loading')}</span>
+            `);
             if (!this.#alreadyDisabled) {
                 this.#$button.prop('disabled', true);
             }
@@ -907,7 +911,8 @@ class Table
      * @type {Array<{
      *   key: string | null,
      *   format: { name: string, arg?: string } | null
-     *   render: string | null
+     *   render: string | null,
+     *   $th: jQuery
      * }>}
      */
     #columns;
@@ -1016,8 +1021,8 @@ class Table
     setActionHandler(actionHandler)
     {
         this.#actionHandler = actionHandler;
-        this.#toolbar?.setActionHandler(actionHandler);
-        this.#paginator?.setActionHandler(actionHandler);
+        this.#toolbar.setActionHandler(actionHandler);
+        this.#paginator.setActionHandler(actionHandler);
         return this;
     }
 
@@ -1028,12 +1033,19 @@ class Table
     {
         if (isLoading) {
             if (this.#$overlay === null) {
-                this.#$overlay = $(`
-                    <div class="leuce-table-overlay hidden">
-                        <span class="spinner-border" aria-hidden="true"></span>
-                        <span class="visually-hidden" role="status">Loading...</span>
-                    </div>
-                `);
+                this.#$overlay = $('<div>', {
+                    class: 'leuce-table-overlay hidden'
+                }).append(
+                    $('<span>', {
+                        class: 'spinner-border',
+                        'aria-hidden': 'true'
+                    }),
+                    $('<span>', {
+                        class: 'visually-hidden',
+                        role: 'status',
+                        text: UI.translate('loading')
+                    })
+                );
                 this.#$wrapper.append(this.#$overlay);
             }
             this.#$overlay.removeClass('hidden');
@@ -1129,7 +1141,8 @@ class Table
      * @returns {Array<{
      *   key: string | null,
      *   format: { name: string, arg?: string } | null,
-     *   render: string | null
+     *   render: string | null,
+     *   $th: jQuery
      * }>}
      */
     #parseColumns()
@@ -1146,7 +1159,7 @@ class Table
             if (key === null) {
                 render = Table.#readColumnData($th, 'render');
             }
-            result.push({ key, format, render });
+            result.push({ key, format, render, $th });
         }
         return result;
     }
@@ -1187,10 +1200,14 @@ class Table
      */
     #bindEvents()
     {
-        // Headers
-        this.#$thead.find('th[data-key]').on('click', this.#onHeaderClick.bind(this));
-
-        // Rows
+        // Sortable headers
+        const onHeaderClick = this.#onHeaderClick.bind(this);
+        for (const column of this.#columns) {
+            if (column.key !== null) {
+                column.$th.on('click', onHeaderClick);
+            }
+        }
+        // Inline actions
         this.#$tbody.on('click', '[data-action="edit"]', event => {
             const id = $(event.currentTarget).closest('tr').data('id');
             this.#actionHandler?.('edit', id);
@@ -1223,15 +1240,17 @@ class Table
         case 'desc': newDirection = 'none'; break;
         default:     newDirection = 'asc';
         }
-        for (const th of this.#$thead.find('th[data-key]').get()) {
-            const $th = $(th);
+        for (const column of this.#columns) {
+            if (column.key === null) {
+                continue; // Skip non-sortable columns
+            }
             let direction;
-            if (clickedKey === $th.data('key')) {
+            if (clickedKey === column.key) {
                 direction = newDirection;
             } else {
                 direction = 'none';
             }
-            $th.find('i').attr('class', Table.#SORT_ICON_CLASSES[direction]);
+            column.$th.find('i').attr('class', Table.#SORT_ICON_CLASSES[direction]);
         }
         this.#actionHandler?.('sort',
             newDirection === 'none'
