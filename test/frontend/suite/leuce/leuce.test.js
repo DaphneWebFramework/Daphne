@@ -898,7 +898,7 @@ QUnit.module('Leuce', function()
                 const tbl = $tbl.leuceTable();
                 tbl.setData([{ id: 1, name: 'Alice', age: 30 }]);
                 const $cells = $tbl.find('tbody tr').first().children('td');
-                assert.strictEqual($cells.length, 4);
+                assert.strictEqual($cells.length, 5); // Including "inlineActions"
                 assert.strictEqual($cells.eq(0).text(), '');
                 assert.strictEqual($cells.eq(1).text(), '30');
                 assert.strictEqual($cells.eq(2).text(), '');

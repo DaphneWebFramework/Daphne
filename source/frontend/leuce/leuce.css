@@ -60,13 +60,19 @@
   display: inline-flex;
   gap: 0.25rem;
 }
+.leuce-table th[data-render="inlineActions"] {
+  width: 1px; /* Shrinks to fit content */
+}
+.leuce-table .leuce-table-inline-actions {
+  margin-inline: -0.5rem; /* Counteracts cell padding to tighten layout */
+}
 .leuce-table .leuce-table-controls {
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  /* Ensure vertical spacing between control groups when
-     they wrap on narrow screens */
+  /* Ensures vertical spacing between control groups
+     when they wrap on narrow screens */
   row-gap: 0.5rem;
 }
 .leuce-table .leuce-table-controls-group {

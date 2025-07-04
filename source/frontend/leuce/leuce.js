@@ -430,9 +430,9 @@ class UI
             "en": "Reload",
             "tr": "Yenile"
         },
-        "table.records_per_page": {
-            "en": "Show {count} records per page",
-            "tr": "Sayfada {count} kayıt göster"
+        "table.show_per_page": {
+            "en": "Show %s per page",
+            "tr": "Sayfada %s göster"
         }
     });
 
@@ -591,11 +591,14 @@ class Table
         'desc': 'bi bi-chevron-up'
     });
 
+    /** @type {string} */
+    static #INLINE_ACTIONS_RENDERER_NAME = 'inlineActions';
+
     /** @type {number[]} */
     static #PAGE_SIZE_OPTIONS = Object.freeze([5, 10, 25, 50, 100]);
 
     /** @type {number} */
-    static #DEFAULT_PAGE_SIZE = 5;
+    static #DEFAULT_PAGE_SIZE = 10;
 
     /** @type {jQuery} */
     #$wrapper;
@@ -648,14 +651,19 @@ class Table
         if (this.#$tbody.length === 0) {
             throw new Error('Leuce: Table requires a `tbody` element.');
         }
+        this.#decorateHeaders();
         this.#$overlay = null;
         this.#columns = this.#parseColumns();
         this.#formatters = null;
         this.#renderers = null;
         this.#actionHandler = null;
         this.#createToolbar();
-        this.#decorateHeaders();
         this.#createPaginator();
+        this.setRenderer(
+            Table.#INLINE_ACTIONS_RENDERER_NAME,
+            this.#renderInlineActions.bind(this)
+        );
+        this.#bindEvents();
     }
 
     /**
@@ -816,6 +824,30 @@ class Table
     }
 
     /**
+     * @returns {void}
+     */
+    #decorateHeaders()
+    {
+        for (const th of this.#$thead.find('th').get()) {
+            const $th = $(th);
+            $th.addClass('leuce-table-header');
+            if ($th.is('[data-key]')) {
+                const $span = $('<span>').append(
+                    $th.text().trim(),
+                    $('<i>').attr('class', Table.#SORT_ICON_CLASSES.none)
+                )
+                $th.addClass('leuce-table-header-sortable')
+                   .empty()
+                   .append($span);
+            }
+        }
+        this.#$thead.find('tr').append($('<th>', {
+            scope: 'col',
+            'data-render': Table.#INLINE_ACTIONS_RENDERER_NAME
+        }));
+    }
+
+    /**
      * @returns {Array<{
      *   key: string | null,
      *   format: { name: string, arg?: string } | null,
@@ -917,24 +949,15 @@ class Table
     }
 
     /**
-     * @returns {void}
+     * @param {Object} row
+     * @returns {jQuery}
      */
-    #decorateHeaders()
+    #renderInlineActions(row)
     {
-        for (const th of this.#$thead.find('th').get()) {
-            const $th = $(th);
-            $th.addClass('leuce-table-header');
-            if ($th.is('[data-key]')) {
-                const $span = $('<span>').append(
-                    $th.text().trim(),
-                    $('<i>').attr('class', Table.#SORT_ICON_CLASSES.none)
-                )
-                $th.addClass('leuce-table-header-sortable')
-                   .empty()
-                   .append($span)
-                   .on('click', this.#onHeaderClick.bind(this));
-            }
-        }
+        return $('<div>', {
+            class: 'leuce-table-inline-actions btn-group btn-group-sm'
+        }).append(this.#createButton('edit', 'bi bi-pencil'))
+          .append(this.#createButton('delete', 'bi bi-trash'));
     }
 
     /**
@@ -984,31 +1007,16 @@ class Table
         const $toolbar = $('<div>', {
             class: 'leuce-table-controls mb-3'
         }).append(
-            this.#createSearchBox(),
-            this.#createActionButtons()
+            this.#createToolbarSearchBox(),
+            this.#createToolbarActionButtons()
         );
         this.#$wrapper.prepend($toolbar);
-
-        $toolbar.find('[data-action="search"]').on('click', () => {
-            this.#actionHandler?.('search', $toolbar.find('[data-action="search-input"]').val().trim());
-        });
-        $toolbar.find('[data-action="search-input"]').on('keydown', (event) => {
-            if (event.key === 'Enter') {
-                this.#actionHandler?.('search', $(event.currentTarget).val().trim());
-            }
-        });
-        $toolbar.find('[data-action="add"]').on('click', () => {
-            this.#actionHandler?.('add');
-        });
-        $toolbar.find('[data-action="reload"]').on('click', () => {
-            this.#actionHandler?.('reload');
-        });
     }
 
     /**
      * @returns {jQuery}
      */
-    #createSearchBox()
+    #createToolbarSearchBox()
     {
         const $inputGroup = $('<div>', {
             class: 'input-group flex-nowrap'
@@ -1034,7 +1042,7 @@ class Table
     /**
      * @returns {jQuery}
      */
-    #createActionButtons()
+    #createToolbarActionButtons()
     {
         return $('<div>', {
             class: 'leuce-table-controls-group'
@@ -1051,54 +1059,33 @@ class Table
     {
         const $paginator = $('<div>', {
             class: 'leuce-table-controls mt-3'
-        }).append(this.#createPageSizeSelector())
-          .append(this.#createPageNavigator());
+        }).append(this.#createPaginatorSizeSelector())
+          .append(this.#createPaginatorNavigator());
         this.#$wrapper.append($paginator);
-
-        $paginator.find('[data-action="pageSize"]').on('change', (event) => {
-            this.#actionHandler?.('pageSize', parseInt(event.target.value, 10));
-        });
-        $paginator.find('[data-action="firstPage"]').on('click', () => {
-            this.#actionHandler?.('firstPage');
-        });
-        $paginator.find('[data-action="previousPage"]').on('click', () => {
-            this.#actionHandler?.('previousPage');
-        });
-        $paginator.find('[data-action="currentPage"]').on('change', (event) => {
-            this.#actionHandler?.('currentPage', parseInt(event.target.value, 10));
-        });
-        $paginator.find('[data-action="nextPage"]').on('click', () => {
-            this.#actionHandler?.('nextPage');
-        });
-        $paginator.find('[data-action="lastPage"]').on('click', () => {
-            this.#actionHandler?.('lastPage');
-        });
     }
 
     /**
      * @returns {jQuery}
      */
-    #createPageSizeSelector()
+    #createPaginatorSizeSelector()
     {
         const $select = this.#createSelect('pageSize');
         for (const size of Table.#PAGE_SIZE_OPTIONS) {
             const $option = $('<option>').val(size).text(size);
             if (size === Table.#DEFAULT_PAGE_SIZE) {
-                $option.prop('selected', true);
+                $option.attr('selected', 'selected');
             }
             $select.append($option);
         }
-        const html = UI.translate('table.records_per_page')
-            .replace('{count}', $select.prop('outerHTML'));
         return $('<div>', {
             class: 'leuce-table-controls-group'
-        }).append(html);
+        }).append(UI.translate('table.show_per_page', $select.prop('outerHTML')));
     }
 
     /**
      * @returns {jQuery}
      */
-    #createPageNavigator()
+    #createPaginatorNavigator()
     {
         return $('<div>', {
             class: 'leuce-table-controls-group'
@@ -1141,6 +1128,62 @@ class Table
             $button.append(' ', label);
         }
         return $button;
+    }
+
+    /**
+     * @returns {void}
+     */
+    #bindEvents()
+    {
+        // Toolbar
+        this.#$wrapper.find('[data-action="search-input"]').on('keydown', (event) => {
+            if (event.key === 'Enter') {
+                this.#actionHandler?.('search', $(event.currentTarget).val().trim());
+            }
+        });
+        this.#$wrapper.find('[data-action="search"]').on('click', () => {
+            const $input = this.#$wrapper.find('[data-action="search-input"]');
+            this.#actionHandler?.('search', $input.val().trim());
+        });
+        this.#$wrapper.find('[data-action="add"]').on('click', () => {
+            this.#actionHandler?.('add');
+        });
+        this.#$wrapper.find('[data-action="reload"]').on('click', () => {
+            this.#actionHandler?.('reload');
+        });
+
+        // Headers
+        this.#$thead.find('th[data-key]').on('click', this.#onHeaderClick.bind(this));
+
+        // Rows
+        this.#$tbody.on('click', '[data-action="edit"]', event => {
+            const id = $(event.currentTarget).closest('tr').data('id');
+            this.#actionHandler?.('edit', id);
+        });
+        this.#$tbody.on('click', '[data-action="delete"]', event => {
+            const id = $(event.currentTarget).closest('tr').data('id');
+            this.#actionHandler?.('delete', id);
+        });
+
+        // Paginator
+        this.#$wrapper.find('[data-action="pageSize"]').on('change', (event) => {
+            this.#actionHandler?.('pageSize', parseInt(event.target.value, 10));
+        });
+        this.#$wrapper.find('[data-action="firstPage"]').on('click', () => {
+            this.#actionHandler?.('firstPage');
+        });
+        this.#$wrapper.find('[data-action="previousPage"]').on('click', () => {
+            this.#actionHandler?.('previousPage');
+        });
+        this.#$wrapper.find('[data-action="currentPage"]').on('change', (event) => {
+            this.#actionHandler?.('currentPage', parseInt(event.target.value, 10));
+        });
+        this.#$wrapper.find('[data-action="nextPage"]').on('click', () => {
+            this.#actionHandler?.('nextPage');
+        });
+        this.#$wrapper.find('[data-action="lastPage"]').on('click', () => {
+            this.#actionHandler?.('lastPage');
+        });
     }
 }
 
