@@ -582,6 +582,129 @@ class Button
     }
 }
 
+class TableToolbar
+{
+    /** @type {jQuery} */
+    #$root;
+
+    /** @type {(action: string, payload?: *) => void} | null */
+    #actionHandler;
+
+    constructor()
+    {
+        this.#$root = TableToolbar.#createRoot();
+        this.#actionHandler = null;
+        this.#bindEvents();
+    }
+
+    /**
+     * @param {(action: string, payload?: *) => void} | null actionHandler
+     * @returns {void}
+     */
+    setActionHandler(actionHandler)
+    {
+        this.#actionHandler = actionHandler;
+    }
+
+    /**
+     * @returns {jQuery}
+     */
+    root()
+    {
+        return this.#$root;
+    }
+
+    /**
+     * @returns {jQuery}
+     */
+    static #createRoot()
+    {
+        return $('<div>', {
+            class: 'leuce-table-controls'
+        }).append(
+            this.#createSearchBox(),
+            this.#createActionButtons()
+        );
+    }
+
+    /**
+     * @returns {jQuery}
+     */
+    static #createSearchBox()
+    {
+        const $input = $('<input>', {
+            type: 'search',
+            class: 'form-control form-control-sm',
+            'data-action': 'search-input',
+            placeholder: UI.translate('table.search'),
+            css: { minWidth: '100px', maxWidth: '150px' }
+        });
+        const $inputGroup = $('<div>', {
+            class: 'input-group flex-nowrap'
+        }).append(
+            $input,
+            this.#createButton('search', 'bi bi-search')
+        );
+        return $('<div>', {
+            class: 'leuce-table-controls-group'
+        }).append($inputGroup);
+    }
+
+    /**
+     * @returns {jQuery}
+     */
+    static #createActionButtons()
+    {
+        return $('<div>', {
+            class: 'leuce-table-controls-group'
+        }).append(
+            this.#createButton('add', 'bi bi-plus-lg', UI.translate('table.add')),
+            this.#createButton('reload', 'bi bi-arrow-clockwise', UI.translate('table.reload'))
+        );
+    }
+
+    /**
+     * @param {string} action
+     * @param {string} iconClass
+     * @param {string|null} [label=null]
+     * @returns {jQuery}
+     */
+    static #createButton(action, iconClass, label = null)
+    {
+        const $button = $('<button>', {
+            type: 'button',
+            class: 'leuce-table-button btn btn-sm',
+            'data-action': action
+        }).append($('<i>', { class: iconClass }));
+        if (label !== null) {
+            $button.append(' ', label);
+        }
+        return $button;
+    }
+
+    /**
+     * @returns {void}
+     */
+    #bindEvents()
+    {
+        this.#$root.find('[data-action="search-input"]').on('keydown', (event) => {
+            if (event.key === 'Enter') {
+                this.#actionHandler?.('search', $(event.currentTarget).val().trim());
+            }
+        });
+        this.#$root.find('[data-action="search"]').on('click', () => {
+            const $input = this.#$root.find('[data-action="search-input"]');
+            this.#actionHandler?.('search', $input.val().trim());
+        });
+        this.#$root.find('[data-action="add"]').on('click', () => {
+            this.#actionHandler?.('add');
+        });
+        this.#$root.find('[data-action="reload"]').on('click', () => {
+            this.#actionHandler?.('reload');
+        });
+    }
+}
+
 class TablePaginator
 {
     /** @type {number[]} */
@@ -662,9 +785,12 @@ class TablePaginator
      */
     static #createRoot()
     {
-        return $('<div>', { class: 'leuce-table-controls' })
-            .append(this.#createSizeSelector())
-            .append(this.#createNavigator());
+        return $('<div>', {
+            class: 'leuce-table-controls'
+        }).append(
+            this.#createSizeSelector(),
+            this.#createNavigator()
+        );
     }
 
     /**
@@ -777,6 +903,9 @@ class Table
     /** @type {jQuery} */
     #$tbody;
 
+    /** @type {TableToolbar} */
+    #toolbar;
+
     /** @type {TablePaginator} */
     #paginator;
 
@@ -819,19 +948,26 @@ class Table
         if (this.#$tbody.length === 0) {
             throw new Error('Leuce: Table requires a `tbody` element.');
         }
+
         this.#decorateHeaders();
+
+        this.#toolbar = new TableToolbar();
+        this.#$wrapper.prepend(this.#toolbar.root().addClass('mb-3'));
+
         this.#paginator = new TablePaginator();
         this.#$wrapper.append(this.#paginator.root().addClass('mt-3'));
+
         this.#$overlay = null;
         this.#columns = this.#parseColumns();
         this.#formatters = null;
         this.#renderers = null;
         this.#actionHandler = null;
-        this.#createToolbar();
+
         this.setRenderer(
             Table.#INLINE_ACTIONS_RENDERER_NAME,
             this.#renderInlineActions.bind(this)
         );
+
         this.#bindEvents();
     }
 
@@ -878,6 +1014,7 @@ class Table
     setActionHandler(actionHandler)
     {
         this.#actionHandler = actionHandler;
+        this.#toolbar?.setActionHandler(actionHandler);
         this.#paginator?.setActionHandler(actionHandler);
         return this;
     }
@@ -1154,76 +1291,17 @@ class Table
     }
 
     /**
-     * @returns {void}
-     */
-    #createToolbar()
-    {
-        const $toolbar = $('<div>', {
-            class: 'leuce-table-controls mb-3'
-        }).append(
-            this.#createToolbarSearchBox(),
-            this.#createToolbarActionButtons()
-        );
-        this.#$wrapper.prepend($toolbar);
-    }
-
-    /**
-     * @returns {jQuery}
-     */
-    #createToolbarSearchBox()
-    {
-        const $inputGroup = $('<div>', {
-            class: 'input-group flex-nowrap'
-        }).append(
-            $('<input>', {
-                type: 'search',
-                class: 'form-control form-control-sm',
-                'data-action': 'search-input',
-                placeholder: UI.translate('table.search'),
-                css: { minWidth: '100px', maxWidth: '150px' }
-            }),
-            $('<button>', {
-                type: 'button',
-                class: 'leuce-table-button btn btn-sm',
-                'data-action': 'search'
-            }).append($('<i>', { class: 'bi bi-search' }))
-        );
-        return $('<div>', {
-            class: 'leuce-table-controls-group'
-        }).append($inputGroup);
-    }
-
-    /**
-     * @returns {jQuery}
-     */
-    #createToolbarActionButtons()
-    {
-        return $('<div>', {
-            class: 'leuce-table-controls-group'
-        }).append(
-            this.#createButton('add', 'bi bi-plus-lg', UI.translate('table.add')),
-            this.#createButton('reload', 'bi bi-arrow-clockwise', UI.translate('table.reload'))
-        );
-    }
-
-    /**
      * @param {string} action
      * @param {string} iconClass
-     * @param {string|null} [label=null]
      * @returns {jQuery}
      */
-    #createButton(action, iconClass, label = null)
+    #createButton(action, iconClass)
     {
-        const $button = $('<button>', {
+        return $('<button>', {
             type: 'button',
             class: 'leuce-table-button btn btn-sm',
             'data-action': action
-        });
-        $button.append($('<i>', { class: iconClass }));
-        if (label !== null) {
-            $button.append(' ', label);
-        }
-        return $button;
+        }).append($('<i>', { class: iconClass }));
     }
 
     /**
@@ -1231,23 +1309,6 @@ class Table
      */
     #bindEvents()
     {
-        // Toolbar
-        this.#$wrapper.find('[data-action="search-input"]').on('keydown', (event) => {
-            if (event.key === 'Enter') {
-                this.#actionHandler?.('search', $(event.currentTarget).val().trim());
-            }
-        });
-        this.#$wrapper.find('[data-action="search"]').on('click', () => {
-            const $input = this.#$wrapper.find('[data-action="search-input"]');
-            this.#actionHandler?.('search', $input.val().trim());
-        });
-        this.#$wrapper.find('[data-action="add"]').on('click', () => {
-            this.#actionHandler?.('add');
-        });
-        this.#$wrapper.find('[data-action="reload"]').on('click', () => {
-            this.#actionHandler?.('reload');
-        });
-
         // Headers
         this.#$thead.find('th[data-key]').on('click', this.#onHeaderClick.bind(this));
 
