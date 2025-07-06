@@ -418,10 +418,6 @@ class UI
             "en": "Loading...",
             "tr": "Yükleniyor..."
         },
-        "table.no_data": {
-            "en": "No matching records found",
-            "tr": "Eşleşen kayıt bulunamadı"
-        },
         "table.search": {
             "en": "Search...",
             "tr": "Ara..."
@@ -433,6 +429,10 @@ class UI
         "table.reload": {
             "en": "Reload",
             "tr": "Yenile"
+        },
+        "table.no_data": {
+            "en": "No matching records found",
+            "tr": "Eşleşen kayıt bulunamadı"
         },
         "table.show_per_page": {
             "en": "Show %s per page",
@@ -602,20 +602,20 @@ class TableToolbar
     }
 
     /**
+     * @returns {jQuery}
+     */
+    root()
+    {
+        return this.#$root;
+    }
+
+    /**
      * @param {(action: string, payload?: *) => void} | null actionHandler
      * @returns {void}
      */
     setActionHandler(actionHandler)
     {
         this.#actionHandler = actionHandler;
-    }
-
-    /**
-     * @returns {jQuery}
-     */
-    root()
-    {
-        return this.#$root;
     }
 
     /**
@@ -739,20 +739,20 @@ class TablePaginator
     }
 
     /**
+     * @returns {jQuery}
+     */
+    root()
+    {
+        return this.#$root;
+    }
+
+    /**
      * @param {(action: string, payload?: *) => void} | null actionHandler
      * @returns {void}
      */
     setActionHandler(actionHandler)
     {
         this.#actionHandler = actionHandler;
-    }
-
-    /**
-     * @returns {jQuery}
-     */
-    root()
-    {
-        return this.#$root;
     }
 
     /**
@@ -943,8 +943,7 @@ class Table
         if (!$table.is('table')) {
             throw new Error('Leuce: Only table elements are supported.');
         }
-
-        this.#$wrapper = Table.#wrap($table);
+        this.#$wrapper = Table.#createWrapper($table);
         this.#$table = $table;
         this.#$thead = $table.find('thead').first();
         if (this.#$thead.length === 0) {
@@ -1147,7 +1146,7 @@ class Table
      */
     #parseColumns()
     {
-        const result = [];
+        const columns = [];
         for (const th of this.#$thead.find('th').get()) {
             const $th = $(th);
             const key = Table.#readColumnData($th, 'key');
@@ -1159,9 +1158,9 @@ class Table
             if (key === null) {
                 render = Table.#readColumnData($th, 'render');
             }
-            result.push({ key, format, render, $th });
+            columns.push({ key, format, render, $th });
         }
-        return result;
+        return columns;
     }
 
     /**
@@ -1242,7 +1241,7 @@ class Table
         }
         for (const column of this.#columns) {
             if (column.key === null) {
-                continue; // Skip non-sortable columns
+                continue;
             }
             let direction;
             if (clickedKey === column.key) {
@@ -1263,7 +1262,7 @@ class Table
      * @param {jQuery} $table
      * @returns {jQuery}
      */
-    static #wrap($table)
+    static #createWrapper($table)
     {
         let $responsive = $table.parent('.table-responsive');
         if ($responsive.length === 0) {
