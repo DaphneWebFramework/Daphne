@@ -907,6 +907,18 @@ class Table
     /** @type {jQuery} */
     #$tbody;
 
+    /** @type {Object.<string, function>} */
+    #formatters;
+
+    /** @type {Object.<string, function>} */
+    #renderers;
+
+    /** @type {(action: string, payload?: *) => void} | null */
+    #actionHandler;
+
+    /** @type {string|null} */
+    #primaryKey;
+
     /**
      * @type {Array<{
      *   key: string | null,
@@ -916,15 +928,6 @@ class Table
      * }>}
      */
     #columns;
-
-    /** @type {Object.<string, function>} | null */
-    #formatters;
-
-    /** @type {Object.<string, function> | null} */
-    #renderers;
-
-    /** @type {(action: string, payload?: *) => void} | null */
-    #actionHandler;
 
     /** @type {TableToolbar} */
     #toolbar;
@@ -940,40 +943,43 @@ class Table
      */
     constructor($table)
     {
+        // 1
         if (!$table.is('table')) {
             throw new Error('Leuce: Only table elements are supported.');
         }
+        // 2
         this.#$wrapper = Table.#createWrapper($table);
         this.#$table = $table;
+        // 3
         this.#$thead = $table.find('thead').first();
         if (this.#$thead.length === 0) {
             throw new Error('Leuce: Table requires a `thead` element.');
         }
+        this.#decorateHeaders();
+        // 4
         this.#$tbody = $table.find('tbody').first();
         if (this.#$tbody.length === 0) {
             throw new Error('Leuce: Table requires a `tbody` element.');
         }
-
-        this.#decorateHeaders();
-
-        this.#columns = this.#parseColumns();
-        this.#formatters = null;
-        this.#renderers = null;
+        // 5
+        this.#formatters = {};
+        this.#renderers = {};
         this.#actionHandler = null;
-
+        // 6
+        this.#primaryKey = this.#resolvePrimaryKey();
+        if (this.#primaryKey !== null) {
+            this.#setUpInlineActionsColumn();
+        }
+        this.#columns = this.#parseColumns();
+        // 7
         this.#toolbar = new TableToolbar();
         this.#$wrapper.prepend(this.#toolbar.root().addClass('mb-3'));
-
+        // 8
         this.#paginator = new TablePaginator();
         this.#$wrapper.append(this.#paginator.root().addClass('mt-3'));
-
+        // 9
         this.#$overlay = null;
-
-        this.setRenderer(
-            Table.#INLINE_ACTIONS_RENDERER_NAME,
-            Table.#renderInlineActions.bind(Table)
-        );
-
+        // 10
         this.#bindEvents();
     }
 
@@ -992,9 +998,6 @@ class Table
      */
     setFormatter(name, formatter)
     {
-        if (!this.#formatters) {
-            this.#formatters = {};
-        }
         this.#formatters[name] = formatter;
         return this;
     }
@@ -1006,9 +1009,6 @@ class Table
      */
     setRenderer(name, renderer)
     {
-        if (!this.#renderers) {
-            this.#renderers = {};
-        }
         this.#renderers[name] = renderer;
         return this;
     }
@@ -1072,8 +1072,12 @@ class Table
         }
         for (const row of data) {
             const $tr = $('<tr>');
-            if ('id' in row) {
-                $tr.data('id', row.id);
+            if (this.#primaryKey !== null) {
+                if (this.#primaryKey in row) {
+                    $tr.data(this.#primaryKey, row[this.#primaryKey]);
+                } else {
+                    console.warn(`Leuce: Primary key "${this.#primaryKey}" not found in row data.`);
+                }
             }
             for (const { key, format, render } of this.#columns) {
                 let value = '';
@@ -1130,10 +1134,29 @@ class Table
                    .append($span);
             }
         }
-        this.#$thead.find('tr').append($('<th>', {
+    }
+
+    /**
+     * @returns {string|null}
+     */
+    #resolvePrimaryKey()
+    {
+        const $tr = this.#$thead.find('tr').first();
+        return Table.#readDataAttribute($tr, 'primaryKey');
+    }
+
+    /**
+     * @returns {void}
+     */
+    #setUpInlineActionsColumn() {
+        this.#$thead.find('tr').first().append($('<th>', {
             scope: 'col',
             'data-render': Table.#INLINE_ACTIONS_RENDERER_NAME
         }));
+        this.setRenderer(
+            Table.#INLINE_ACTIONS_RENDERER_NAME,
+            Table.#renderInlineActions.bind(Table)
+        );
     }
 
     /**
@@ -1149,14 +1172,14 @@ class Table
         const columns = [];
         for (const th of this.#$thead.find('th').get()) {
             const $th = $(th);
-            const key = Table.#readColumnData($th, 'key');
-            let format = Table.#readColumnData($th, 'format');
+            const key = Table.#readDataAttribute($th, 'key');
+            let format = Table.#readDataAttribute($th, 'format');
             if (format !== null) {
                 format = Table.#parseColumnFormat(format);
             }
             let render = null;
             if (key === null) {
-                render = Table.#readColumnData($th, 'render');
+                render = Table.#readDataAttribute($th, 'render');
             }
             columns.push({ key, format, render, $th });
         }
@@ -1171,7 +1194,7 @@ class Table
      */
     #callFormatter(format, row, value)
     {
-        const formatter = this.#formatters?.[format.name];
+        const formatter = this.#formatters[format.name];
         if (typeof formatter !== 'function') {
             console.warn(`Leuce: No formatter found for "${format.name}".`);
             return value;
@@ -1186,7 +1209,7 @@ class Table
      */
     #callRenderer(name, row)
     {
-        const renderer = this.#renderers?.[name];
+        const renderer = this.#renderers[name];
         if (typeof renderer !== 'function') {
             console.warn(`Leuce: No renderer found for "${name}".`);
             return '';
@@ -1207,14 +1230,16 @@ class Table
             }
         }
         // Inline actions
-        this.#$tbody.on('click', '[data-action="edit"]', event => {
-            const id = $(event.currentTarget).closest('tr').data('id');
-            this.#actionHandler?.('edit', id);
-        });
-        this.#$tbody.on('click', '[data-action="delete"]', event => {
-            const id = $(event.currentTarget).closest('tr').data('id');
-            this.#actionHandler?.('delete', id);
-        });
+        if (this.#primaryKey !== null) {
+            this.#$tbody.on('click', '[data-action="edit"]', event => {
+                const pk = $(event.currentTarget).closest('tr').data(this.#primaryKey);
+                this.#actionHandler?.('edit', pk);
+            });
+            this.#$tbody.on('click', '[data-action="delete"]', event => {
+                const pk = $(event.currentTarget).closest('tr').data(this.#primaryKey);
+                this.#actionHandler?.('delete', pk);
+            });
+        }
     }
 
     /**
@@ -1274,23 +1299,23 @@ class Table
     }
 
     /**
-     * @param {jQuery} $th
+     * @param {jQuery} $el
      * @param {string} name
      * @returns {string|null}
      */
-    static #readColumnData($th, name)
+    static #readDataAttribute($el, name)
     {
-        let value = $th.data(name);
+        let value = $el.data(name);
         if (value === undefined) {
             return null;
         }
         if (typeof value !== 'string') {
-            console.warn(`Leuce: Column attribute 'data-${name}' must be a string.`);
+            console.warn(`Leuce: Attribute 'data-${name}' must be a string.`);
             return null;
         }
         value = value.trim();
         if (value === '') {
-            console.warn(`Leuce: Column attribute 'data-${name}' must be a nonempty string.`);
+            console.warn(`Leuce: Attribute 'data-${name}' must be a nonempty string.`);
             return null;
         }
         return value;
@@ -1305,7 +1330,7 @@ class Table
         let [name, arg] = format.split(':');
         name = name.trim();
         if (name === '') {
-            console.warn("Leuce: Column attribute 'data-format' must have a nonempty name.");
+            console.warn("Leuce: Attribute 'data-format' must have a nonempty name.");
             return null;
         }
         if (arg !== undefined) {
@@ -1321,12 +1346,14 @@ class Table
      * @param {Object} row
      * @returns {jQuery}
      */
-    static #renderInlineActions(row)
+    static #renderInlineActions(/*row*/)
     {
         return $('<div>', {
             class: 'leuce-table-inline-actions btn-group btn-group-sm'
-        }).append(this.#createButton('edit', 'bi bi-pencil'))
-          .append(this.#createButton('delete', 'bi bi-trash'));
+        }).append(
+            this.#createButton('edit', 'bi bi-pencil'),
+            this.#createButton('delete', 'bi bi-trash')
+        );
     }
 
     /**

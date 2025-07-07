@@ -770,12 +770,12 @@ QUnit.module('Leuce', function()
                 assert.strictEqual($icon.length, 1);
             });
 
-            QUnit.test('Stores row id in row data',
+            QUnit.test('Stores primary key in row data',
             function(assert) {
                 $('#qunit-fixture').html(`
                     <table id="tbl">
                         <thead>
-                            <tr>
+                            <tr data-primary-key="id">
                                 <th data-key="name"></th>
                             </tr>
                         </thead>
@@ -787,6 +787,28 @@ QUnit.module('Leuce', function()
                 tbl.setData([{ id: 123, name: 'Alice' }]);
                 const $row = $tbl.find('tbody tr').first();
                 assert.strictEqual($row.data('id'), 123);
+            });
+
+            QUnit.test('Warns when primary key is missing in row data',
+            function(assert) {
+                $('#qunit-fixture').html(`
+                    <table id="tbl">
+                        <thead>
+                            <tr data-primary-key="id">
+                                <th data-key="name"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                `);
+                const $tbl = $('#tbl');
+                const tbl = $tbl.leuceTable();
+                tbl.setData([{ name: 'Alice' }]); // intentionally missing "id"
+                assert.strictEqual(warnMessages.length, 1);
+                assert.strictEqual(
+                    warnMessages[0],
+                    'Leuce: Primary key "id" not found in row data.'
+                );
             });
 
             QUnit.test('Renders row without id field',
@@ -898,7 +920,7 @@ QUnit.module('Leuce', function()
                 const tbl = $tbl.leuceTable();
                 tbl.setData([{ id: 1, name: 'Alice', age: 30 }]);
                 const $cells = $tbl.find('tbody tr').first().children('td');
-                assert.strictEqual($cells.length, 5); // Including "inlineActions"
+                assert.strictEqual($cells.length, 4);
                 assert.strictEqual($cells.eq(0).text(), '');
                 assert.strictEqual($cells.eq(1).text(), '30');
                 assert.strictEqual($cells.eq(2).text(), '');
@@ -985,8 +1007,8 @@ QUnit.module('Leuce', function()
                 tbl.setData([{ a: 'A', b: 'B', c: 'C', d: 'D', e: 'E' }]);
                 assert.strictEqual(warnMessages.length, 5);
                 warnMessages.forEach(msg => {
-                    assert.strictEqual(msg, "Leuce: Column attribute "
-                        + "'data-format' must be a string.");
+                    assert.strictEqual(msg,
+                        "Leuce: Attribute 'data-format' must be a string.");
                 });
                 const $cells = $tbl.find('tbody tr').first().children('td');
                 const expected = ['A', 'B', 'C', 'D', 'E'];
@@ -1013,8 +1035,8 @@ QUnit.module('Leuce', function()
                 tbl.setData([{ a: 'A', b: 'B' }]);
                 assert.strictEqual(warnMessages.length, 2);
                 warnMessages.forEach(msg => {
-                    assert.strictEqual(msg, "Leuce: Column attribute "
-                        + "'data-format' must be a nonempty string.");
+                    assert.strictEqual(msg,
+                        "Leuce: Attribute 'data-format' must be a nonempty string.");
                 });
                 const $cells = $tbl.find('tbody tr').first().children('td');
                 const expected = ['A', 'B'];
@@ -1044,8 +1066,8 @@ QUnit.module('Leuce', function()
                 tbl.setData([{ a: 'A', b: 'B', c: 'C', d: 'D', e: 'E' }]);
                 assert.strictEqual(warnMessages.length, 5);
                 warnMessages.forEach(msg => {
-                    assert.strictEqual(msg, "Leuce: Column attribute "
-                        + "'data-format' must have a nonempty name.");
+                    assert.strictEqual(msg,
+                        "Leuce: Attribute 'data-format' must have a nonempty name.");
                 });
                 const $cells = $tbl.find('tbody tr').first().children('td');
                 const expected = ['A', 'B', 'C', 'D', 'E'];
@@ -1098,8 +1120,8 @@ QUnit.module('Leuce', function()
                 tbl.setData([{ null: 'A', 42: 'B', true: 'C', '{}': 'D' }]);
                 assert.strictEqual(warnMessages.length, 4);
                 warnMessages.forEach(msg => {
-                    assert.strictEqual(msg, "Leuce: Column attribute "
-                        + "'data-key' must be a string.");
+                    assert.strictEqual(msg,
+                        "Leuce: Attribute 'data-key' must be a string.");
                 });
                 const $cells = $tbl.find('tbody tr').first().children('td');
                 $cells.each((i, cell) => {
@@ -1125,8 +1147,8 @@ QUnit.module('Leuce', function()
                 tbl.setData([{ '': 'X', '  ': 'Y' }]);
                 assert.strictEqual(warnMessages.length, 2);
                 warnMessages.forEach(msg => {
-                    assert.strictEqual(msg, "Leuce: Column attribute "
-                        + "'data-key' must be a nonempty string.");
+                    assert.strictEqual(msg,
+                        "Leuce: Attribute 'data-key' must be a nonempty string.");
                 });
                 const $cells = $tbl.find('tbody tr').first().children('td');
                 $cells.each((i, cell) => {
@@ -1249,6 +1271,27 @@ QUnit.module('Leuce', function()
                     const $cell = $tbl.find('tbody td').first();
                     assert.strictEqual($cell.text(), message);
                 }
+            });
+
+            QUnit.test('Renders inline action column when primary key is present',
+            function(assert) {
+                $('#qunit-fixture').html(`
+                    <table id="tbl">
+                        <thead>
+                            <tr data-primary-key="uuid">
+                                <th data-key="name"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                `);
+                const $tbl = $('#tbl');
+                const tbl = $tbl.leuceTable();
+                tbl.setData([{ uuid: '1234', name: 'Alice' }]);
+                assert.strictEqual($tbl.find('thead th').length, 2);
+                const $td = $tbl.find('tbody td').last();
+                assert.strictEqual($td.find('[data-action="edit"]').length, 1);
+                assert.strictEqual($td.find('[data-action="delete"]').length, 1);
             });
         }); // Table
     }); // UI
