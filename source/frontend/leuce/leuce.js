@@ -605,9 +605,9 @@ class TableEditor
 
     /**
      * @type {Array<{
-     *   key: string | null,
-     *   format: { name: string, arg?: string } | null
-     *   render: string | null,
+     *   key: string|null,
+     *   format: { name: string, arg?: string }|null
+     *   render: string|null,
      *   $th: jQuery
      * }>}
      */
@@ -625,18 +625,18 @@ class TableEditor
     /** @type {Modal} */
     #modal;
 
-    /** @type {string | null} */
+    /** @type {string|null} */
     #mode;
 
-    /** @type {(action: string, payload?: *) => void} | null */
+    /** @type {(action: string, payload?: *) => void}|null */
     #actionHandler;
 
     /**
      * @param {string} primaryKey
      * @param {Array<{
-     *   key: string | null,
-     *   format: { name: string, arg?: string } | null,
-     *   render: string | null,
+     *   key: string|null,
+     *   format: { name: string, arg?: string }|null,
+     *   render: string|null,
      *   $th: jQuery
      * }>} columns
      */
@@ -662,7 +662,7 @@ class TableEditor
     }
 
     /**
-     * @param {(action: string, payload?: *) => void} | null actionHandler
+     * @param {(action: string, payload?: *) => void}|null actionHandler
      * @returns {void}
      */
     setActionHandler(actionHandler)
@@ -804,9 +804,9 @@ class TableEditor
     /**
      * @param {string} key
      * @param {Array<{
-     *   key: string | null,
-     *   format: { name: string, arg?: string } | null,
-     *   render: string | null,
+     *   key: string|null,
+     *   format: { name: string, arg?: string }|null,
+     *   render: string|null,
      *   $th: jQuery
      * }>} columns
      * @returns {boolean}
@@ -821,9 +821,9 @@ class TableEditor
     /**
      * @param {string} primaryKey
      * @param {Array<{
-     *   key: string | null,
-     *   format: { name: string, arg?: string } | null,
-     *   render: string | null,
+     *   key: string|null,
+     *   format: { name: string, arg?: string }|null,
+     *   render: string|null,
      *   $th: jQuery
      * }>} columns
      * @param {boolean} hasPrimaryKeyInColumns
@@ -946,7 +946,7 @@ class TableToolbar
     /** @type {TableEditor|null} */
     #editor;
 
-    /** @type {(action: string, payload?: *) => void} | null */
+    /** @type {(action: string, payload?: *) => void}|null */
     #actionHandler;
 
     /**
@@ -969,7 +969,7 @@ class TableToolbar
     }
 
     /**
-     * @param {(action: string, payload?: *) => void} | null actionHandler
+     * @param {(action: string, payload?: *) => void}|null actionHandler
      * @returns {void}
      */
     setActionHandler(actionHandler)
@@ -1084,7 +1084,7 @@ class TablePaginator
     /** @type {jQuery} */
     #$root;
 
-    /** @type {(action: string, payload?: *) => void} | null */
+    /** @type {(action: string, payload?: *) => void}|null */
     #actionHandler;
 
     constructor()
@@ -1111,7 +1111,7 @@ class TablePaginator
     }
 
     /**
-     * @param {(action: string, payload?: *) => void} | null actionHandler
+     * @param {(action: string, payload?: *) => void}|null actionHandler
      * @returns {void}
      */
     setActionHandler(actionHandler)
@@ -1277,7 +1277,7 @@ class Table
     /** @type {Object.<string, function>} */
     #renderers;
 
-    /** @type {(action: string, payload?: *) => void} | null */
+    /** @type {(action: string, payload?: *) => void}|null */
     #actionHandler;
 
     /** @type {string|null} */
@@ -1285,15 +1285,15 @@ class Table
 
     /**
      * @type {Array<{
-     *   key: string | null,
-     *   format: { name: string, arg?: string } | null
-     *   render: string | null,
+     *   key: string|null,
+     *   format: { name: string, arg?: string }|null
+     *   render: string|null,
      *   $th: jQuery
      * }>}
      */
     #columns;
 
-    /** @type {TableEditor | null} */
+    /** @type {TableEditor|null} */
     #editor;
 
     /** @type {TableToolbar} */
@@ -1388,7 +1388,7 @@ class Table
     }
 
     /**
-     * @param {(action: string, payload?: *) => void} | null actionHandler
+     * @param {(action: string, payload?: *) => void}|null actionHandler
      * @returns {Leuce.UI.Table}
      */
     setActionHandler(actionHandler)
@@ -1536,9 +1536,9 @@ class Table
 
     /**
      * @returns {Array<{
-     *   key: string | null,
-     *   format: { name: string, arg?: string } | null,
-     *   render: string | null,
+     *   key: string|null,
+     *   format: { name: string, arg?: string }|null,
+     *   render: string|null,
      *   $th: jQuery
      * }>}
      */
