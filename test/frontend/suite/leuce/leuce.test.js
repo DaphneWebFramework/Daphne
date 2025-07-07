@@ -1273,7 +1273,7 @@ QUnit.module('Leuce', function()
                 }
             });
 
-            QUnit.test('Renders inline action column when primary key is present',
+            QUnit.test('Renders inline actions column when primary key is present',
             function(assert) {
                 $('#qunit-fixture').html(`
                     <table id="tbl">

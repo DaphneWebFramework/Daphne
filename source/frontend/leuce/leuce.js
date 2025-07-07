@@ -591,12 +591,19 @@ class TableToolbar
     /** @type {jQuery} */
     #$root;
 
+    /** @type {string|null} */
+    #primaryKey;
+
     /** @type {(action: string, payload?: *) => void} | null */
     #actionHandler;
 
-    constructor()
+    /**
+     * @param {string|null} primaryKey
+     */
+    constructor(primaryKey)
     {
-        this.#$root = TableToolbar.#createRoot();
+        this.#$root = TableToolbar.#createRoot(primaryKey);
+        this.#primaryKey = primaryKey;
         this.#actionHandler = null;
         this.#bindEvents();
     }
@@ -632,24 +639,27 @@ class TableToolbar
             const $input = this.#$root.find('[data-action="search-input"]');
             this.#actionHandler?.('search', $input.val().trim());
         });
-        this.#$root.find('[data-action="add"]').on('click', () => {
-            this.#actionHandler?.('add');
-        });
+        if (this.#primaryKey !== null) {
+            this.#$root.find('[data-action="add"]').on('click', () => {
+                this.#actionHandler?.('add');
+            });
+        }
         this.#$root.find('[data-action="reload"]').on('click', () => {
             this.#actionHandler?.('reload');
         });
     }
 
     /**
+     * @param {string|null} primaryKey
      * @returns {jQuery}
      */
-    static #createRoot()
+    static #createRoot(primaryKey)
     {
         return $('<div>', {
             class: 'leuce-table-controls'
         }).append(
             this.#createSearchBox(),
-            this.#createActionButtons()
+            this.#createActionButtons(primaryKey)
         );
     }
 
@@ -658,17 +668,16 @@ class TableToolbar
      */
     static #createSearchBox()
     {
-        const $input = $('<input>', {
-            type: 'search',
-            class: 'form-control form-control-sm',
-            'data-action': 'search-input',
-            placeholder: UI.translate('table.search'),
-            css: { minWidth: '100px', maxWidth: '150px' }
-        });
         const $inputGroup = $('<div>', {
             class: 'input-group flex-nowrap'
         }).append(
-            $input,
+            $('<input>', {
+                type: 'search',
+                class: 'form-control form-control-sm',
+                'data-action': 'search-input',
+                placeholder: UI.translate('table.search'),
+                css: { minWidth: '100px', maxWidth: '150px' }
+            }),
             this.#createButton('search', 'bi bi-search')
         );
         return $('<div>', {
@@ -677,16 +686,19 @@ class TableToolbar
     }
 
     /**
+     * @param {string|null} primaryKey
      * @returns {jQuery}
      */
-    static #createActionButtons()
+    static #createActionButtons(primaryKey)
     {
-        return $('<div>', {
-            class: 'leuce-table-controls-group'
-        }).append(
-            this.#createButton('add', 'bi bi-plus-lg', UI.translate('table.add')),
-            this.#createButton('reload', 'bi bi-arrow-clockwise', UI.translate('table.reload'))
-        );
+        const $group = $('<div>', { class: 'leuce-table-controls-group' });
+        if (primaryKey !== null) {
+            $group.append(this.#createButton('add', 'bi bi-plus-lg',
+                UI.translate('table.add')));
+        }
+        $group.append(this.#createButton('reload', 'bi bi-arrow-clockwise',
+            UI.translate('table.reload')));
+        return $group;
     }
 
     /**
@@ -972,7 +984,7 @@ class Table
         }
         this.#columns = this.#parseColumns();
         // 7
-        this.#toolbar = new TableToolbar();
+        this.#toolbar = new TableToolbar(this.#primaryKey);
         this.#$wrapper.prepend(this.#toolbar.root().addClass('mb-3'));
         // 8
         this.#paginator = new TablePaginator();
