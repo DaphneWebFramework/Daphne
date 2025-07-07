@@ -426,6 +426,10 @@ class UI
             "en": "Add",
             "tr": "Ekle"
         },
+        "table.edit": {
+            "en": "Edit",
+            "tr": "Düzenle"
+        },
         "table.reload": {
             "en": "Reload",
             "tr": "Yenile"
@@ -437,7 +441,15 @@ class UI
         "table.show_per_page": {
             "en": "Show %s per page",
             "tr": "Sayfada %s göster"
-        }
+        },
+        "modal.cancel": {
+            "en": "Cancel",
+            "tr": "İptal"
+        },
+        "modal.save": {
+            "en": "Save",
+            "tr": "Kaydet"
+        },
     });
 
     /**
@@ -586,24 +598,364 @@ class Button
     }
 }
 
-class TableToolbar
+class TableEditor
 {
+    /** @type {string} */
+    #primaryKey;
+
+    /**
+     * @type {Array<{
+     *   key: string | null,
+     *   format: { name: string, arg?: string } | null
+     *   render: string | null,
+     *   $th: jQuery
+     * }>}
+     */
+    #columns;
+
+    /** @type {boolean} */
+    #hasPrimaryKeyInColumns;
+
+    /** @type {jQuery} */
+    #$form;
+
     /** @type {jQuery} */
     #$root;
 
-    /** @type {string|null} */
-    #primaryKey;
+    /** @type {Modal} */
+    #modal;
+
+    /** @type {string | null} */
+    #mode;
 
     /** @type {(action: string, payload?: *) => void} | null */
     #actionHandler;
 
     /**
-     * @param {string|null} primaryKey
+     * @param {string} primaryKey
+     * @param {Array<{
+     *   key: string | null,
+     *   format: { name: string, arg?: string } | null,
+     *   render: string | null,
+     *   $th: jQuery
+     * }>} columns
      */
-    constructor(primaryKey)
+    constructor(primaryKey, columns)
     {
-        this.#$root = TableToolbar.#createRoot(primaryKey);
         this.#primaryKey = primaryKey;
+        this.#columns = columns;
+        this.#hasPrimaryKeyInColumns = TableEditor.#hasKeyInColumns(primaryKey, columns);
+        this.#$form = TableEditor.#createForm(primaryKey, columns, this.#hasPrimaryKeyInColumns);
+        this.#$root = TableEditor.#createRoot(this.#$form);
+        this.#modal = new bootstrap.Modal(this.#$root[0]);
+        this.#mode = null;
+        this.#actionHandler = null;
+        this.#bindEvents();
+    }
+
+    /**
+     * @returns {jQuery}
+     */
+    root()
+    {
+        return this.#$root;
+    }
+
+    /**
+     * @param {(action: string, payload?: *) => void} | null actionHandler
+     * @returns {void}
+     */
+    setActionHandler(actionHandler)
+    {
+        this.#actionHandler = actionHandler;
+    }
+
+    /**
+     * @returns {void}
+     */
+    showAdd()
+    {
+        this.#mode = 'add';
+        this.#$root.find('.modal-title').text(UI.translate('table.add'));
+        this.#findInput(this.#primaryKey).closest('.row').hide();
+        this.#clearForm();
+        this.#modal.show();
+    }
+
+    /**
+     * @param {jQuery} $tr
+     * @returns {void}
+     */
+    showEdit($tr)
+    {
+        this.#mode = 'edit';
+        this.#$root.find('.modal-title').text(UI.translate('table.edit'));
+        this.#findInput(this.#primaryKey).closest('.row').show();
+        this.#populateForm($tr);
+        this.#modal.show();
+    }
+
+    /**
+     * @returns {void}
+     */
+    #clearForm()
+    {
+        if (!this.#hasPrimaryKeyInColumns) {
+            this.#findInput(this.#primaryKey).val('');
+        }
+        for (const column of this.#columns) {
+            if (column.key === null) {
+                continue;
+            }
+            this.#findInput(column.key).val('');
+        }
+    }
+
+    /**
+     * @param {jQuery} $tr
+     * @returns {void}
+     */
+    #populateForm($tr)
+    {
+        const rowData = this.#extractRowData($tr);
+        if (!this.#hasPrimaryKeyInColumns) {
+            this.#findInput(this.#primaryKey).val(rowData[this.#primaryKey]);
+        }
+        for (const column of this.#columns) {
+            if (column.key === null) {
+                continue;
+            }
+            this.#findInput(column.key).val(rowData[column.key]);
+        }
+    }
+
+    /**
+     * @param {jQuery} $tr
+     * @returns {Object}
+     */
+    #extractRowData($tr)
+    {
+        const rowData = {
+            [this.#primaryKey]: $tr.data(this.#primaryKey)
+        };
+        let index = 0;
+        for (const column of this.#columns) {
+            if (column.key === null) {
+                ++index;
+                continue;
+            }
+            // Prevent overwriting the primary key with cell content. If the
+            // primary key is also rendered as a visible column, prefer the
+            // value from the row's data attribute, which is considered the
+            // authoritative source.
+            if (column.key === this.#primaryKey) {
+                ++index;
+                continue;
+            }
+            const $td = $tr.children().eq(index++);
+            rowData[column.key] = $td.text().trim();
+        }
+        return rowData;
+    }
+
+    /**
+     * @returns {void}
+     */
+    #bindEvents()
+    {
+        this.#$root.find('.modal-footer .btn-primary').on('click', () => {
+            this.#onSave();
+        });
+        // Fix: Avoid "aria-hidden + focus retained" warning when modal closes.
+        // Blur any element inside the modal that still has focus.
+        this.#$root.on('hide.bs.modal', () => {
+            this.#$root.find(':focus').trigger('blur');
+        });
+    }
+
+    /**
+     * @returns {void}
+     */
+    #onSave()
+    {
+        const form = this.#$form[0];
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+        const rowData = {};
+        this.#$form.find('input[name]:visible').each(function() {
+            const $input = $(this);
+            rowData[$input.attr('name')] = $input.val();
+        });
+        this.#actionHandler?.(this.#mode, rowData);
+        this.#modal.hide();
+    }
+
+    /**
+     * @param {string} name
+     * @returns {jQuery}
+     */
+    #findInput(name)
+    {
+        return this.#$form.find(`[name="${name}"]`);
+    }
+
+    /**
+     * @param {string} key
+     * @param {Array<{
+     *   key: string | null,
+     *   format: { name: string, arg?: string } | null,
+     *   render: string | null,
+     *   $th: jQuery
+     * }>} columns
+     * @returns {boolean}
+     */
+    static #hasKeyInColumns(key, columns)
+    {
+        return columns.some(function(column) {
+            return column.key === key;
+        });
+    }
+
+    /**
+     * @param {string} primaryKey
+     * @param {Array<{
+     *   key: string | null,
+     *   format: { name: string, arg?: string } | null,
+     *   render: string | null,
+     *   $th: jQuery
+     * }>} columns
+     * @param {boolean} hasPrimaryKeyInColumns
+     * @returns {jQuery}
+     */
+    static #createForm(primaryKey, columns, hasPrimaryKeyInColumns)
+    {
+        const $form = $('<form>', { spellcheck: false });
+        if (!hasPrimaryKeyInColumns) {
+            $form.append(
+                this.#createFormField(
+                    primaryKey,
+                    primaryKey,
+                    true
+                )
+            );
+        }
+        for (const column of columns) {
+            if (column.key === null) {
+                continue;
+            }
+            $form.append(
+                this.#createFormField(
+                    column.$th.text().trim(),
+                    column.key,
+                    column.key === primaryKey
+                )
+            );
+        }
+        $form.children('.row').last().removeClass('mb-3');
+        return $form;
+    }
+
+    /**
+     * @param {string} label
+     * @param {string} name
+     * @param {boolean} readonly
+     * @returns {jQuery}
+     */
+    static #createFormField(label, name, readonly)
+    {
+        const inputId = `form-input-${this.#uniqueId()}`;
+        return $('<div>', { class: 'row mb-3' }).append(
+            $('<label>', {
+                for: inputId,
+                class: 'col-sm-4 col-form-label',
+                text: label
+            }),
+            $('<div>', { class: 'col-sm-8' }).append(
+                $('<input>', {
+                    type: 'text',
+                    class: 'form-control',
+                    id: inputId,
+                    name: name,
+                    required: true,
+                    readonly: readonly
+                })
+            )
+        );
+    }
+
+    /**
+     * @param {jQuery} $form
+     * @returns {jQuery}
+     *
+     * @todo Make draggable via jQuery UI or similar.
+     */
+    static #createRoot($form)
+    {
+        return $('<div>', {
+            class: 'modal fade',
+            tabIndex: -1
+        }).append(
+            $('<div>', { class: 'modal-dialog modal-dialog-centered' }).append(
+                $('<div>', { class: 'modal-content' }).append(
+                    $('<div>', { class: 'modal-header' }).append(
+                        $('<h5>', { class: 'modal-title' }),
+                        $('<button>', {
+                            type: 'button',
+                            class: 'btn-close',
+                            'data-bs-dismiss': 'modal',
+                            'aria-label': 'Close'
+                        })
+                    ),
+                    $('<div>', { class: 'modal-body' }).append(
+                        $form
+                    ),
+                    $('<div>', { class: 'modal-footer' }).append(
+                        $('<button>', {
+                            type: 'button',
+                            class: 'btn btn-secondary',
+                            'data-bs-dismiss': 'modal',
+                            text: UI.translate('modal.cancel')
+                        }),
+                        $('<button>', {
+                            type: 'button',
+                            class: 'btn btn-primary',
+                            text: UI.translate('modal.save')
+                        })
+                    )
+                )
+            )
+        );
+    }
+
+    /**
+     * @returns {string}
+     */
+    static #uniqueId()
+    {
+        return Math.random().toString(36).slice(2, 10);
+    }
+}
+
+class TableToolbar
+{
+    /** @type {jQuery} */
+    #$root;
+
+    /** @type {TableEditor|null} */
+    #editor;
+
+    /** @type {(action: string, payload?: *) => void} | null */
+    #actionHandler;
+
+    /**
+     * @param {TableEditor|null} editor
+     */
+    constructor(editor)
+    {
+        this.#$root = TableToolbar.#createRoot(editor !== null);
+        this.#editor = editor;
         this.#actionHandler = null;
         this.#bindEvents();
     }
@@ -639,9 +991,9 @@ class TableToolbar
             const $input = this.#$root.find('[data-action="search-input"]');
             this.#actionHandler?.('search', $input.val().trim());
         });
-        if (this.#primaryKey !== null) {
+        if (this.#editor !== null) {
             this.#$root.find('[data-action="add"]').on('click', () => {
-                this.#actionHandler?.('add');
+                this.#editor.showAdd();
             });
         }
         this.#$root.find('[data-action="reload"]').on('click', () => {
@@ -650,16 +1002,16 @@ class TableToolbar
     }
 
     /**
-     * @param {string|null} primaryKey
+     * @param {boolean} hasAddButton
      * @returns {jQuery}
      */
-    static #createRoot(primaryKey)
+    static #createRoot(hasAddButton)
     {
         return $('<div>', {
             class: 'leuce-table-controls'
         }).append(
             this.#createSearchBox(),
-            this.#createActionButtons(primaryKey)
+            this.#createActionButtons(hasAddButton)
         );
     }
 
@@ -686,13 +1038,13 @@ class TableToolbar
     }
 
     /**
-     * @param {string|null} primaryKey
+     * @param {boolean} hasAddButton
      * @returns {jQuery}
      */
-    static #createActionButtons(primaryKey)
+    static #createActionButtons(hasAddButton)
     {
         const $group = $('<div>', { class: 'leuce-table-controls-group' });
-        if (primaryKey !== null) {
+        if (hasAddButton) {
             $group.append(this.#createButton('add', 'bi bi-plus-lg',
                 UI.translate('table.add')));
         }
@@ -941,6 +1293,9 @@ class Table
      */
     #columns;
 
+    /** @type {TableEditor | null} */
+    #editor;
+
     /** @type {TableToolbar} */
     #toolbar;
 
@@ -984,14 +1339,21 @@ class Table
         }
         this.#columns = this.#parseColumns();
         // 7
-        this.#toolbar = new TableToolbar(this.#primaryKey);
-        this.#$wrapper.prepend(this.#toolbar.root().addClass('mb-3'));
+        if (this.#primaryKey !== null) {
+            this.#editor = new TableEditor(this.#primaryKey, this.#columns);
+            this.#$wrapper.append(this.#editor.root());
+        } else {
+            this.#editor = null;
+        }
         // 8
+        this.#toolbar = new TableToolbar(this.#editor);
+        this.#$wrapper.prepend(this.#toolbar.root().addClass('mb-3'));
+        // 9
         this.#paginator = new TablePaginator();
         this.#$wrapper.append(this.#paginator.root().addClass('mt-3'));
-        // 9
-        this.#$overlay = null;
         // 10
+        this.#$overlay = null;
+        // 11
         this.#bindEvents();
     }
 
@@ -1032,6 +1394,7 @@ class Table
     setActionHandler(actionHandler)
     {
         this.#actionHandler = actionHandler;
+        this.#editor?.setActionHandler(actionHandler);
         this.#toolbar.setActionHandler(actionHandler);
         this.#paginator.setActionHandler(actionHandler);
         return this;
@@ -1244,8 +1607,8 @@ class Table
         // Inline actions
         if (this.#primaryKey !== null) {
             this.#$tbody.on('click', '[data-action="edit"]', event => {
-                const pk = $(event.currentTarget).closest('tr').data(this.#primaryKey);
-                this.#actionHandler?.('edit', pk);
+                const $tr = $(event.currentTarget).closest('tr');
+                this.#editor.showEdit($tr);
             });
             this.#$tbody.on('click', '[data-action="delete"]', event => {
                 const pk = $(event.currentTarget).closest('tr').data(this.#primaryKey);

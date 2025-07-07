@@ -96,3 +96,7 @@
   --bs-btn-disabled-border-color: var(--bs-border-color);
   --bs-gradient: none;
 }
+.leuce-table .modal .form-control[readonly] {
+  background-color: var(--bs-secondary-bg);
+  opacity: 1;
+}
