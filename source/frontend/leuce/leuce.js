@@ -450,6 +450,34 @@ class UI
             "en": "Save",
             "tr": "Kaydet"
         },
+        "messagebox.title.default": {
+            "en": "Message",
+            "tr": "Mesaj"
+        },
+        "messagebox.button.ok": {
+            "en": "OK",
+            "tr": "Tamam"
+        },
+        "messagebox.button.cancel": {
+            "en": "Cancel",
+            "tr": "İptal"
+        },
+        "messagebox.button.yes": {
+            "en": "Yes",
+            "tr": "Evet"
+        },
+        "messagebox.button.no": {
+            "en": "No",
+            "tr": "Hayır"
+        },
+    });
+
+    /** @type {Object.<string, number>} */
+    static MessageBoxButton = Object.freeze({
+        OK: 1,
+        CANCEL: 2,
+        YES: 3,
+        NO: 4
     });
 
     /**
@@ -519,6 +547,281 @@ class UI
     static notifyError(message, timeout = 0)
     {
         this.notify(message, 'danger', timeout);
+    }
+
+    /**
+     * @param {string|jQuery} message
+     * @param {string|null} [title=null]
+     * @param {string|number|null} [primaryButtonLabel=null]
+     * @param {string|number|null} [secondaryButtonLabel=null]
+     * @returns {Promise<boolean>}
+     */
+    static messageBox(
+        message,
+        title = null,
+        primaryButtonLabel = null,
+        secondaryButtonLabel = null
+    ) {
+        const dataKey = 'leuce.messagebox';
+        let $modal = $('#' + MessageBox.elementId());
+        let instance;
+        if ($modal.length === 0) {
+            instance = new MessageBox();
+            $modal = instance.root();
+            $modal.data(dataKey, instance);
+            $(document.body).append($modal);
+        } else {
+            instance = $modal.data(dataKey);
+        }
+        return instance.open(
+            message,
+            title,
+            primaryButtonLabel,
+            secondaryButtonLabel
+        );
+    };
+}
+
+class Deferred
+{
+    /** @type {Promise<any>} */
+    #promise;
+
+    /** @type {(value: any) => void} */
+    #resolve;
+
+    /** @type {(reason?: any) => void} */
+    #reject;
+
+    /** @type {boolean} */
+    #settled = false;
+
+    constructor()
+    {
+        this.#promise = new Promise((resolve, reject) => {
+            this.#resolve = resolve;
+            this.#reject = reject;
+        });
+    }
+
+    /**
+     * @returns {Promise<any>}
+     */
+    promise()
+    {
+        return this.#promise;
+    }
+
+    /**
+     * @param {any} value
+     * @returns {void}
+     */
+    resolve(value)
+    {
+        if (!this.#settled) {
+            this.#settled = true;
+            this.#resolve(value);
+        }
+    }
+
+    /**
+     * @param {any} reason
+     * @returns {void}
+     */
+    reject(reason)
+    {
+        if (!this.#settled) {
+            this.#settled = true;
+            this.#reject(reason);
+        }
+    }
+}
+
+class MessageBox
+{
+    /** @type {Object.<number, string>} */
+    static #buttonLabelTranslationKeys = Object.freeze({
+        [UI.MessageBoxButton.OK]: 'messagebox.button.ok',
+        [UI.MessageBoxButton.CANCEL]: 'messagebox.button.cancel',
+        [UI.MessageBoxButton.YES]: 'messagebox.button.yes',
+        [UI.MessageBoxButton.NO]: 'messagebox.button.no'
+    });
+
+    /** @type {jQuery} */
+    #$root;
+
+    /** @type {bootstrap.Modal} */
+    #modal;
+
+    /** @type {Deferred<boolean>|null} */
+    #result;
+
+    constructor()
+    {
+        this.#$root = MessageBox.#createRoot();
+        this.#modal = new bootstrap.Modal(this.#$root[0]);
+        this.#result = null;
+        this.#bindEvents();
+    }
+
+    /**
+     * @returns {string}
+     */
+    static elementId()
+    {
+        return 'leuce-messagebox';
+    }
+
+    /**
+     * @returns {jQuery}
+     */
+    root()
+    {
+        return this.#$root;
+    }
+
+    /**
+     * @param {string|jQuery} message
+     * @param {string|null} [title=null]
+     * @param {string|number|null} [primaryButtonLabel=null]
+     * @param {string|number|null} [secondaryButtonLabel=null]
+     * @returns {Promise<boolean>}
+     */
+    open(
+        message,
+        title = null,
+        primaryButtonLabel = null,
+        secondaryButtonLabel = null
+    ) {
+        // 1
+        const $title = this.#$root.find('.modal-title');
+        if (title === null) {
+            $title.text(UI.translate('messagebox.title.default'));
+        } else if (typeof title === 'string') {
+            $title.text(title);
+        } else {
+            throw new Error('Leuce: Title must be a string or null.');
+        }
+        // 2
+        const $body = this.#$root.find('.modal-body');
+        $body.empty();
+        if (typeof message === 'string') {
+            $body.html(message);
+        } else if (message instanceof jQuery) {
+            $body.append(message);
+        } else {
+            throw new Error('Leuce: Message must be a string or jQuery object.');
+        }
+        // 3
+        const $primaryButton = this.#$root.find('.btn-primary');
+        primaryButtonLabel = MessageBox.#translateButtonLabel(
+            primaryButtonLabel, 'messagebox.button.ok');
+        $primaryButton.text(primaryButtonLabel);
+        // 4
+        const $secondaryButton = this.#$root.find('.btn-secondary');
+        if (secondaryButtonLabel === null) {
+            $secondaryButton.addClass('d-none');
+        } else {
+            secondaryButtonLabel = MessageBox.#translateButtonLabel(
+                secondaryButtonLabel, 'messagebox.button.cancel');
+            $secondaryButton.removeClass('d-none').text(secondaryButtonLabel);
+        }
+        // 5
+        this.#result?.resolve(false);
+        this.#result = new Deferred();
+        this.#modal.show();
+        return this.#result.promise();
+    }
+
+    /**
+     * @returns {void}
+     */
+    #bindEvents()
+    {
+        this.#$root.find('.btn-primary').on('click', () => {
+            this.#result?.resolve(true);
+            this.#modal.hide();
+        });
+
+        // Fix: Avoid "aria-hidden + focus retained" warning when modal closes.
+        // Blur the modal itself or any element inside it that still has focus.
+        this.#$root.on('hide.bs.modal', () => {
+            let $focused;
+            if (this.#$root.is(':focus')) {
+                $focused = this.#$root;
+            } else {
+                $focused = this.#$root.find(':focus');
+            }
+            $focused.trigger('blur');
+        });
+
+        this.#$root.on('hidden.bs.modal', () => {
+            this.#result?.resolve(false);
+            this.#result = null;
+        });
+    }
+
+    /**
+     * @param {string|number|null} label
+     * @param {string} defaultTranslationKey
+     * @returns {string}
+     */
+    static #translateButtonLabel(label, defaultTranslationKey)
+    {
+        if (label === null) {
+            return UI.translate(defaultTranslationKey);
+        }
+        if (typeof label === 'number') {
+            const translationKey = this.#buttonLabelTranslationKeys[label];
+            if (!translationKey) {
+                throw new Error(`Leuce: Unknown button: ${label}`);
+            }
+            return UI.translate(translationKey);
+        }
+        if (typeof label === 'string') {
+            return label;
+        }
+        throw new Error('Leuce: Button label must be a string, number or null.');
+    }
+
+    /**
+     * @returns {jQuery}
+     *
+     * @todo Make draggable via jQuery UI or similar.
+     */
+    static #createRoot()
+    {
+        return $('<div>', {
+            id: this.elementId(),
+            class: 'modal fade',
+            tabIndex: -1
+        }).append(
+            $('<div>', { class: 'modal-dialog modal-dialog-centered' }).append(
+                $('<div>', { class: 'modal-content' }).append(
+                    $('<div>', { class: 'modal-header' }).append(
+                        $('<h5>', { class: 'modal-title' }),
+                        $('<button>', {
+                            type: 'button',
+                            class: 'btn-close',
+                            'data-bs-dismiss': 'modal',
+                            'aria-label': 'Close'
+                        })
+                    ),
+                    $('<div>', { class: 'modal-body' }),
+                    $('<div>', { class: 'modal-footer' }).append(
+                        $('<button>', {
+                            type: 'button',
+                            class: 'btn btn-secondary',
+                            'data-bs-dismiss': 'modal'
+                        }),
+                        $('<button>', {
+                            type: 'button',
+                            class: 'btn btn-primary'
+                        })
+                    )
+                )
+            )
+        );
     }
 }
 
@@ -622,7 +925,7 @@ class TableEditor
     /** @type {jQuery} */
     #$root;
 
-    /** @type {Modal} */
+    /** @type {bootstrap.Modal} */
     #modal;
 
     /** @type {string|null} */
@@ -1811,10 +2114,11 @@ global.Leuce.Utility = Utility;
  */
 $.fn.leuceButton = function() {
     const $button = this.first();
-    let instance = $button.data('leuce.button');
+    const dataKey = 'leuce.button';
+    let instance = $button.data(dataKey);
     if (!instance) {
         instance = new Leuce.UI.Button($button);
-        $button.data('leuce.button', instance);
+        $button.data(dataKey, instance);
     }
     return instance;
 };
@@ -1824,10 +2128,11 @@ $.fn.leuceButton = function() {
  */
 $.fn.leuceTable = function() {
     const $table = this.first();
-    let instance = $table.data('leuce.table');
+    const dataKey = 'leuce.table';
+    let instance = $table.data(dataKey);
     if (!instance) {
         instance = new Leuce.UI.Table($table);
-        $table.data('leuce.table', instance);
+        $table.data(dataKey, instance);
     }
     return instance;
 };
