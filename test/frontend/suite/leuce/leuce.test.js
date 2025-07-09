@@ -442,30 +442,27 @@ QUnit.module('Leuce', function()
     {
         QUnit.module('translate', function(hooks)
         {
-            let originalTranslations;
             let originalLanguage;
 
             hooks.beforeEach(function() {
-                originalTranslations = Leuce.UI.TRANSLATIONS;
-                originalLanguage = Leuce.UI.LANGUAGE;
+                originalLanguage = document.documentElement.lang;
             });
 
             hooks.afterEach(function() {
-                Leuce.UI.TRANSLATIONS = originalTranslations;
-                Leuce.UI.LANGUAGE = originalLanguage;
+                document.documentElement.lang = originalLanguage;
             });
 
             QUnit.test('Returns translation based on current language',
             function(assert) {
-                Leuce.UI.LANGUAGE = 'en';
+                document.documentElement.lang = 'en';
                 assert.strictEqual(
-                    Leuce.UI.translate('table.no_data'),
+                    Leuce.UI.translate('no_matching_records_found'),
                     'No matching records found'
                 );
 
-                Leuce.UI.LANGUAGE = 'tr';
+                document.documentElement.lang = 'tr';
                 assert.strictEqual(
-                    Leuce.UI.translate('table.no_data'),
+                    Leuce.UI.translate('no_matching_records_found'),
                     'Eşleşen kayıt bulunamadı'
                 );
             });
@@ -480,38 +477,28 @@ QUnit.module('Leuce', function()
 
             QUnit.test('Returns key if language is not available in unit',
             function(assert) {
-                Leuce.UI.LANGUAGE = 'eo'; // Esperanto (unsupported)
+                document.documentElement.lang = 'eo'; // Esperanto (unsupported)
                 assert.strictEqual(
-                    Leuce.UI.translate('table.no_data'),
-                    'table.no_data'
+                    Leuce.UI.translate('no_matching_records_found'),
+                    'no_matching_records_found'
                 );
             });
 
-            QUnit.test('Correctly replaces multiple placeholders',
+            QUnit.test('Replaces placeholder with argument',
             function(assert) {
-                Leuce.UI.TRANSLATIONS = {
-                    'greeting': {
-                        en: 'Hello, %s %s!'
-                    }
-                };
-                Leuce.UI.LANGUAGE = 'en';
+                document.documentElement.lang = 'en';
                 assert.strictEqual(
-                    Leuce.UI.translate('greeting', 'Ada', 'Lovelace'),
-                    'Hello, Ada Lovelace!'
+                    Leuce.UI.translate('show_*_per_page', 25),
+                    'Show 25 per page'
                 );
             });
 
-            QUnit.test('Missing args are replaced with empty strings',
+            QUnit.test('Replaces placeholder with empty string if no argument provided',
             function(assert) {
-                Leuce.UI.TRANSLATIONS = {
-                    'incomplete': {
-                        en: 'Missing %s and %s'
-                    }
-                };
-                Leuce.UI.LANGUAGE = 'en';
+                document.documentElement.lang = 'en';
                 assert.strictEqual(
-                    Leuce.UI.translate('incomplete', 'onlyOne'),
-                    'Missing onlyOne and '
+                    Leuce.UI.translate('show_*_per_page'),
+                    'Show  per page'
                 );
             });
         }); // translate
@@ -687,12 +674,12 @@ QUnit.module('Leuce', function()
                 warnMessages = [];
                 originalWarn = console.warn;
                 console.warn = msg => warnMessages.push(msg);
-                originalLanguage = Leuce.UI.LANGUAGE;
+                originalLanguage = document.documentElement.lang;
             });
 
             hooks.afterEach(function() {
                 console.warn = originalWarn;
-                Leuce.UI.LANGUAGE = originalLanguage;
+                document.documentElement.lang = originalLanguage;
             });
 
             QUnit.test('Throws error on unsupported elements',
@@ -1266,7 +1253,7 @@ QUnit.module('Leuce', function()
                     tr: 'Eşleşen kayıt bulunamadı'
                 };
                 for (const [language, message] of Object.entries(cases)) {
-                    Leuce.UI.LANGUAGE = language;
+                    document.documentElement.lang = language;
                     $tbl.leuceTable().setData([]);
                     const $cell = $tbl.find('tbody td').first();
                     assert.strictEqual($cell.text(), message);

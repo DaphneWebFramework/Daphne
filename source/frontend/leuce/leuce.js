@@ -409,75 +409,68 @@ class Controller
 
 class UI
 {
-    /** @type {string} */
-    static LANGUAGE = $('html').attr('lang');
-
-    /** @type {Object.<string, Object<string, string>>} */
-    static TRANSLATIONS = Object.freeze({
-        "loading": {
-            "en": "Loading...",
-            "tr": "Yükleniyor..."
-        },
-        "table.search": {
-            "en": "Search...",
-            "tr": "Ara..."
-        },
-        "table.add": {
-            "en": "Add",
-            "tr": "Ekle"
-        },
-        "table.edit": {
-            "en": "Edit",
-            "tr": "Düzenle"
-        },
-        "table.reload": {
-            "en": "Reload",
-            "tr": "Yenile"
-        },
-        "table.no_data": {
-            "en": "No matching records found",
-            "tr": "Eşleşen kayıt bulunamadı"
-        },
-        "table.show_per_page": {
-            "en": "Show %s per page",
-            "tr": "Sayfada %s göster"
-        },
-        "modal.cancel": {
-            "en": "Cancel",
-            "tr": "İptal"
-        },
-        "modal.save": {
-            "en": "Save",
-            "tr": "Kaydet"
-        },
-        "messagebox.title.default": {
-            "en": "Message",
-            "tr": "Mesaj"
-        },
-        "messagebox.button.ok": {
-            "en": "OK",
-            "tr": "Tamam"
-        },
-        "messagebox.button.cancel": {
-            "en": "Cancel",
-            "tr": "İptal"
-        },
-        "messagebox.button.yes": {
-            "en": "Yes",
-            "tr": "Evet"
-        },
-        "messagebox.button.no": {
-            "en": "No",
-            "tr": "Hayır"
-        },
-    });
-
     /** @type {Object.<string, number>} */
     static MessageBoxButton = Object.freeze({
         OK: 1,
         CANCEL: 2,
         YES: 3,
         NO: 4
+    });
+
+    /** @type {Object.<string, Object<string, string>>} */
+    static #translations = Object.freeze({
+        "add": {
+            "en": "Add",
+            "tr": "Ekle"
+        },
+        "cancel": {
+            "en": "Cancel",
+            "tr": "İptal"
+        },
+        "edit": {
+            "en": "Edit",
+            "tr": "Düzenle"
+        },
+        "loading...": {
+            "en": "Loading...",
+            "tr": "Yükleniyor..."
+        },
+        "message": {
+            "en": "Message",
+            "tr": "Mesaj"
+        },
+        "no_matching_records_found": {
+            "en": "No matching records found",
+            "tr": "Eşleşen kayıt bulunamadı"
+        },
+        "no": {
+            "en": "No",
+            "tr": "Hayır"
+        },
+        "ok": {
+            "en": "OK",
+            "tr": "Tamam"
+        },
+        "reload": {
+            "en": "Reload",
+            "tr": "Yenile"
+        },
+        "save": {
+            "en": "Save",
+            "tr": "Kaydet"
+        },
+        "search...": {
+            "en": "Search...",
+            "tr": "Ara..."
+        },
+        "show_*_per_page": {
+            "en": "Show %s per page",
+            "tr": "Sayfada %s göster"
+        },
+        "yes": {
+            "en": "Yes",
+            "tr": "Evet"
+        },
     });
 
     /**
@@ -487,11 +480,11 @@ class UI
      */
     static translate(key, ...args)
     {
-        const unit = this.TRANSLATIONS[key];
+        const unit = this.#translations[key];
         if (unit === undefined) {
             return key;
         }
-        let value = unit[this.LANGUAGE];
+        let value = unit[document.documentElement.lang];
         if (value === undefined) {
             return key;
         }
@@ -641,10 +634,10 @@ class MessageBox
 {
     /** @type {Object.<number, string>} */
     static #buttonLabelTranslationKeys = Object.freeze({
-        [UI.MessageBoxButton.OK]: 'messagebox.button.ok',
-        [UI.MessageBoxButton.CANCEL]: 'messagebox.button.cancel',
-        [UI.MessageBoxButton.YES]: 'messagebox.button.yes',
-        [UI.MessageBoxButton.NO]: 'messagebox.button.no'
+        [UI.MessageBoxButton.OK]: 'ok',
+        [UI.MessageBoxButton.CANCEL]: 'cancel',
+        [UI.MessageBoxButton.YES]: 'yes',
+        [UI.MessageBoxButton.NO]: 'no'
     });
 
     /** @type {jQuery} */
@@ -696,7 +689,7 @@ class MessageBox
         // 1
         const $title = this.#$root.find('.modal-title');
         if (title === null) {
-            $title.text(UI.translate('messagebox.title.default'));
+            $title.text(UI.translate('message'));
         } else if (typeof title === 'string') {
             $title.text(title);
         } else {
@@ -715,7 +708,7 @@ class MessageBox
         // 3
         const $primaryButton = this.#$root.find('.btn-primary');
         primaryButtonLabel = MessageBox.#translateButtonLabel(
-            primaryButtonLabel, 'messagebox.button.ok');
+            primaryButtonLabel, 'ok');
         $primaryButton.text(primaryButtonLabel);
         // 4
         const $secondaryButton = this.#$root.find('.btn-secondary');
@@ -723,7 +716,7 @@ class MessageBox
             $secondaryButton.addClass('d-none');
         } else {
             secondaryButtonLabel = MessageBox.#translateButtonLabel(
-                secondaryButtonLabel, 'messagebox.button.cancel');
+                secondaryButtonLabel, 'cancel');
             $secondaryButton.removeClass('d-none').text(secondaryButtonLabel);
         }
         // 5
@@ -774,7 +767,7 @@ class MessageBox
         if (typeof label === 'number') {
             const translationKey = this.#buttonLabelTranslationKeys[label];
             if (!translationKey) {
-                throw new Error(`Leuce: Unknown button: ${label}`);
+                throw new Error(`Leuce: Unknown message box button: ${label}`);
             }
             return UI.translate(translationKey);
         }
@@ -869,7 +862,7 @@ class Button
             this.#$button.css('width', this.#$button.outerWidth() + 'px');
             this.#$button.html(`
                 <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-                <span class="visually-hidden" role="status">${UI.translate('loading')}</span>
+                <span class="visually-hidden" role="status">${UI.translate('loading...')}</span>
             `);
             if (!this.#alreadyDisabled) {
                 this.#$button.prop('disabled', true);
@@ -979,7 +972,7 @@ class TableEditor
     showAdd()
     {
         this.#mode = 'add';
-        this.#$root.find('.modal-title').text(UI.translate('table.add'));
+        this.#$root.find('.modal-title').text(UI.translate('add'));
         this.#findInput(this.#primaryKey).closest('.row').hide();
         this.#clearForm();
         this.#modal.show();
@@ -992,7 +985,7 @@ class TableEditor
     showEdit($tr)
     {
         this.#mode = 'edit';
-        this.#$root.find('.modal-title').text(UI.translate('table.edit'));
+        this.#$root.find('.modal-title').text(UI.translate('edit'));
         this.#findInput(this.#primaryKey).closest('.row').show();
         this.#populateForm($tr);
         this.#modal.show();
@@ -1219,12 +1212,12 @@ class TableEditor
                             type: 'button',
                             class: 'btn btn-secondary',
                             'data-bs-dismiss': 'modal',
-                            text: UI.translate('modal.cancel')
+                            text: UI.translate('cancel')
                         }),
                         $('<button>', {
                             type: 'button',
                             class: 'btn btn-primary',
-                            text: UI.translate('modal.save')
+                            text: UI.translate('save')
                         })
                     )
                 )
@@ -1330,7 +1323,7 @@ class TableToolbar
                 type: 'search',
                 class: 'form-control form-control-sm',
                 'data-action': 'search-input',
-                placeholder: UI.translate('table.search'),
+                placeholder: UI.translate('search...'),
                 css: { minWidth: '100px', maxWidth: '150px' }
             }),
             this.#createButton('search', 'bi bi-search')
@@ -1349,10 +1342,10 @@ class TableToolbar
         const $group = $('<div>', { class: 'leuce-table-controls-group' });
         if (hasAddButton) {
             $group.append(this.#createButton('add', 'bi bi-plus-lg',
-                UI.translate('table.add')));
+                UI.translate('add')));
         }
         $group.append(this.#createButton('reload', 'bi bi-arrow-clockwise',
-            UI.translate('table.reload')));
+            UI.translate('reload')));
         return $group;
     }
 
@@ -1504,7 +1497,7 @@ class TablePaginator
         }
         return $('<div>', {
             class: 'leuce-table-controls-group'
-        }).append(UI.translate('table.show_per_page', $select.prop('outerHTML')));
+        }).append(UI.translate('show_*_per_page', $select.prop('outerHTML')));
     }
 
     /**
@@ -1720,7 +1713,7 @@ class Table
                     $('<span>', {
                         class: 'visually-hidden',
                         role: 'status',
-                        text: UI.translate('loading')
+                        text: UI.translate('loading...')
                     })
                 );
                 this.#$wrapper.append(this.#$overlay);
@@ -1743,7 +1736,7 @@ class Table
             const $td = $('<td>');
             $td.attr('colspan', this.#columns.length)
                .addClass('text-center text-muted')
-               .text(UI.translate('table.no_data'));
+               .text(UI.translate('no_matching_records_found'));
             $tr.append($td);
             this.#$tbody.append($tr);
             return this;
