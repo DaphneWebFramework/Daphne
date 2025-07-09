@@ -423,9 +423,17 @@ class UI
             "en": "Add",
             "tr": "Ekle"
         },
+        "are_you_sure_you_want_to_delete_this_record": {
+            "en": "Are you sure you want to delete this record?",
+            "tr": "Bu kaydı silmek istediğinizden emin misiniz?"
+        },
         "cancel": {
             "en": "Cancel",
             "tr": "İptal"
+        },
+        "delete": {
+            "en": "Delete",
+            "tr": "Sil"
         },
         "edit": {
             "en": "Edit",
@@ -992,6 +1000,24 @@ class TableEditor
     }
 
     /**
+     * @param {jQuery} $tr
+     * @returns {void}
+     */
+    showDelete($tr)
+    {
+        UI.messageBox(
+            UI.translate('are_you_sure_you_want_to_delete_this_record'),
+            UI.translate('delete'),
+            UI.MessageBoxButton.YES,
+            UI.MessageBoxButton.NO
+        ).then(confirmed => {
+            if (confirmed) {
+                this.#actionHandler?.('delete', $tr.data(this.#primaryKey));
+            }
+        });
+    }
+
+    /**
      * @returns {void}
      */
     #clearForm()
@@ -1063,9 +1089,15 @@ class TableEditor
             this.#onSave();
         });
         // Fix: Avoid "aria-hidden + focus retained" warning when modal closes.
-        // Blur any element inside the modal that still has focus.
+        // Blur the modal itself or any element inside it that still has focus.
         this.#$root.on('hide.bs.modal', () => {
-            this.#$root.find(':focus').trigger('blur');
+            let $focused;
+            if (this.#$root.is(':focus')) {
+                $focused = this.#$root;
+            } else {
+                $focused = this.#$root.find(':focus');
+            }
+            $focused.trigger('blur');
         });
     }
 
@@ -1907,8 +1939,8 @@ class Table
                 this.#editor.showEdit($tr);
             });
             this.#$tbody.on('click', '[data-action="delete"]', event => {
-                const pk = $(event.currentTarget).closest('tr').data(this.#primaryKey);
-                this.#actionHandler?.('delete', pk);
+                const $tr = $(event.currentTarget).closest('tr');
+                this.#editor.showDelete($tr);
             });
         }
     }
