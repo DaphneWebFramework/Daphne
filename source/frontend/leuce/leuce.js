@@ -551,18 +551,20 @@ class UI
     }
 
     /**
-     * @param {string|jQuery} message
-     * @param {string|null} [title=null]
-     * @param {string|number|null} [primaryButtonLabel=null]
-     * @param {string|number|null} [secondaryButtonLabel=null]
+     * @param {{
+     *   title?: string|null,
+     *   message: string|jQuery,
+     *   primaryButtonLabel?: string|number|null,
+     *   secondaryButtonLabel?: string|number|null
+     * }} options
      * @returns {Promise<boolean>}
      */
-    static messageBox(
-        message,
+    static messageBox({
         title = null,
+        message,
         primaryButtonLabel = null,
         secondaryButtonLabel = null
-    ) {
+    } = {}) {
         const dataKey = 'leuce.messagebox';
         let $modal = $('#' + MessageBox.elementId());
         let instance;
@@ -575,12 +577,12 @@ class UI
             instance = $modal.data(dataKey);
         }
         return instance.open(
-            message,
             title,
+            message,
             primaryButtonLabel,
             secondaryButtonLabel
         );
-    };
+    }
 }
 
 class Deferred
@@ -682,17 +684,17 @@ class MessageBox
     }
 
     /**
+     * @param {string|null} title
      * @param {string|jQuery} message
-     * @param {string|null} [title=null]
-     * @param {string|number|null} [primaryButtonLabel=null]
-     * @param {string|number|null} [secondaryButtonLabel=null]
+     * @param {string|number|null} primaryButtonLabel
+     * @param {string|number|null} secondaryButtonLabel
      * @returns {Promise<boolean>}
      */
     open(
+        title,
         message,
-        title = null,
-        primaryButtonLabel = null,
-        secondaryButtonLabel = null
+        primaryButtonLabel,
+        secondaryButtonLabel
     ) {
         // 1
         const $title = this.#$root.find('.modal-title');
@@ -1005,12 +1007,12 @@ class TableEditor
      */
     showDelete($tr)
     {
-        UI.messageBox(
-            UI.translate('are_you_sure_you_want_to_delete_this_record'),
-            UI.translate('delete'),
-            UI.MessageBoxButton.YES,
-            UI.MessageBoxButton.NO
-        ).then(confirmed => {
+        UI.messageBox({
+            title: UI.translate('delete'),
+            message: UI.translate('are_you_sure_you_want_to_delete_this_record'),
+            primaryButtonLabel: UI.MessageBoxButton.YES,
+            secondaryButtonLabel: UI.MessageBoxButton.NO
+        }).then(confirmed => {
             if (confirmed) {
                 this.#actionHandler?.('delete', $tr.data(this.#primaryKey));
             }
