@@ -1406,10 +1406,10 @@ class TableToolbar
 class TablePaginator
 {
     /** @type {number[]} */
-    static #PAGE_SIZE_OPTIONS = Object.freeze([5, 10, 25, 50, 100]);
+    static #pageSizeOptions = Object.freeze([5, 10, 25, 50, 100]);
 
     /** @type {number} */
-    static #DEFAULT_PAGE_SIZE = 10;
+    static #defaultPageSize = 10;
 
     /** @type {jQuery} */
     #$root;
@@ -1429,7 +1429,7 @@ class TablePaginator
      */
     static defaultPageSize()
     {
-        return this.#DEFAULT_PAGE_SIZE;
+        return this.#defaultPageSize;
     }
 
     /**
@@ -1522,9 +1522,9 @@ class TablePaginator
     static #createSizeSelector()
     {
         const $select = this.#createSelect('pageSize');
-        for (const size of this.#PAGE_SIZE_OPTIONS) {
+        for (const size of this.#pageSizeOptions) {
             const $option = $('<option>').val(size).text(size);
-            if (size === this.#DEFAULT_PAGE_SIZE) {
+            if (size === this.#defaultPageSize) {
                 $option.attr('selected', 'selected');
             }
             $select.append($option);
@@ -1580,14 +1580,14 @@ class TablePaginator
 class Table
 {
     /** @type {Object.<string, string>} */
-    static #SORT_ICON_CLASSES = Object.freeze({
+    static #sortIconClasses = Object.freeze({
         'none': 'bi bi-chevron-expand',
         'asc':  'bi bi-chevron-down',
         'desc': 'bi bi-chevron-up'
     });
 
     /** @type {string} */
-    static #INLINE_ACTIONS_RENDERER_NAME = 'inlineActions';
+    static #inlineActionRendererName = 'inlineActions';
 
     /** @type {jQuery} */
     #$wrapper;
@@ -1817,7 +1817,7 @@ class Table
             if ($th.is('[data-key]')) {
                 const $span = $('<span>').append(
                     $th.text().trim(),
-                    $('<i>').attr('class', Table.#SORT_ICON_CLASSES.none)
+                    $('<i>').attr('class', Table.#sortIconClasses.none)
                 )
                 $th.addClass('leuce-table-header-sortable')
                    .empty()
@@ -1841,10 +1841,10 @@ class Table
     #setUpInlineActionsColumn() {
         this.#$thead.find('tr').first().append($('<th>', {
             scope: 'col',
-            'data-render': Table.#INLINE_ACTIONS_RENDERER_NAME
+            'data-render': Table.#inlineActionRendererName
         }));
         this.setRenderer(
-            Table.#INLINE_ACTIONS_RENDERER_NAME,
+            Table.#inlineActionRendererName,
             Table.#renderInlineActions.bind(Table)
         );
     }
@@ -1920,7 +1920,7 @@ class Table
             }
         }
         // Inline actions
-        if (this.#primaryKey !== null) {
+        if (this.#editor !== null) {
             this.#$tbody.on('click', '[data-action="edit"]', event => {
                 const $tr = $(event.currentTarget).closest('tr');
                 this.#editor.showEdit($tr);
@@ -1942,7 +1942,7 @@ class Table
         const clickedKey = $clickedHeader.data('key');
         const clickedIconClass = $clickedHeader.find('i').attr('class');
         let currentDirection;
-        for (const [direction, iconClass] of Object.entries(Table.#SORT_ICON_CLASSES)) {
+        for (const [direction, iconClass] of Object.entries(Table.#sortIconClasses)) {
             if (clickedIconClass === iconClass) {
                 currentDirection = direction;
                 break;
@@ -1964,7 +1964,7 @@ class Table
             } else {
                 direction = 'none';
             }
-            column.$th.find('i').attr('class', Table.#SORT_ICON_CLASSES[direction]);
+            column.$th.find('i').attr('class', Table.#sortIconClasses[direction]);
         }
         this.#actionHandler?.('sort',
             newDirection === 'none'
