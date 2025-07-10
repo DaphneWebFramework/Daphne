@@ -706,7 +706,7 @@ QUnit.module('Leuce', function()
                 );
             });
 
-            QUnit.test('Throws error if table body is missing',
+            QUnit.test('Creates table body if missing',
             function(assert) {
                 $('#qunit-fixture').html(`
                     <table id="tbl">
@@ -714,10 +714,8 @@ QUnit.module('Leuce', function()
                     </table>
                 `);
                 const $tbl = $('#tbl');
-                assert.throws(
-                    () => new Leuce.UI.Table($tbl),
-                    'Leuce: Table requires a `tbody` element.'
-                );
+                const table = new Leuce.UI.Table($tbl);
+                assert.strictEqual($tbl.find('tbody').length, 1);
             });
 
             QUnit.test('Initializes table instance',

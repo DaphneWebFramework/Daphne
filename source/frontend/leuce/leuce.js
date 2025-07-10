@@ -1656,7 +1656,8 @@ class Table
         // 4
         this.#$tbody = $table.find('tbody').first();
         if (this.#$tbody.length === 0) {
-            throw new Error('Leuce: Table requires a `tbody` element.');
+            this.#$tbody = $('<tbody>');
+            this.#$table.append(this.#$tbody);
         }
         // 5
         this.#formatters = {};
