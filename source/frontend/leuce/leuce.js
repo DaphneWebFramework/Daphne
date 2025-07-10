@@ -968,15 +968,6 @@ class TableEditor
     /** @type {jQuery} */
     #$form;
 
-    /** @type {jQuery} */
-    #$root;
-
-    /** @type {bootstrap.Modal} */
-    #modal;
-
-    /** @type {string|null} */
-    #mode;
-
     /** @type {(action: string, payload?: *) => void}|null */
     #actionHandler;
 
@@ -995,19 +986,7 @@ class TableEditor
         this.#columns = columns;
         this.#hasPrimaryKeyInColumns = TableEditor.#hasKeyInColumns(primaryKey, columns);
         this.#$form = TableEditor.#createForm(primaryKey, columns, this.#hasPrimaryKeyInColumns);
-        this.#$root = TableEditor.#createRoot(this.#$form);
-        this.#modal = new bootstrap.Modal(this.#$root[0]);
-        this.#mode = null;
         this.#actionHandler = null;
-        this.#bindEvents();
-    }
-
-    /**
-     * @returns {jQuery}
-     */
-    root()
-    {
-        return this.#$root;
     }
 
     /**
@@ -1024,11 +1003,21 @@ class TableEditor
      */
     showAdd()
     {
-        this.#mode = 'add';
-        this.#$root.find('.modal-title').text(UI.translate('add'));
-        this.#findInput(this.#primaryKey).closest('.row').hide();
-        this.#clearForm();
-        this.#modal.show();
+        UI.messageBox({
+            title: UI.translate('add'),
+            message: this.#$form,
+            primaryButtonLabel: UI.translate('save'),
+            secondaryButtonLabel: UI.translate('cancel'),
+            beforeShow: () => {
+                this.#showPrimaryKeyField(false);
+                this.#clearForm();
+            },
+            beforeConfirm: () => this.#validateForm()
+        }).then(confirmed => {
+            if (confirmed) {
+                this.#actionHandler?.('add', this.#extractFormData());
+            }
+        });
     }
 
     /**
@@ -1037,11 +1026,21 @@ class TableEditor
      */
     showEdit($tr)
     {
-        this.#mode = 'edit';
-        this.#$root.find('.modal-title').text(UI.translate('edit'));
-        this.#findInput(this.#primaryKey).closest('.row').show();
-        this.#populateForm($tr);
-        this.#modal.show();
+        UI.messageBox({
+            title: UI.translate('edit'),
+            message: this.#$form,
+            primaryButtonLabel: UI.translate('save'),
+            secondaryButtonLabel: UI.translate('cancel'),
+            beforeShow: () => {
+                this.#showPrimaryKeyField(true);
+                this.#populateForm($tr);
+            },
+            beforeConfirm: () => this.#validateForm()
+        }).then(confirmed => {
+            if (confirmed) {
+                this.#actionHandler?.('edit', this.#extractFormData());
+            }
+        });
     }
 
     /**
@@ -1060,6 +1059,20 @@ class TableEditor
                 this.#actionHandler?.('delete', $tr.data(this.#primaryKey));
             }
         });
+    }
+
+    /**
+     * @param {boolean} show
+     * @returns {void}
+     */
+    #showPrimaryKeyField(show)
+    {
+        const $field = this.#findInput(this.#primaryKey).closest('.row');
+        if (show) {
+            $field.show();
+        } else {
+            $field.hide();
+        }
     }
 
     /**
@@ -1084,16 +1097,29 @@ class TableEditor
      */
     #populateForm($tr)
     {
-        const rowData = this.#extractRowData($tr);
+        const data = this.#extractRowData($tr);
         if (!this.#hasPrimaryKeyInColumns) {
-            this.#findInput(this.#primaryKey).val(rowData[this.#primaryKey]);
+            this.#findInput(this.#primaryKey).val(data[this.#primaryKey]);
         }
         for (const column of this.#columns) {
             if (column.key === null) {
                 continue;
             }
-            this.#findInput(column.key).val(rowData[column.key]);
+            this.#findInput(column.key).val(data[column.key]);
         }
+    }
+
+    /**
+     * @returns {boolean}
+     */
+    #validateForm()
+    {
+        const form = this.#$form[0];
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -1102,7 +1128,7 @@ class TableEditor
      */
     #extractRowData($tr)
     {
-        const rowData = {
+        const data = {
             [this.#primaryKey]: $tr.data(this.#primaryKey)
         };
         let index = 0;
@@ -1120,49 +1146,22 @@ class TableEditor
                 continue;
             }
             const $td = $tr.children().eq(index++);
-            rowData[column.key] = $td.text().trim();
+            data[column.key] = $td.text().trim();
         }
-        return rowData;
+        return data;
     }
 
     /**
-     * @returns {void}
+     * @returns {Object}
      */
-    #bindEvents()
+    #extractFormData()
     {
-        this.#$root.find('.modal-footer .btn-primary').on('click', () => {
-            this.#onSave();
-        });
-        // Fix: Avoid "aria-hidden + focus retained" warning when modal closes.
-        // Blur the modal itself or any element inside it that still has focus.
-        this.#$root.on('hide.bs.modal', () => {
-            let $focused;
-            if (this.#$root.is(':focus')) {
-                $focused = this.#$root;
-            } else {
-                $focused = this.#$root.find(':focus');
-            }
-            $focused.trigger('blur');
-        });
-    }
-
-    /**
-     * @returns {void}
-     */
-    #onSave()
-    {
-        const form = this.#$form[0];
-        if (!form.checkValidity()) {
-            form.reportValidity();
-            return;
-        }
-        const rowData = {};
+        const data = {};
         this.#$form.find('input[name]:visible').each(function() {
             const $input = $(this);
-            rowData[$input.attr('name')] = $input.val();
+            data[$input.attr('name')] = $input.val();
         });
-        this.#actionHandler?.(this.#mode, rowData);
-        this.#modal.hide();
+        return data;
     }
 
     /**
@@ -1204,7 +1203,10 @@ class TableEditor
      */
     static #createForm(primaryKey, columns, hasPrimaryKeyInColumns)
     {
-        const $form = $('<form>', { spellcheck: false });
+        const $form = $('<form>', {
+            class: 'leuce-table-editor-form',
+            spellcheck: false
+        });
         if (!hasPrimaryKeyInColumns) {
             $form.append(
                 this.#createFormField(
@@ -1226,7 +1228,6 @@ class TableEditor
                 )
             );
         }
-        $form.children('.row').last().removeClass('mb-3');
         return $form;
     }
 
@@ -1254,50 +1255,6 @@ class TableEditor
                     required: true,
                     readonly: readonly
                 })
-            )
-        );
-    }
-
-    /**
-     * @param {jQuery} $form
-     * @returns {jQuery}
-     *
-     * @todo Make draggable via jQuery UI or similar.
-     */
-    static #createRoot($form)
-    {
-        return $('<div>', {
-            class: 'modal fade',
-            tabIndex: -1
-        }).append(
-            $('<div>', { class: 'modal-dialog modal-dialog-centered' }).append(
-                $('<div>', { class: 'modal-content' }).append(
-                    $('<div>', { class: 'modal-header' }).append(
-                        $('<h5>', { class: 'modal-title' }),
-                        $('<button>', {
-                            type: 'button',
-                            class: 'btn-close',
-                            'data-bs-dismiss': 'modal',
-                            'aria-label': 'Close'
-                        })
-                    ),
-                    $('<div>', { class: 'modal-body' }).append(
-                        $form
-                    ),
-                    $('<div>', { class: 'modal-footer' }).append(
-                        $('<button>', {
-                            type: 'button',
-                            class: 'btn btn-secondary',
-                            'data-bs-dismiss': 'modal',
-                            text: UI.translate('cancel')
-                        }),
-                        $('<button>', {
-                            type: 'button',
-                            class: 'btn btn-primary',
-                            text: UI.translate('save')
-                        })
-                    )
-                )
             )
         );
     }
@@ -1714,7 +1671,6 @@ class Table
         // 7
         if (this.#primaryKey !== null) {
             this.#editor = new TableEditor(this.#primaryKey, this.#columns);
-            this.#$wrapper.append(this.#editor.root());
         } else {
             this.#editor = null;
         }
