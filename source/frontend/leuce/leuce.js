@@ -556,6 +556,8 @@ class UI
      *   message: string|jQuery,
      *   primaryButtonLabel?: string|number|null,
      *   secondaryButtonLabel?: string|number|null
+     *   beforeShow?: (() => void)|null,
+     *   beforeConfirm?: (() => boolean)|null
      * }} options
      * @returns {Promise<boolean>}
      */
@@ -563,7 +565,9 @@ class UI
         title = null,
         message,
         primaryButtonLabel = null,
-        secondaryButtonLabel = null
+        secondaryButtonLabel = null,
+        beforeShow = null,
+        beforeConfirm = null
     } = {}) {
         const dataKey = 'leuce.messagebox';
         let $modal = $('#' + MessageBox.elementId());
@@ -580,7 +584,9 @@ class UI
             title,
             message,
             primaryButtonLabel,
-            secondaryButtonLabel
+            secondaryButtonLabel,
+            beforeShow,
+            beforeConfirm
         );
     }
 }
@@ -656,6 +662,9 @@ class MessageBox
     /** @type {bootstrap.Modal} */
     #modal;
 
+    /** @type {(() => boolean)|null} */
+    #beforeConfirm;
+
     /** @type {Deferred<boolean>|null} */
     #result;
 
@@ -663,7 +672,8 @@ class MessageBox
     {
         this.#$root = MessageBox.#createRoot();
         this.#modal = new bootstrap.Modal(this.#$root[0]);
-        this.#result = null;
+        this.#beforeConfirm = null; // per-call state
+        this.#result = null; // per-call state
         this.#bindEvents();
     }
 
@@ -688,13 +698,17 @@ class MessageBox
      * @param {string|jQuery} message
      * @param {string|number|null} primaryButtonLabel
      * @param {string|number|null} secondaryButtonLabel
+     * @param {(() => void)|null} beforeShow
+     * @param {(() => boolean)|null} beforeConfirm
      * @returns {Promise<boolean>}
      */
     open(
         title,
         message,
         primaryButtonLabel,
-        secondaryButtonLabel
+        secondaryButtonLabel,
+        beforeShow,
+        beforeConfirm
     ) {
         // 1
         const $title = this.#$root.find('.modal-title');
@@ -730,7 +744,12 @@ class MessageBox
             $secondaryButton.removeClass('d-none').text(secondaryButtonLabel);
         }
         // 5
-        this.#result?.resolve(false);
+        if (typeof beforeShow === 'function') {
+            beforeShow();
+        }
+        // 6
+        this.#beforeConfirm = beforeConfirm;
+        this.#result?.resolve(false); // settle previous result, if any
         this.#result = new Deferred();
         this.#modal.show();
         return this.#result.promise();
@@ -741,27 +760,51 @@ class MessageBox
      */
     #bindEvents()
     {
-        this.#$root.find('.btn-primary').on('click', () => {
-            this.#result?.resolve(true);
-            this.#modal.hide();
-        });
+        this.#$root.find('.btn-primary').on('click',
+            this.#onPrimaryButtonClick.bind(this));
+        this.#$root.on('hide.bs.modal',
+            this.#onModalHide.bind(this));
+        this.#$root.on('hidden.bs.modal',
+            this.#onModalHidden.bind(this));
+    }
 
+    /**
+     * returns {void}
+     */
+    #onPrimaryButtonClick()
+    {
+        if (typeof this.#beforeConfirm === 'function') {
+            if (true !== this.#beforeConfirm()) {
+                return;
+            }
+        }
+        this.#result?.resolve(true);
+        this.#modal.hide();
+    }
+
+    /**
+     * returns {void}
+     */
+    #onModalHide()
+    {
         // Fix: Avoid "aria-hidden + focus retained" warning when modal closes.
         // Blur the modal itself or any element inside it that still has focus.
-        this.#$root.on('hide.bs.modal', () => {
-            let $focused;
-            if (this.#$root.is(':focus')) {
-                $focused = this.#$root;
-            } else {
-                $focused = this.#$root.find(':focus');
-            }
-            $focused.trigger('blur');
-        });
+        let $focused;
+        if (this.#$root.is(':focus')) {
+            $focused = this.#$root;
+        } else {
+            $focused = this.#$root.find(':focus');
+        }
+        $focused.trigger('blur');
+    }
 
-        this.#$root.on('hidden.bs.modal', () => {
-            this.#result?.resolve(false);
-            this.#result = null;
-        });
+    /**
+     * returns {void}
+     */
+    #onModalHidden()
+    {
+        this.#result?.resolve(false);
+        this.#result = null;
     }
 
     /**
