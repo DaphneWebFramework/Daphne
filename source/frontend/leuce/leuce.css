@@ -38,17 +38,6 @@
 .leuce-table .table {
   margin-bottom: 0;
 }
-.leuce-table .leuce-table-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: rgba(255,255,255,0.6);
-}
-.leuce-table .leuce-table-overlay.hidden {
-  display: none !important;
-}
 .leuce-table .leuce-table-header {
   user-select: none;
   vertical-align: top;
@@ -79,6 +68,17 @@
   display: flex;
   align-items: baseline;
   gap: 0.5rem;
+}
+.leuce-table .leuce-table-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255,255,255,0.6);
+}
+.leuce-table .leuce-table-overlay.hidden {
+  display: none !important;
 }
 .leuce-table .leuce-table-button {
   --bs-btn-color: var(--bs-body-color);
