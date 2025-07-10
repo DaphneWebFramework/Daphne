@@ -1681,7 +1681,8 @@ class Table
         this.#paginator = new TablePaginator();
         this.#$wrapper.append(this.#paginator.root().addClass('mt-3'));
         // 10
-        this.#$overlay = null;
+        this.#$overlay = Table.#createOverlay();
+        this.#$wrapper.append(this.#$overlay);
         // 11
         this.#bindEvents();
     }
@@ -1735,24 +1736,8 @@ class Table
     setLoading(isLoading)
     {
         if (isLoading) {
-            if (this.#$overlay === null) {
-                this.#$overlay = $('<div>', {
-                    class: 'leuce-table-overlay hidden'
-                }).append(
-                    $('<span>', {
-                        class: 'spinner-border',
-                        'aria-hidden': 'true'
-                    }),
-                    $('<span>', {
-                        class: 'visually-hidden',
-                        role: 'status',
-                        text: UI.translate('loading...')
-                    })
-                );
-                this.#$wrapper.append(this.#$overlay);
-            }
             this.#$overlay.removeClass('hidden');
-        } else if (this.#$overlay) {
+        } else {
             this.#$overlay.addClass('hidden');
         }
     }
@@ -2000,6 +1985,26 @@ class Table
         }
         $responsive.wrap($('<div>', { class: 'leuce-table' }));
         return $responsive.parent();
+    }
+
+    /**
+     * @returns {jQuery}
+     */
+    static #createOverlay()
+    {
+        return $('<div>', {
+            class: 'leuce-table-overlay hidden'
+        }).append(
+            $('<span>', {
+                class: 'spinner-border',
+                'aria-hidden': 'true'
+            }),
+            $('<span>', {
+                class: 'visually-hidden',
+                role: 'status',
+                text: UI.translate('loading...')
+            })
+        );
     }
 
     /**
