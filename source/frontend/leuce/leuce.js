@@ -955,6 +955,7 @@ class TableEditor
     /**
      * @type {Array<{
      *   key: string|null,
+     *   nullable: boolean,
      *   format: { name: string, arg?: string }|null
      *   render: string|null,
      *   $th: jQuery
@@ -975,6 +976,7 @@ class TableEditor
      * @param {string} primaryKey
      * @param {Array<{
      *   key: string|null,
+     *   nullable: boolean,
      *   format: { name: string, arg?: string }|null,
      *   render: string|null,
      *   $th: jQuery
@@ -1010,6 +1012,7 @@ class TableEditor
             secondaryButtonLabel: UI.translate('cancel'),
             beforeShow: () => {
                 this.#showPrimaryKeyField(false);
+                this.#resetNullableInputGroups();
                 this.#clearForm();
             },
             beforeConfirm: () => this.#validateForm()
@@ -1033,6 +1036,7 @@ class TableEditor
             secondaryButtonLabel: UI.translate('cancel'),
             beforeShow: () => {
                 this.#showPrimaryKeyField(true);
+                this.#resetNullableInputGroups();
                 this.#populateForm($tr);
             },
             beforeConfirm: () => this.#validateForm()
@@ -1078,6 +1082,24 @@ class TableEditor
     /**
      * @returns {void}
      */
+    #resetNullableInputGroups()
+    {
+        const $checkboxes = this.#$form.find('.form-check-input[data-null-for]');
+        for (const checkbox of $checkboxes.get()) {
+            const $checkbox = $(checkbox);
+            const inputId = $checkbox.data('null-for');
+            const $input = $('#' + inputId);
+            $input.prop('disabled', false);
+            $checkbox.prop('checked', false);
+            $checkbox.on('change', () => {
+                $input.prop('disabled', $checkbox.prop('checked'));
+            });
+        }
+    }
+
+    /**
+     * @returns {void}
+     */
     #clearForm()
     {
         if (!this.#hasPrimaryKeyInColumns) {
@@ -1105,7 +1127,16 @@ class TableEditor
             if (column.key === null) {
                 continue;
             }
-            this.#findInput(column.key).val(data[column.key]);
+            const $input = this.#findInput(column.key);
+            const value = data[column.key];
+            $input.val(value);
+            if (column.nullable && value === null) {
+                const inputId = $input.attr('id');
+                const $checkbox = this.#$form.find(
+                    `.form-check-input[data-null-for="${inputId}"]`);
+                $input.prop('disabled', true);
+                $checkbox.prop('checked', true);
+            }
         }
     }
 
@@ -1146,7 +1177,11 @@ class TableEditor
                 continue;
             }
             const $td = $tr.children().eq(index++);
-            data[column.key] = $td.text().trim();
+            if (column.nullable && $td.is('[data-null]')) {
+                data[column.key] = null;
+            } else {
+                data[column.key] = $td.text().trim();
+            }
         }
         return data;
     }
@@ -1157,10 +1192,16 @@ class TableEditor
     #extractFormData()
     {
         const data = {};
-        this.#$form.find('input[name]:visible').each(function() {
-            const $input = $(this);
-            data[$input.attr('name')] = $input.val();
-        });
+        const $inputs = this.#$form.find('input[name]:visible');
+        for (const input of $inputs.get()) {
+            const $input = $(input);
+            const name = $input.attr('name');
+            if ($input.prop('disabled')) {
+                data[name] = null;
+            } else {
+                data[name] = $input.val();
+            }
+        }
         return data;
     }
 
@@ -1177,6 +1218,7 @@ class TableEditor
      * @param {string} key
      * @param {Array<{
      *   key: string|null,
+     *   nullable: boolean,
      *   format: { name: string, arg?: string }|null,
      *   render: string|null,
      *   $th: jQuery
@@ -1194,6 +1236,7 @@ class TableEditor
      * @param {string} primaryKey
      * @param {Array<{
      *   key: string|null,
+     *   nullable: boolean,
      *   format: { name: string, arg?: string }|null,
      *   render: string|null,
      *   $th: jQuery
@@ -1224,7 +1267,8 @@ class TableEditor
                 this.#createFormField(
                     column.$th.text().trim(),
                     column.key,
-                    column.key === primaryKey
+                    column.key === primaryKey,
+                    column.nullable
                 )
             );
         }
@@ -1235,9 +1279,10 @@ class TableEditor
      * @param {string} label
      * @param {string} name
      * @param {boolean} readonly
+     * @param {boolean} [nullable=false]
      * @returns {jQuery}
      */
-    static #createFormField(label, name, readonly)
+    static #createFormField(label, name, readonly, nullable = false)
     {
         const inputId = `form-input-${this.#uniqueId()}`;
         return $('<div>', { class: 'row mb-3' }).append(
@@ -1247,16 +1292,61 @@ class TableEditor
                 text: label
             }),
             $('<div>', { class: 'col-sm-8' }).append(
-                $('<input>', {
-                    type: 'text',
-                    class: 'form-control',
-                    id: inputId,
-                    name: name,
-                    required: true,
-                    readonly: readonly
-                })
+                nullable
+                    ? this.#createNullableInputGroup(inputId, name)
+                    : this.#createInput(inputId, name, readonly)
             )
         );
+    }
+
+    /**
+     * @param {string} inputId
+     * @param {string} inputName
+     * @returns {jQuery}
+     */
+    static #createNullableInputGroup(inputId, inputName)
+    {
+        const checkboxId = `form-input-${this.#uniqueId()}`;
+        return $('<div>', { class: 'input-group' }).append(
+            this.#createInput(inputId, inputName),
+            $('<div>', { class: 'input-group-text' }).append(
+                $('<div>', { class: 'form-check' }).append(
+                    $('<input>', {
+                        type: 'checkbox',
+                        class: 'form-check-input',
+                        id: checkboxId,
+                        'data-null-for': inputId
+                    }),
+                    $('<label>', {
+                        for: checkboxId,
+                        class: 'form-check-label',
+                        text: 'null'
+                    })
+                )
+            )
+        );
+    }
+
+    /**
+     * @param {string} id
+     * @param {string} name
+     * @param {boolean} [required=false]
+     * @param {boolean} [readonly=false]
+     * @returns {jQuery}
+     */
+    static #createInput(id, name, readonly = false)
+    {
+        return $('<input>', {
+            type: 'text',
+            class: 'form-control',
+            id: id,
+            name: name,
+            // The `required` attribute is always set to true. If the field is
+            // nullable, a separate checkbox is used to disable the input, which
+            // bypasses validation.
+            required: true,
+            readonly: readonly
+        });
     }
 
     /**
@@ -1616,6 +1706,7 @@ class Table
     /**
      * @type {Array<{
      *   key: string|null,
+     *   nullable: boolean,
      *   format: { name: string, arg?: string }|null
      *   render: string|null,
      *   $th: jQuery
@@ -1769,20 +1860,22 @@ class Table
                     console.warn(`Leuce: Primary key "${this.#primaryKey}" not found in row data.`);
                 }
             }
-            for (const { key, format, render } of this.#columns) {
+            for (const { key, nullable, format, render } of this.#columns) {
+                const $td = $('<td>');
                 let value = '';
                 if (key !== null) {
                     if (!(key in row)) {
                         console.warn(`Leuce: Key "${key}" not found in row data.`);
                     }
                     value = row[key];
-                    if (format !== null) {
+                    if (nullable && value === null) {
+                        $td.attr('data-null', '');
+                    } else if (format !== null) {
                         value = this.#callFormatter(format, row, value);
                     }
                 } else if (render !== null) {
                     value = this.#callRenderer(render, row);
                 }
-                const $td = $('<td>');
                 if (value instanceof jQuery) {
                     $td.append(value);
                 } else {
@@ -1838,7 +1931,8 @@ class Table
     /**
      * @returns {void}
      */
-    #setUpInlineActionsColumn() {
+    #setUpInlineActionsColumn()
+    {
         this.#$thead.find('tr').first().append($('<th>', {
             scope: 'col',
             'data-render': Table.#inlineActionRendererName
@@ -1852,6 +1946,7 @@ class Table
     /**
      * @returns {Array<{
      *   key: string|null,
+     *   nullable: boolean,
      *   format: { name: string, arg?: string }|null,
      *   render: string|null,
      *   $th: jQuery
@@ -1863,6 +1958,7 @@ class Table
         for (const th of this.#$thead.find('th').get()) {
             const $th = $(th);
             const key = Table.#readDataAttribute($th, 'key');
+            const nullable = $th.is('[data-nullable]');
             let format = Table.#readDataAttribute($th, 'format');
             if (format !== null) {
                 format = Table.#parseColumnFormat(format);
@@ -1871,7 +1967,7 @@ class Table
             if (key === null) {
                 render = Table.#readDataAttribute($th, 'render');
             }
-            columns.push({ key, format, render, $th });
+            columns.push({ key, nullable, format, render, $th });
         }
         return columns;
     }

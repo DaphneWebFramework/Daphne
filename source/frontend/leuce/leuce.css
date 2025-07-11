@@ -55,6 +55,11 @@
 .leuce-table .leuce-table-inline-actions {
   margin-inline: -0.5rem; /* Counteracts cell padding to tighten layout */
 }
+.leuce-table td[data-null]::before {
+  content: "null";
+  font-style: italic;
+  color: var(--bs-secondary-color);
+}
 .leuce-table .leuce-table-controls {
   display: flex;
   justify-content: space-between;
@@ -106,4 +111,7 @@
 .leuce-table-editor-form .form-control[readonly] {
   background-color: var(--bs-secondary-bg);
   opacity: 1;
+}
+.leuce-table-editor-form .form-check-label {
+  user-select: none;
 }
