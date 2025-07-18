@@ -16,6 +16,7 @@ use \Peneus\Api\Dispatcher;
 use \Peneus\Api\HandlerRegistry;
 use \Peneus\Api\Handlers\AccountHandler;
 use \Peneus\Api\Handlers\LanguageHandler;
+use \Peneus\Api\Handlers\ManagementHandler;
 use \Peneus\Api\Hooks\AccountRoleDeletionHook;
 use \Peneus\Services\AccountService;
 
@@ -30,6 +31,7 @@ $accountService->RegisterDeletionHook(new AccountRoleDeletionHook());
 $handlerRegistry = HandlerRegistry::Instance();
 $handlerRegistry->RegisterHandler('account', AccountHandler::class);
 $handlerRegistry->RegisterHandler('language', LanguageHandler::class);
+$handlerRegistry->RegisterHandler('management', ManagementHandler::class);
 
 // Dispatch incoming request
 $dispatcher->DispatchRequest();
