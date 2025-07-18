@@ -2177,8 +2177,309 @@ class Table
     }
 }
 
+class TableController
+{
+    /** @type {string} */
+    #tableName;
+
+    /** @type {jQuery} */
+    #$table;
+
+    /** @type {(params: Object) => Promise<Leuce.HTTP.Response>} */
+    #fnList;
+
+    /** @type {((tableName: string, data: Object) => Promise<Leuce.HTTP.Response>)|undefined} */
+    #fnAdd;
+
+    /** @type {((tableName: string, data: Object) => Promise<Leuce.HTTP.Response>)|undefined} */
+    #fnEdit;
+
+    /** @type {((tableName: string, id: number) => Promise<Leuce.HTTP.Response>)|undefined} */
+    #fnDelete;
+
+    /** @type {string|null} */
+    #search;
+
+    /**
+     * @type {{
+     *   key: string,
+     *   direction: 'asc' | 'desc'
+     * } | null}
+     */
+    #sort;
+
+    /** @type {number} */
+    #page;
+
+    /** @type {number} */
+    #pageSize;
+
+    /** @type {number} */
+    #totalPages;
+
+    /**
+     * @param {{
+     *   tableName: string,
+     *   $table: jQuery,
+     *   fnList: (params: Object) => Promise<Leuce.HTTP.Response>
+     *   fnAdd?: (tableName: string, data: Object) => Promise<Leuce.HTTP.Response>,
+     *   fnEdit?: (tableName: string, data: Object) => Promise<Leuce.HTTP.Response>
+     *   fnDelete?: (tableName: string, id: number) => Promise<Leuce.HTTP.Response>
+     * }} options
+     */
+    constructor({ $table, tableName, fnList, fnAdd, fnEdit, fnDelete })
+    {
+        this.#$table = $table;
+        this.#tableName = tableName;
+        this.#fnList = fnList;
+        this.#fnAdd = fnAdd;
+        this.#fnEdit = fnEdit;
+        this.#fnDelete = fnDelete;
+        this.#search = null;
+        this.#sort = null;
+        this.#page = 1;
+        this.#pageSize = Table.defaultPageSize();
+        this.#totalPages = 0;
+        this.#$table.leuceTable().setActionHandler(this.#onAction.bind(this));
+    }
+
+    /**
+     * @returns {void}
+     */
+    load()
+    {
+        const table = this.#$table.leuceTable();
+        table.setLoading(true);
+        const params = {
+            table: this.#tableName,
+            page: this.#page,
+            pagesize: this.#pageSize
+        };
+        if (this.#search !== null) {
+            params.search = this.#search;
+        }
+        if (this.#sort !== null) {
+            params.sortkey = this.#sort.key;
+            params.sortdir = this.#sort.direction;
+        }
+        this.#fnList(params).then(response => {
+            table.setLoading(false);
+            if (response.isSuccess()) {
+                table.setData(response.body.data);
+                this.#totalPages = table.updatePaginator(
+                    response.body.total,
+                    this.#pageSize,
+                    this.#page
+                );
+            } else {
+                Leuce.UI.notifyError(response.body.message);
+            }
+        });
+    }
+
+    /**
+     * @param {string} action
+     * @param {*} [payload=null]
+     */
+    #onAction(action, payload = null)
+    {
+        switch (action) {
+        case 'reload':       this.#onReload(); break;
+        case 'search':       this.#onSearch(payload); break;
+        case 'sort':         this.#onSort(payload); break;
+        case 'add':          this.#onAdd(payload); break;
+        case 'edit':         this.#onEdit(payload); break;
+        case 'delete':       this.#onDelete(payload); break;
+        case 'pageSize':     this.#onPageSize(payload); break;
+        case 'firstPage':    this.#onFirstPage(); break;
+        case 'previousPage': this.#onPreviousPage(); break;
+        case 'currentPage':  this.#onCurrentPage(payload); break;
+        case 'nextPage':     this.#onNextPage(); break;
+        case 'lastPage':     this.#onLastPage(); break;
+        default:
+            console.warn('Unknown table action:', action);
+            break;
+        }
+    }
+
+    /**
+     * @returns {void}
+     */
+    #onReload()
+    {
+        this.load();
+    }
+
+    /**
+     * @param {string} search
+     * @returns {void}
+     */
+    #onSearch(search)
+    {
+        if (search === '') {
+            search = null;
+        }
+        if (search === this.#search) {
+            return;
+        }
+        this.#search = search;
+        this.#page = 1;
+        this.load();
+    }
+
+    /**
+     * @param {{key: string, direction: string}|null} sort
+     * @returns {void}
+     */
+    #onSort(sort)
+    {
+        this.#sort = sort;
+        this.#page = 1;
+        this.load();
+    }
+
+    /**
+     * @param {Object} rowData
+     * @returns {void}
+     */
+    #onAdd(rowData)
+    {
+        if (!this.#fnAdd) {
+            return;
+        }
+        const table = this.#$table.leuceTable();
+        table.setLoading(true);
+        this.#fnAdd(this.#tableName, rowData).then(response => {
+            table.setLoading(false);
+            if (response.isSuccess()) {
+                this.load();
+            } else {
+                Leuce.UI.notifyError(response.body.message);
+            }
+        });
+    }
+
+    /**
+     * @param {Object} rowData
+     * @returns {void}
+     */
+    #onEdit(rowData)
+    {
+        if (!this.#fnEdit) {
+            return;
+        }
+        const table = this.#$table.leuceTable();
+        table.setLoading(true);
+        this.#fnEdit(this.#tableName, rowData).then(response => {
+            table.setLoading(false);
+            if (response.isSuccess()) {
+                this.load();
+            } else {
+                Leuce.UI.notifyError(response.body.message);
+            }
+        });
+    }
+
+    /**
+     * @param {number} id
+     * @returns {void}
+     */
+    #onDelete(id)
+    {
+        if (!this.#fnDelete) {
+            return;
+        }
+        const table = this.#$table.leuceTable();
+        table.setLoading(true);
+        this.#fnDelete(this.#tableName, id).then(response => {
+            table.setLoading(false);
+            if (response.isSuccess()) {
+                this.load();
+            } else {
+                Leuce.UI.notifyError(response.body.message);
+            }
+        });
+    }
+
+    /**
+     * @param {number} pageSize
+     * @returns {void}
+     */
+    #onPageSize(pageSize)
+    {
+        if (pageSize === this.#pageSize) {
+            return;
+        }
+        this.#pageSize = pageSize;
+        this.#page = 1;
+        this.load();
+    }
+
+    /**
+     * @returns {void}
+     */
+    #onFirstPage()
+    {
+        if (this.#page === 1) {
+            return;
+        }
+        this.#page = 1;
+        this.load();
+    }
+
+    /**
+     * @returns {void}
+     */
+    #onPreviousPage()
+    {
+        if (this.#page === 1) {
+            return;
+        }
+        this.#page -= 1;
+        this.load();
+    }
+
+    /**
+     * @param {number} page
+     * @returns {void}
+     */
+    #onCurrentPage(page)
+    {
+        if (page === this.#page) {
+            return;
+        }
+        this.#page = page;
+        this.load();
+    }
+
+    /**
+     * @returns {void}
+     */
+    #onNextPage()
+    {
+        if (this.#page === this.#totalPages) {
+            return;
+        }
+        this.#page += 1;
+        this.load();
+    }
+
+    /**
+     * @returns {void}
+     */
+    #onLastPage()
+    {
+        if (this.#page === this.#totalPages) {
+            return;
+        }
+        this.#page = this.#totalPages;
+        this.load();
+    }
+}
+
 UI.Button = Button;
 UI.Table = Table;
+UI.TableController = TableController;
 
 //#endregion UI
 
