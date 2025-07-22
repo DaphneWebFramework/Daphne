@@ -2565,10 +2565,6 @@ class TableController
     }
 }
 
-UI.Button = Button;
-UI.Table = Table;
-UI.TableController = TableController;
-
 //#endregion UI
 
 //#region Utility
@@ -2602,21 +2598,24 @@ class Utility
 
 //#endregion Utility
 
-global.Leuce = global.Leuce || {};
+global.Leuce = {};
 global.Leuce.VERSION = '1.0.0';
 
-global.Leuce.HTTP = global.Leuce.HTTP || {};
+global.Leuce.HTTP = {};
 global.Leuce.HTTP.Request = Request;
 global.Leuce.HTTP.Response = Response;
 global.Leuce.HTTP.Client = Client;
 global.Leuce.HTTP.RequestBuilder = RequestBuilder;
 
-global.Leuce.MVC = global.Leuce.MVC || {};
+global.Leuce.MVC = {};
 global.Leuce.MVC.Model = Model;
 global.Leuce.MVC.View = View;
 global.Leuce.MVC.Controller = Controller;
 
 global.Leuce.UI = UI;
+global.Leuce.UI.Button = Button;
+global.Leuce.UI.Table = Table;
+global.Leuce.UI.TableController = TableController;
 
 global.Leuce.Utility = Utility;
 })(window);
