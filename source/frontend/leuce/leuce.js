@@ -1397,8 +1397,9 @@ class TableEditor
         case 'float':
             return parseFloat(value);
         case 'datetime':
-            return value.replace('T', ' ');
+            return value.replace('T', ' ') + (value.length === 16 ? ':00' : '');
         case 'string':
+            return value;
         default:
             return value;
         }
