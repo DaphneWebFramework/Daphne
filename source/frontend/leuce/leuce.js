@@ -949,11 +949,14 @@ class Button
 
 class TableEditor
 {
-    /** @type {string} */
+    /**
+     * @type {{
+     *   key: string,
+     *   inColumns: boolean,
+     *   type?: string
+     * }}
+     */
     #primaryKey;
-
-    /** @type {string|null} */
-    #primaryKeyType;
 
     /**
      * @type {Array<{
@@ -967,9 +970,6 @@ class TableEditor
      */
     #columns;
 
-    /** @type {boolean} */
-    #hasPrimaryKeyInColumns;
-
     /** @type {jQuery} */
     #$form;
 
@@ -977,8 +977,11 @@ class TableEditor
     #actionHandler;
 
     /**
-     * @param {string} primaryKey
-     * @param {string|null} primaryKeyType
+     * @param {{
+     *   key: string,
+     *   inColumns: boolean,
+     *   type?: string
+     * }} primaryKey
      * @param {Array<{
      *   key: string|null,
      *   type: string|null,
@@ -988,21 +991,11 @@ class TableEditor
      *   $th: jQuery
      * }>} columns
      */
-    constructor(primaryKey, primaryKeyType, columns)
+    constructor(primaryKey, columns)
     {
         this.#primaryKey = primaryKey;
-        this.#primaryKeyType = primaryKeyType;
         this.#columns = columns;
-        this.#hasPrimaryKeyInColumns = TableEditor.#hasKeyInColumns(
-            primaryKey,
-            columns
-        );
-        this.#$form = TableEditor.#createForm(
-            primaryKey,
-            primaryKeyType,
-            columns,
-            this.#hasPrimaryKeyInColumns
-        );
+        this.#$form = TableEditor.#createForm(primaryKey, columns);
         this.#actionHandler = null;
     }
 
@@ -1075,7 +1068,7 @@ class TableEditor
             secondaryButtonLabel: UI.MessageBoxButton.NO
         }).then(confirmed => {
             if (confirmed) {
-                this.#actionHandler?.('delete', $tr.data(this.#primaryKey));
+                this.#actionHandler?.('delete', $tr.data(this.#primaryKey.key));
             }
         });
     }
@@ -1086,7 +1079,7 @@ class TableEditor
      */
     #showPrimaryKeyField(show)
     {
-        const $field = this.#findInput(this.#primaryKey).closest('.row');
+        const $field = this.#findInput(this.#primaryKey.key).closest('.row');
         if (show) {
             $field.show();
         } else {
@@ -1117,8 +1110,8 @@ class TableEditor
      */
     #clearForm()
     {
-        if (!this.#hasPrimaryKeyInColumns) {
-            this.#findInput(this.#primaryKey).val('');
+        if (!this.#primaryKey.inColumns) {
+            this.#findInput(this.#primaryKey.key).val('');
         }
         for (const column of this.#columns) {
             if (column.key === null) {
@@ -1135,8 +1128,8 @@ class TableEditor
     #populateForm($tr)
     {
         const data = this.#extractRowData($tr);
-        if (!this.#hasPrimaryKeyInColumns) {
-            this.#findInput(this.#primaryKey).val(data[this.#primaryKey]);
+        if (!this.#primaryKey.inColumns) {
+            this.#findInput(this.#primaryKey.key).val(data[this.#primaryKey.key]);
         }
         for (const column of this.#columns) {
             if (column.key === null) {
@@ -1183,7 +1176,7 @@ class TableEditor
     #extractRowData($tr)
     {
         const data = {
-            [this.#primaryKey]: $tr.data(this.#primaryKey)
+            [this.#primaryKey.key]: $tr.data(this.#primaryKey.key)
         };
         let index = 0;
         for (const column of this.#columns) {
@@ -1195,7 +1188,7 @@ class TableEditor
             // primary key is also rendered as a visible column, prefer the
             // value from the row's data attribute, which is considered the
             // authoritative source.
-            if (column.key === this.#primaryKey) {
+            if (column.key === this.#primaryKey.key) {
                 ++index;
                 continue;
             }
@@ -1238,7 +1231,11 @@ class TableEditor
     }
 
     /**
-     * @param {string} key
+     * @param {{
+     *   key: string,
+     *   inColumns: boolean,
+     *   type?: string
+     * }} primaryKey
      * @param {Array<{
      *   key: string|null,
      *   type: string|null,
@@ -1247,41 +1244,20 @@ class TableEditor
      *   render: string|null,
      *   $th: jQuery
      * }>} columns
-     * @returns {boolean}
-     */
-    static #hasKeyInColumns(key, columns)
-    {
-        return columns.some(function(column) {
-            return column.key === key;
-        });
-    }
-
-    /**
-     * @param {string} primaryKey
-     * @param {string|null} primaryKeyType
-     * @param {Array<{
-     *   key: string|null,
-     *   type: string|null,
-     *   nullable: boolean,
-     *   format: { name: string, arg?: string }|null,
-     *   render: string|null,
-     *   $th: jQuery
-     * }>} columns
-     * @param {boolean} hasPrimaryKeyInColumns
      * @returns {jQuery}
      */
-    static #createForm(primaryKey, primaryKeyType, columns, hasPrimaryKeyInColumns)
+    static #createForm(primaryKey, columns)
     {
         const $form = $('<form>', {
             class: 'leuce-table-editor-form',
             spellcheck: false
         });
-        if (!hasPrimaryKeyInColumns) {
+        if (!primaryKey.inColumns) {
             $form.append(
                 this.#createFormField(
-                    primaryKey,
-                    primaryKey,
-                    primaryKeyType,
+                    primaryKey.key,
+                    primaryKey.key,
+                    primaryKey.type,
                     true
                 )
             );
@@ -1295,7 +1271,7 @@ class TableEditor
                     column.$th.text().trim(),
                     column.key,
                     column.type,
-                    column.key === primaryKey,
+                    column.key === primaryKey.key,
                     column.nullable
                 )
             );
@@ -1779,11 +1755,14 @@ class Table
     /** @type {(action: string, payload?: *) => void}|null */
     #actionHandler;
 
-    /** @type {string|null} */
+    /**
+     * @type {{
+     *   key: string,
+     *   inColumns: boolean,
+     *   type?: string
+     * } | null}
+     */
     #primaryKey;
-
-    /** @type {string|null} */
-    #primaryKeyType;
 
     /**
      * @type {Array<{
@@ -1840,19 +1819,12 @@ class Table
         // 6
         this.#primaryKey = this.#resolvePrimaryKey();
         if (this.#primaryKey !== null) {
-            this.#primaryKeyType = this.#resolvePrimaryKeyType();
             this.#setUpInlineActionsColumn();
-        } else {
-            this.#primaryKeyType = null;
         }
         this.#columns = this.#parseColumns();
         // 7
         if (this.#primaryKey !== null) {
-            this.#editor = new TableEditor(
-                this.#primaryKey,
-                this.#primaryKeyType,
-                this.#columns
-            );
+            this.#editor = new TableEditor(this.#primaryKey, this.#columns);
         } else {
             this.#editor = null;
         }
@@ -1944,10 +1916,10 @@ class Table
         for (const row of data) {
             const $tr = $('<tr>');
             if (this.#primaryKey !== null) {
-                if (this.#primaryKey in row) {
-                    $tr.data(this.#primaryKey, row[this.#primaryKey]);
+                if (this.#primaryKey.key in row) {
+                    $tr.data(this.#primaryKey.key, row[this.#primaryKey.key]);
                 } else {
-                    console.warn(`Leuce: Primary key "${this.#primaryKey}" not found in row data.`);
+                    console.warn(`Leuce: Primary key "${this.#primaryKey.key}" not found in row data.`);
                 }
             }
             for (const { key, nullable, format, render } of this.#columns) {
@@ -2010,21 +1982,36 @@ class Table
     }
 
     /**
-     * @returns {string|null}
+     * @returns {{
+     *   key: string,
+     *   inColumns: boolean,
+     *   type?: string
+     * } | null}
      */
     #resolvePrimaryKey()
     {
         const $tr = this.#$thead.find('tr').first();
-        return Table.#readDataAttribute($tr, 'primaryKey');
-    }
-
-    /**
-     * @returns {string|null}
-     */
-    #resolvePrimaryKeyType()
-    {
-        const $tr = this.#$thead.find('tr').first();
-        return Table.#readDataAttribute($tr, 'primaryKeyType');
+        const key = Table.#readDataAttribute($tr, 'primaryKey');
+        if (key === null) {
+            return null;
+        }
+        if (this.#$thead.find(`th[data-key="${key}"]`).length) {
+            return {
+                key: key,
+                inColumns: true
+            };
+        }
+        let type = Table.#readDataAttribute($tr, 'primaryKeyType');
+        if (type === null) {
+            console.warn(`Leuce: No \`data-primary-key-type\` specified for`
+                + ` primary key "${key}"; defaulting to "integer".`);
+            type = 'integer';
+        }
+        return {
+            key: key,
+            inColumns: false,
+            type: type
+        };
     }
 
     /**

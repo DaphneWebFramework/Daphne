@@ -774,12 +774,53 @@ QUnit.module('Leuce', function()
                 assert.strictEqual($row.data('id'), 123);
             });
 
-            QUnit.test('Warns when primary key is missing in row data',
+            QUnit.test('Warns when pk type attribute is missing and pk is not in columns',
             function(assert) {
                 $('#qunit-fixture').html(`
                     <table id="tbl">
                         <thead>
                             <tr data-primary-key="id">
+                                <th data-key="name"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                `);
+                const $tbl = $('#tbl');
+                const tbl = $tbl.leuceTable();
+                tbl.setData([{ id: 1, name: 'Alice' }]);
+                assert.strictEqual(warnMessages.length, 1);
+                assert.strictEqual(
+                    warnMessages[0],
+                    'Leuce: No `data-primary-key-type` specified for primary key "id"; defaulting to "integer".'
+                );
+            });
+
+            QUnit.test('Does not warn when pk type attribute is missing and pk is in columns',
+            function(assert) {
+                $('#qunit-fixture').html(`
+                    <table id="tbl">
+                        <thead>
+                            <tr data-primary-key="id">
+                                <th data-key="id"></th>
+                                <th data-key="name"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                `);
+                const $tbl = $('#tbl');
+                const tbl = $tbl.leuceTable();
+                tbl.setData([{ id: 1, name: 'Alice' }]);
+                assert.strictEqual(warnMessages.length, 0);
+            });
+
+            QUnit.test('Warns when primary key is missing in row data',
+            function(assert) {
+                $('#qunit-fixture').html(`
+                    <table id="tbl">
+                        <thead>
+                            <tr data-primary-key="id" data-primary-key-type="integer">
                                 <th data-key="name"></th>
                             </tr>
                         </thead>
