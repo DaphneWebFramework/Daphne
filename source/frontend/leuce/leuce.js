@@ -952,9 +952,13 @@ class TableEditor
     /** @type {string} */
     #primaryKey;
 
+    /** @type {string|null} */
+    #primaryKeyType;
+
     /**
      * @type {Array<{
      *   key: string|null,
+     *   type: string|null,
      *   nullable: boolean,
      *   format: { name: string, arg?: string }|null
      *   render: string|null,
@@ -974,20 +978,31 @@ class TableEditor
 
     /**
      * @param {string} primaryKey
+     * @param {string|null} primaryKeyType
      * @param {Array<{
      *   key: string|null,
+     *   type: string|null,
      *   nullable: boolean,
      *   format: { name: string, arg?: string }|null,
      *   render: string|null,
      *   $th: jQuery
      * }>} columns
      */
-    constructor(primaryKey, columns)
+    constructor(primaryKey, primaryKeyType, columns)
     {
         this.#primaryKey = primaryKey;
+        this.#primaryKeyType = primaryKeyType;
         this.#columns = columns;
-        this.#hasPrimaryKeyInColumns = TableEditor.#hasKeyInColumns(primaryKey, columns);
-        this.#$form = TableEditor.#createForm(primaryKey, columns, this.#hasPrimaryKeyInColumns);
+        this.#hasPrimaryKeyInColumns = TableEditor.#hasKeyInColumns(
+            primaryKey,
+            columns
+        );
+        this.#$form = TableEditor.#createForm(
+            primaryKey,
+            primaryKeyType,
+            columns,
+            this.#hasPrimaryKeyInColumns
+        );
         this.#actionHandler = null;
     }
 
@@ -1129,7 +1144,15 @@ class TableEditor
             }
             const $input = this.#findInput(column.key);
             const value = data[column.key];
-            $input.val(value);
+            if (column.type === 'datetime' && typeof value === 'string') {
+                // Format datetime values to use 'T' separator required by
+                // "datetime-local" inputs.
+                $input.val(value.replace(' ', 'T'));
+            } else {
+                $input.val(value);
+            }
+            // If the value is null and the column is nullable, disable
+            // the input and check the corresponding 'null' checkbox.
             if (column.nullable && value === null) {
                 const inputId = $input.attr('id');
                 const $checkbox = this.#$form.find(
@@ -1199,7 +1222,7 @@ class TableEditor
             if ($input.prop('disabled')) {
                 data[name] = null;
             } else {
-                data[name] = $input.val();
+                data[name] = TableEditor.#castInputValue($input);
             }
         }
         return data;
@@ -1218,6 +1241,7 @@ class TableEditor
      * @param {string} key
      * @param {Array<{
      *   key: string|null,
+     *   type: string|null,
      *   nullable: boolean,
      *   format: { name: string, arg?: string }|null,
      *   render: string|null,
@@ -1234,8 +1258,10 @@ class TableEditor
 
     /**
      * @param {string} primaryKey
+     * @param {string|null} primaryKeyType
      * @param {Array<{
      *   key: string|null,
+     *   type: string|null,
      *   nullable: boolean,
      *   format: { name: string, arg?: string }|null,
      *   render: string|null,
@@ -1244,7 +1270,7 @@ class TableEditor
      * @param {boolean} hasPrimaryKeyInColumns
      * @returns {jQuery}
      */
-    static #createForm(primaryKey, columns, hasPrimaryKeyInColumns)
+    static #createForm(primaryKey, primaryKeyType, columns, hasPrimaryKeyInColumns)
     {
         const $form = $('<form>', {
             class: 'leuce-table-editor-form',
@@ -1255,6 +1281,7 @@ class TableEditor
                 this.#createFormField(
                     primaryKey,
                     primaryKey,
+                    primaryKeyType,
                     true
                 )
             );
@@ -1267,6 +1294,7 @@ class TableEditor
                 this.#createFormField(
                     column.$th.text().trim(),
                     column.key,
+                    column.type,
                     column.key === primaryKey,
                     column.nullable
                 )
@@ -1278,11 +1306,12 @@ class TableEditor
     /**
      * @param {string} label
      * @param {string} name
+     * @param {string|null} type
      * @param {boolean} readonly
      * @param {boolean} [nullable=false]
      * @returns {jQuery}
      */
-    static #createFormField(label, name, readonly, nullable = false)
+    static #createFormField(label, name, type, readonly, nullable = false)
     {
         const inputId = `form-input-${this.#uniqueId()}`;
         return $('<div>', { class: 'row mb-3' }).append(
@@ -1293,8 +1322,8 @@ class TableEditor
             }),
             $('<div>', { class: 'col-sm-8' }).append(
                 nullable
-                    ? this.#createNullableInputGroup(inputId, name)
-                    : this.#createInput(inputId, name, readonly)
+                    ? this.#createNullableInputGroup(inputId, name, type)
+                    : this.#createInput(inputId, name, type, readonly)
             )
         );
     }
@@ -1302,13 +1331,14 @@ class TableEditor
     /**
      * @param {string} inputId
      * @param {string} inputName
+     * @param {string|null} inputType
      * @returns {jQuery}
      */
-    static #createNullableInputGroup(inputId, inputName)
+    static #createNullableInputGroup(inputId, inputName, inputType)
     {
         const checkboxId = `form-input-${this.#uniqueId()}`;
         return $('<div>', { class: 'input-group' }).append(
-            this.#createInput(inputId, inputName),
+            this.#createInput(inputId, inputName, inputType),
             $('<div>', { class: 'input-group-text' }).append(
                 $('<div>', { class: 'form-check' }).append(
                     $('<input>', {
@@ -1330,14 +1360,15 @@ class TableEditor
     /**
      * @param {string} id
      * @param {string} name
+     * @param {string|null} type
      * @param {boolean} [required=false]
      * @param {boolean} [readonly=false]
      * @returns {jQuery}
      */
-    static #createInput(id, name, readonly = false)
+    static #createInput(id, name, type, readonly = false)
     {
-        return $('<input>', {
-            type: 'text',
+        const $input = $('<input>', {
+            ...this.#inputAttributesFor(type),
             class: 'form-control',
             id: id,
             name: name,
@@ -1347,6 +1378,54 @@ class TableEditor
             required: true,
             readonly: readonly
         });
+        // Store type information using a data-* attribute for later use during
+        // form data extraction. Do not use jQuery's .data() here, as its values
+        // are lost when the form is detached and reattached to the DOM (i.e.,
+        // by MessageBox).
+        if (type != null) {
+            $input.attr('data-type', type);
+        }
+        return $input;
+    }
+
+    /**
+     * @param {string|null} type
+     * @returns {{ type?: string, step?: string }}
+     */
+    static #inputAttributesFor(type)
+    {
+        switch (type) {
+        case 'integer':
+            return { type: 'number', step: '1' };
+        case 'float':
+            return { type: 'number', step: 'any' };
+        case 'datetime':
+            return { type: 'datetime-local', step: '1' };
+        case 'string':
+            return { type: 'text' };
+        default:
+            return {};
+        }
+    }
+
+    /**
+     * @param {jQuery} $input
+     * @returns {*}
+     */
+    static #castInputValue($input)
+    {
+        const value = $input.val();
+        switch ($input.data('type')) {
+        case 'integer':
+            return parseInt(value, 10);
+        case 'float':
+            return parseFloat(value);
+        case 'datetime':
+            return value.replace('T', ' ');
+        case 'string':
+        default:
+            return value;
+        }
     }
 
     /**
@@ -1703,9 +1782,13 @@ class Table
     /** @type {string|null} */
     #primaryKey;
 
+    /** @type {string|null} */
+    #primaryKeyType;
+
     /**
      * @type {Array<{
      *   key: string|null,
+     *   type: string|null,
      *   nullable: boolean,
      *   format: { name: string, arg?: string }|null
      *   render: string|null,
@@ -1757,12 +1840,19 @@ class Table
         // 6
         this.#primaryKey = this.#resolvePrimaryKey();
         if (this.#primaryKey !== null) {
+            this.#primaryKeyType = this.#resolvePrimaryKeyType();
             this.#setUpInlineActionsColumn();
+        } else {
+            this.#primaryKeyType = null;
         }
         this.#columns = this.#parseColumns();
         // 7
         if (this.#primaryKey !== null) {
-            this.#editor = new TableEditor(this.#primaryKey, this.#columns);
+            this.#editor = new TableEditor(
+                this.#primaryKey,
+                this.#primaryKeyType,
+                this.#columns
+            );
         } else {
             this.#editor = null;
         }
@@ -1929,6 +2019,15 @@ class Table
     }
 
     /**
+     * @returns {string|null}
+     */
+    #resolvePrimaryKeyType()
+    {
+        const $tr = this.#$thead.find('tr').first();
+        return Table.#readDataAttribute($tr, 'primaryKeyType');
+    }
+
+    /**
      * @returns {void}
      */
     #setUpInlineActionsColumn()
@@ -1946,6 +2045,7 @@ class Table
     /**
      * @returns {Array<{
      *   key: string|null,
+     *   type: string|null,
      *   nullable: boolean,
      *   format: { name: string, arg?: string }|null,
      *   render: string|null,
@@ -1958,6 +2058,7 @@ class Table
         for (const th of this.#$thead.find('th').get()) {
             const $th = $(th);
             const key = Table.#readDataAttribute($th, 'key');
+            const type = Table.#readDataAttribute($th, 'type');
             const nullable = $th.is('[data-nullable]');
             let format = Table.#readDataAttribute($th, 'format');
             if (format !== null) {
@@ -1967,7 +2068,7 @@ class Table
             if (key === null) {
                 render = Table.#readDataAttribute($th, 'render');
             }
-            columns.push({ key, nullable, format, render, $th });
+            columns.push({ key, type, nullable, format, render, $th });
         }
         return columns;
     }
