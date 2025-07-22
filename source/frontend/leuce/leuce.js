@@ -913,10 +913,17 @@ class Button
             this.#alreadyDisabled = this.#$button.prop('disabled');
             this.#inlineWidth = this.#$button[0].style.width;
             this.#$button.css('width', this.#$button.outerWidth() + 'px');
-            this.#$button.html(`
-                <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-                <span class="visually-hidden" role="status">${UI.translate('loading...')}</span>
-            `);
+            this.#$button.empty().append(
+                $('<span>', {
+                    class: 'spinner-border spinner-border-sm',
+                    'aria-hidden': 'true'
+                }),
+                $('<span>', {
+                    class: 'visually-hidden',
+                    role: 'status',
+                    text: UI.translate('loading...')
+                })
+            );
             if (!this.#alreadyDisabled) {
                 this.#$button.prop('disabled', true);
             }
