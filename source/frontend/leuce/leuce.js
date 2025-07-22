@@ -2244,7 +2244,7 @@ class TableController
     }
 
     /**
-     * @returns {void}
+     * @returns {Promise<void>}
      */
     load()
     {
@@ -2262,7 +2262,7 @@ class TableController
             params.sortkey = this.#sort.key;
             params.sortdir = this.#sort.direction;
         }
-        this.#fnList(params).then(response => {
+        return this.#fnList(params).then(response => {
             table.setLoading(false);
             if (response.isSuccess()) {
                 table.setData(response.body.data);
