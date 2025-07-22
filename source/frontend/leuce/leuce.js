@@ -1554,7 +1554,7 @@ class TablePaginator
     static #pageSizeOptions = Object.freeze([5, 10, 25, 50, 100]);
 
     /** @type {number} */
-    static #defaultPageSize = 10;
+    static #defaultPageSize = 5;
 
     /** @type {jQuery} */
     #$root;
