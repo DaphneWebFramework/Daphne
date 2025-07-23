@@ -168,5 +168,23 @@
   "settings.preferences": {
     "en": "Preferences",
     "tr": "Tercihler"
+  },
+
+  "management.page_title": "management",
+  "management.accounts": {
+    "en": "Accounts",
+    "tr": "Hesaplar"
+  },
+  "management.account_roles": {
+    "en": "Account Roles",
+    "tr": "Hesap Rolleri"
+  },
+  "management.pending_accounts": {
+    "en": "Pending Accounts",
+    "tr": "Bekleyen Hesaplar"
+  },
+  "management.password_resets": {
+    "en": "Password Resets",
+    "tr": "Şifre Sıfırlamalar"
   }
 }
