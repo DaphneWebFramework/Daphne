@@ -2490,7 +2490,15 @@ class TableController
         this.#fnDelete(this.#tableName, id).then(response => {
             table.setLoading(false);
             if (response.isSuccess()) {
-                this.load();
+                this.load().then(() => {
+                    // Fix: If the current page becomes invalid after deletion
+                    // (e.g., last record deleted), adjust the page number and
+                    // reload to show the previous valid page.
+                    if (this.#page > this.#totalPages) {
+                        this.#page = this.#totalPages || 1;
+                        this.load();
+                    }
+                });
             } else {
                 Leuce.UI.notifyError(response.body.message);
             }
