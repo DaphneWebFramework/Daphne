@@ -755,7 +755,7 @@ QUnit.module('Leuce', function()
                 assert.strictEqual($icon.length, 1);
             });
 
-            QUnit.test('Stores primary key in row data',
+            QUnit.test('Stores entire row in row data',
             function(assert) {
                 $('#qunit-fixture').html(`
                     <table id="tbl">
@@ -771,7 +771,7 @@ QUnit.module('Leuce', function()
                 const tbl = $tbl.leuceTable();
                 tbl.setData([{ id: 123, name: 'Alice' }]);
                 const $row = $tbl.find('tbody tr').first();
-                assert.strictEqual($row.data('id'), 123);
+                assert.deepEqual($row.data('row'), { id: 123, name: 'Alice' });
             });
 
             QUnit.test('Warns when pk type attribute is missing and pk is not in columns',

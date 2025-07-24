@@ -1075,7 +1075,8 @@ class TableEditor
             secondaryButtonLabel: UI.MessageBoxButton.NO
         }).then(confirmed => {
             if (confirmed) {
-                this.#actionHandler?.('delete', $tr.data(this.#primaryKey.key));
+                const rowData = $tr.data('row');
+                this.#actionHandler?.('delete', rowData[this.#primaryKey.key]);
             }
         });
     }
@@ -1182,8 +1183,9 @@ class TableEditor
      */
     #extractRowData($tr)
     {
+        const rowData = $tr.data('row');
         const data = {
-            [this.#primaryKey.key]: $tr.data(this.#primaryKey.key)
+            [this.#primaryKey.key]: rowData[this.#primaryKey.key]
         };
         let index = 0;
         for (const column of this.#columns) {
@@ -1923,13 +1925,10 @@ class Table
         }
         for (const row of data) {
             const $tr = $('<tr>');
-            if (this.#primaryKey !== null) {
-                if (this.#primaryKey.key in row) {
-                    $tr.data(this.#primaryKey.key, row[this.#primaryKey.key]);
-                } else {
-                    console.warn(`Leuce: Primary key "${this.#primaryKey.key}" not found in row data.`);
-                }
+            if (this.#primaryKey !== null && !(this.#primaryKey.key in row)) {
+                console.warn(`Leuce: Primary key "${this.#primaryKey.key}" not found in row data.`);
             }
+            $tr.data('row', row);
             for (const { key, nullable, format, render } of this.#columns) {
                 const $td = $('<td>');
                 let value = '';
