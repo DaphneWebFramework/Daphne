@@ -1135,16 +1135,17 @@ class TableEditor
      */
     #populateForm($tr)
     {
-        const data = this.#extractRowData($tr);
+        const rowData = $tr.data('row');
         if (!this.#primaryKey.inColumns) {
-            this.#findInput(this.#primaryKey.key).val(data[this.#primaryKey.key]);
+            const $input = this.#findInput(this.#primaryKey.key);
+            $input.val(rowData[this.#primaryKey.key]);
         }
         for (const column of this.#columns) {
             if (column.key === null) {
                 continue;
             }
             const $input = this.#findInput(column.key);
-            const value = data[column.key];
+            const value = rowData[column.key];
             if (column.type === 'datetime' && typeof value === 'string') {
                 // Format datetime values to use 'T' separator required by
                 // "datetime-local" inputs.
@@ -1175,40 +1176,6 @@ class TableEditor
             return false;
         }
         return true;
-    }
-
-    /**
-     * @param {jQuery} $tr
-     * @returns {Object}
-     */
-    #extractRowData($tr)
-    {
-        const rowData = $tr.data('row');
-        const data = {
-            [this.#primaryKey.key]: rowData[this.#primaryKey.key]
-        };
-        let index = 0;
-        for (const column of this.#columns) {
-            if (column.key === null) {
-                ++index;
-                continue;
-            }
-            // Prevent overwriting the primary key with cell content. If the
-            // primary key is also rendered as a visible column, prefer the
-            // value from the row's data attribute, which is considered the
-            // authoritative source.
-            if (column.key === this.#primaryKey.key) {
-                ++index;
-                continue;
-            }
-            const $td = $tr.children().eq(index++);
-            if (column.nullable && $td.is('[data-null]')) {
-                data[column.key] = null;
-            } else {
-                data[column.key] = $td.text().trim();
-            }
-        }
-        return data;
     }
 
     /**
@@ -1938,7 +1905,7 @@ class Table
                     }
                     value = row[key];
                     if (nullable && value === null) {
-                        $td.attr('data-null', '');
+                        $td.addClass('leuce-null');
                     } else if (format !== null) {
                         value = this.#callFormatter(format, row, value);
                     }
