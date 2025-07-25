@@ -15,6 +15,18 @@
   Header set X-XSS-Protection "1; mode=block"
   Header unset Server
   Header unset X-Powered-By
+  Header set Content-Security-Policy "\
+    default-src 'self';\
+    script-src 'self';\
+    style-src 'self' 'unsafe-inline';\
+    img-src 'self' data:;\
+    font-src 'self';\
+    connect-src 'self';\
+    form-action 'self';\
+    frame-ancestors 'none';\
+    base-uri 'self';\
+    object-src 'none';\
+  "
 </IfModule>
 
 Options -Indexes
