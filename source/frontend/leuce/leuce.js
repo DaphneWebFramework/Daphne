@@ -270,6 +270,9 @@ class RequestBuilder
         if (apiUrl === null) {
             throw new Error('Missing meta tag: app:api-url');
         }
+        if (!Utility.isSameOrigin(apiUrl)) {
+            throw new Error(`Invalid API origin: ${apiUrl}`);
+        }
         if (!apiUrl.endsWith('/')) {
             apiUrl += '/';
         }
@@ -2553,6 +2556,20 @@ class TableController
 
 class Utility
 {
+    /**
+     * @param {string} uri
+     * @returns {boolean}
+     */
+    static isSameOrigin(uri)
+    {
+        try {
+            const url = new URL(uri, window.location.href);
+            return url.origin === window.location.origin;
+        } catch {
+            return false;
+        }
+    }
+
     /**
      * @param {string} name
      * @returns {string|null}

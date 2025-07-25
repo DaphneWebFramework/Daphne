@@ -1324,6 +1324,49 @@ QUnit.module('Leuce', function()
 
     QUnit.module('Utility', function()
     {
+        QUnit.module('isSameOrigin', function()
+        {
+            QUnit.test('Returns true for absolute same-origin URL',
+            function(assert) {
+                const uri = window.location.origin + '/some/path';
+                assert.strictEqual(Leuce.Utility.isSameOrigin(uri), true);
+            });
+
+            QUnit.test('Returns true for relative URL',
+            function(assert) {
+                const uri = '/relative/path';
+                assert.strictEqual(Leuce.Utility.isSameOrigin(uri), true);
+            });
+
+            QUnit.test('Returns false for different hostname',
+            function(assert) {
+                const uri = 'https://evil.com/';
+                assert.strictEqual(Leuce.Utility.isSameOrigin(uri), false);
+            });
+
+            QUnit.test('Returns false for different port',
+            function(assert) {
+                const current = new URL(window.location.href);
+                const otherPort = current.port === '8080' ? '9090' : '8080';
+                const uri = `${current.protocol}//${current.hostname}:${otherPort}/`;
+                assert.strictEqual(Leuce.Utility.isSameOrigin(uri), false);
+            });
+
+            QUnit.test('Returns false for different protocol',
+            function(assert) {
+                const altProtocol = window.location.protocol === 'https:'
+                    ? 'http:' : 'https:';
+                const uri = `${altProtocol}//${window.location.host}/`;
+                assert.strictEqual(Leuce.Utility.isSameOrigin(uri), false);
+            });
+
+            QUnit.test('Returns false for invalid URL',
+            function(assert) {
+                const uri = 'http://';
+                assert.strictEqual(Leuce.Utility.isSameOrigin(uri), false);
+            });
+        }); // isSameOrigin
+
         QUnit.module('metaContent', function()
         {
             QUnit.test('Returns correct value from meta tag', function(assert)

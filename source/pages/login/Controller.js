@@ -26,20 +26,6 @@ class Controller extends App.Controller
     }
 
     /**
-     * @param {string} uri
-     * @returns {boolean}
-     */
-    static #isSameHost(uri)
-    {
-        try {
-            const url = new URL(uri, window.location.href);
-            return url.hostname === window.location.hostname;
-        } catch {
-            return false;
-        }
-    }
-
-    /**
      * @param {jQuery.Event} event
      */
     #onFormSubmit(event)
@@ -53,7 +39,7 @@ class Controller extends App.Controller
                     Controller.reloadPage();
                 } else {
                     redirectUri = decodeURIComponent(redirectUri);
-                    if (Controller.#isSameHost(redirectUri)) {
+                    if (Leuce.Utility.isSameOrigin(redirectUri)) {
                         window.location.replace(redirectUri);
                     } else {
                         Controller.reloadPage();
