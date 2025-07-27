@@ -27,7 +27,7 @@ class Request
     /** @type {Object.<string, string>} */
     headers = {};
 
-    /** @type {string|Object|FormData|null} */
+    /** @type {string|object|FormData|null} */
     body = '';
 
     /** @type {boolean} */
@@ -42,11 +42,11 @@ class Response
     /** @type {Object.<string, string>} */
     headers = {};
 
-    /** @type {string|Object|null} */
+    /** @type {string|object|null} */
     body = null;
 
     /**
-     * @param {Object} jqXHR
+     * @param {object} jqXHR
      * @returns {Response}
      */
     static fromJqXHR(jqXHR)
@@ -94,7 +94,7 @@ class Client
     /**
      * @param {Request} request
      * @param {(function(number))=} onProgress
-     * @returns {Object}
+     * @returns {object}
      */
     #buildSettings(request, onProgress = null)
     {
@@ -125,7 +125,7 @@ class Client
     }
 
     /**
-     * @param {Object} settings
+     * @param {object} settings
      * @param {function(Response)} callback
      */
     #sendWithCallback(settings, callback)
@@ -137,7 +137,7 @@ class Client
     }
 
     /**
-     * @param {Object} settings
+     * @param {object} settings
      * @returns {Promise<Response>}
      */
     #sendWithPromise(settings)
@@ -331,22 +331,36 @@ class Model
 
 class View
 {
-    /** @type {Object.<string, jQuery>} */
+    /** @type {Object.<string, jQuery|object>} */
     #store = {};
 
     /**
      * @param {string} name
-     * @param {string|HTMLElement|Array<HTMLElement>|jQuery} selector
-     * @returns {jQuery|null}
+     * @param {string|jQuery|object} value
+     * @returns {jQuery|object|null}
      */
-    set(name, selector)
+    set(name, value)
     {
-        const $el = $(selector);
-        if (!$el.length) {
-            return null;
+        if (typeof value === 'string') {
+            const $el = $(value);
+            if (!$el.length) {
+                return null;
+            }
+            this.#store[name] = $el;
+            return $el;
         }
-        this.#store[name] = $el;
-        return $el;
+        if (value instanceof jQuery) {
+            if (!value.length) {
+                return null;
+            }
+            this.#store[name] = value;
+            return value;
+        }
+        if (typeof value === 'object' && value !== null) {
+            this.#store[name] = value;
+            return value;
+        }
+        return null;
     }
 
     /**
@@ -360,7 +374,7 @@ class View
 
     /**
      * @param {string} name
-     * @returns {jQuery|null}
+     * @returns {jQuery|object|null}
      */
     get(name)
     {
@@ -420,7 +434,7 @@ class UI
         NO: 4
     });
 
-    /** @type {Object.<string, Object<string, string>>} */
+    /** @type {Object.<string, Object.<string, string>>} */
     static #translations = Object.freeze({
         "add": {
             "en": "Add",
@@ -1182,7 +1196,7 @@ class TableEditor
     }
 
     /**
-     * @returns {Object}
+     * @returns {object}
      */
     #extractFormData()
     {
@@ -1726,10 +1740,10 @@ class Table
     /** @type {jQuery} */
     #$tbody;
 
-    /** @type {Object.<string, function>} */
+    /** @type {Object.<string, Function>} */
     #formatters;
 
-    /** @type {Object.<string, function>} */
+    /** @type {Object.<string, Function>} */
     #renderers;
 
     /** @type {(action: string, payload?: *) => void}|null */
@@ -1831,7 +1845,7 @@ class Table
 
     /**
      * @param {string} name
-     * @param {(row: Object, value: *, arg?: string) => *} formatter
+     * @param {(row: object, value: *, arg?: string) => *} formatter
      * @returns {Leuce.UI.Table}
      */
     setFormatter(name, formatter)
@@ -1842,7 +1856,7 @@ class Table
 
     /**
      * @param {string} name
-     * @param {(row: Object) => string|jQuery} renderer
+     * @param {(row: object) => string|jQuery} renderer
      * @returns {Leuce.UI.Table}
      */
     setRenderer(name, renderer)
@@ -1877,7 +1891,7 @@ class Table
     }
 
     /**
-     * @param {Array.<Object>} data
+     * @param {Array.<object>} data
      * @returns {Leuce.UI.Table}
      */
     setData(data)
@@ -2039,7 +2053,7 @@ class Table
 
     /**
      * @param {{ name: string, arg?: string }} format
-     * @param {Object} row
+     * @param {object} row
      * @param {*} value
      * @returns {*}
      */
@@ -2055,7 +2069,7 @@ class Table
 
     /**
      * @param {string} name
-     * @param {Object} row
+     * @param {object} row
      * @returns {*}
      */
     #callRenderer(name, row)
@@ -2214,7 +2228,7 @@ class Table
     }
 
     /**
-     * @param {Object} row
+     * @param {object} row
      * @returns {jQuery}
      */
     static #renderInlineActions(/*row*/)
@@ -2250,13 +2264,13 @@ class TableController
     /** @type {jQuery} */
     #$table;
 
-    /** @type {(params: Object) => Promise<Leuce.HTTP.Response>} */
+    /** @type {(params: object) => Promise<Leuce.HTTP.Response>} */
     #fnList;
 
-    /** @type {((tableName: string, data: Object) => Promise<Leuce.HTTP.Response>)|undefined} */
+    /** @type {((tableName: string, data: object) => Promise<Leuce.HTTP.Response>)|undefined} */
     #fnAdd;
 
-    /** @type {((tableName: string, data: Object) => Promise<Leuce.HTTP.Response>)|undefined} */
+    /** @type {((tableName: string, data: object) => Promise<Leuce.HTTP.Response>)|undefined} */
     #fnEdit;
 
     /** @type {((tableName: string, id: number) => Promise<Leuce.HTTP.Response>)|undefined} */
@@ -2286,9 +2300,9 @@ class TableController
      * @param {{
      *   tableName: string,
      *   $table: jQuery,
-     *   fnList: (params: Object) => Promise<Leuce.HTTP.Response>
-     *   fnAdd?: (tableName: string, data: Object) => Promise<Leuce.HTTP.Response>,
-     *   fnEdit?: (tableName: string, data: Object) => Promise<Leuce.HTTP.Response>
+     *   fnList: (params: object) => Promise<Leuce.HTTP.Response>
+     *   fnAdd?: (tableName: string, data: object) => Promise<Leuce.HTTP.Response>,
+     *   fnEdit?: (tableName: string, data: object) => Promise<Leuce.HTTP.Response>
      *   fnDelete?: (tableName: string, id: number) => Promise<Leuce.HTTP.Response>
      * }} options
      */
@@ -2404,7 +2418,7 @@ class TableController
     }
 
     /**
-     * @param {Object} rowData
+     * @param {object} rowData
      * @returns {void}
      */
     #onAdd(rowData)
@@ -2425,7 +2439,7 @@ class TableController
     }
 
     /**
-     * @param {Object} rowData
+     * @param {object} rowData
      * @returns {void}
      */
     #onEdit(rowData)

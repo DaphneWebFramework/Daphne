@@ -361,8 +361,8 @@ QUnit.module('Leuce', function()
 
         QUnit.module('View', function()
         {
-            QUnit.test('set() stores and returns jQuery for single-matching selector', function(assert)
-            {
+            QUnit.test('set() stores and returns jQuery for single-matching selector',
+            function(assert) {
                 $('#qunit-fixture').html('<input id="username">');
                 var view = new Leuce.MVC.View();
                 var $stored = view.set('Username', '#username');
@@ -370,8 +370,8 @@ QUnit.module('Leuce', function()
                 assert.strictEqual($stored.attr('id'), 'username');
             });
 
-            QUnit.test('set() stores and returns jQuery for multiple-matching selector', function(assert)
-            {
+            QUnit.test('set() stores and returns jQuery for multiple-matching selector',
+            function(assert) {
                 $('#qunit-fixture').html('<input class="username"><input class="username">');
                 var view = new Leuce.MVC.View();
                 var $stored = view.set('Username', '.username');
@@ -381,47 +381,102 @@ QUnit.module('Leuce', function()
                 assert.strictEqual($stored[1].className, 'username');
             });
 
-            QUnit.test('set() returns null for non-matching selector', function(assert)
-            {
+            QUnit.test('set() rejects and returns null for non-matching selector',
+            function(assert) {
                 var view = new Leuce.MVC.View();
-                var $stored = view.set('Username', '#username');
-                assert.strictEqual($stored, null);
+                assert.strictEqual(view.set('NonExistent', '#nonexistent'), null);
             });
 
-            QUnit.test('has() returns true for stored element', function(assert)
-            {
+            QUnit.test('set() stores and returns non-empty jQuery instance',
+            function(assert) {
+                $('#qunit-fixture').html('<input id="username">');
+                var view = new Leuce.MVC.View();
+                var $el = $('#username');
+                var $stored = view.set('Username', $el);
+                assert.strictEqual($stored, $el);
+            });
+
+            QUnit.test('set() rejects and returns null for empty jQuery instance',
+            function(assert) {
+                var view = new Leuce.MVC.View();
+                var $el = $('#nonexistent');
+                assert.strictEqual(view.set('NonExistent', $el), null);
+            });
+
+            QUnit.test('set() stores and returns plain object',
+            function(assert) {
+                var view = new Leuce.MVC.View();
+                var obj = { foo: 'bar' };
+                var stored = view.set('Obj', obj);
+                assert.strictEqual(stored, obj);
+            });
+
+            QUnit.test('set() rejects and returns null for unsupported types',
+            function(assert) {
+                var view = new Leuce.MVC.View();
+                assert.strictEqual(view.set('fn', function() {}), null);
+                assert.strictEqual(view.set('number', 42), null);
+                assert.strictEqual(view.set('null', null), null);
+                assert.strictEqual(view.set('bool', true), null);
+            });
+
+            QUnit.test('has() returns true for stored element',
+            function(assert) {
                 $('#qunit-fixture').html('<input id="username">');
                 var view = new Leuce.MVC.View();
                 view.set('Username', '#username');
                 assert.ok(view.has('Username'));
             });
 
-            QUnit.test('has() returns false for non-existent element', function(assert)
-            {
-                $('#qunit-fixture').html('');
+            QUnit.test('has() returns false for non-existent element',
+            function(assert) {
                 var view = new Leuce.MVC.View();
-                view.set('Username', '#username');
-                assert.notOk(view.has('Username'));
+                view.set('NonExistent', '#nonexistent');
+                assert.notOk(view.has('NonExistent'));
             });
 
-            QUnit.test('get() returns jQuery for stored element', function(assert)
-            {
+            QUnit.test('has() returns false for empty jQuery instance',
+            function(assert) {
+                var view = new Leuce.MVC.View();
+                var $el = $('#nonexistent');
+                view.set('NonExistent', $el);
+                assert.notOk(view.has('NonExistent'));
+            });
+
+            QUnit.test('get() returns jQuery for stored element',
+            function(assert) {
                 $('#qunit-fixture').html('<input id="username">');
                 var view = new Leuce.MVC.View();
-                var $stored = view.set('Username', '#username');
-                var $retrieved = view.get('Username');
-                assert.ok($retrieved instanceof jQuery);
-                assert.strictEqual($retrieved.attr('id'), 'username');
-                assert.strictEqual($retrieved, $stored);
+                view.set('Username', '#username');
+                var $got = view.get('Username');
+                assert.ok($got instanceof jQuery);
+                assert.strictEqual($got.attr('id'), 'username');
             });
 
-            QUnit.test('get() returns null for non-existent element', function(assert)
-            {
-                $('#qunit-fixture').html('');
+            QUnit.test('get() returns plain object for stored object',
+            function(assert) {
                 var view = new Leuce.MVC.View();
-                view.set('Username', '#username');
-                var $result = view.get('Username');
+                var obj = { foo: 'bar' };
+                view.set('Obj', obj);
+                var got = view.get('Obj');
+                assert.strictEqual(typeof got, 'object');
+                assert.strictEqual(got, obj);
+            });
+
+            QUnit.test('get() returns null for non-existent element',
+            function(assert) {
+                var view = new Leuce.MVC.View();
+                view.set('NonExistent', '#nonexistent');
+                var $result = view.get('NonExistent');
                 assert.strictEqual($result, null);
+            });
+
+            QUnit.test('get() returns null for empty jQuery instance',
+            function(assert) {
+                var view = new Leuce.MVC.View();
+                var $el = $('#nonexistent');
+                view.set('NonExistent', $el);
+                assert.strictEqual(view.get('NonExistent'), null);
             });
         }); // View
 
