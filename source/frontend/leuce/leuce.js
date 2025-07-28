@@ -332,56 +332,56 @@ class Model
 class View
 {
     /** @type {Object.<string, jQuery|object>} */
-    #store = {};
+    #registry = {};
 
     /**
-     * @param {string} name
+     * @param {string} key
      * @param {string|jQuery|object} value
      * @returns {jQuery|object|null}
      */
-    set(name, value)
+    set(key, value)
     {
         if (typeof value === 'string') {
             const $el = $(value);
             if (!$el.length) {
                 return null;
             }
-            this.#store[name] = $el;
+            this.#registry[key] = $el;
             return $el;
         }
         if (value instanceof jQuery) {
             if (!value.length) {
                 return null;
             }
-            this.#store[name] = value;
+            this.#registry[key] = value;
             return value;
         }
         if (typeof value === 'object' && value !== null) {
-            this.#store[name] = value;
+            this.#registry[key] = value;
             return value;
         }
         return null;
     }
 
     /**
-     * @param {string} name
+     * @param {string} key
      * @returns {boolean}
      */
-    has(name)
+    has(key)
     {
-        return this.#store.hasOwnProperty(name);
+        return this.#registry.hasOwnProperty(key);
     }
 
     /**
-     * @param {string} name
+     * @param {string} key
      * @returns {jQuery|object|null}
      */
-    get(name)
+    get(key)
     {
-        if (!this.has(name)) {
+        if (!this.has(key)) {
             return null;
         }
-        return this.#store[name];
+        return this.#registry[key];
     }
 }
 

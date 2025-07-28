@@ -1,0 +1,13 @@
+{
+  "css": [
+    "classes/ui/InstallStep",
+    "index"
+  ],
+  "js": [
+    "classes/ui/InstallStep",
+    "Model",
+    "View",
+    "Controller",
+    "index"
+  ]
+}

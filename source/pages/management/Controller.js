@@ -36,7 +36,6 @@ class Controller extends App.Controller
      */
     #createTableControllers()
     {
-        // Mapping of table names in view storage to table names in the database.
         const tables = {
             accountTable: 'account',
             accountRoleTable: 'accountrole',
@@ -48,11 +47,14 @@ class Controller extends App.Controller
         const fnEdit = this.#bindModelMethod('editRecord');
         const fnDelete = this.#bindModelMethod('deleteRecord');
 
-        for (const [key, value] of Object.entries(tables)) {
-            this.#tableControllers[key] = new Leuce.UI.TableController({
-                tableName: value,
-                $table: this.view.get(key),
-                fnList, fnAdd, fnEdit, fnDelete
+        for (const [viewKey, tableName] of Object.entries(tables)) {
+            this.#tableControllers[viewKey] = new Leuce.UI.TableController({
+                tableName,
+                $table: this.view.get(viewKey),
+                fnList,
+                fnAdd,
+                fnEdit,
+                fnDelete
             });
         }
     }

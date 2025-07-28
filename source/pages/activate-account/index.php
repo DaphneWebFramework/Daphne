@@ -15,6 +15,7 @@ require '../../autoload.php';
 use \Charis\Form;
 use \Charis\FormControls\FormHiddenInput;
 use \Charis\Generic;
+use \Charis\Spinner;
 use \Harmonia\Http\Request;
 use \Harmonia\Http\Response;
 use \Harmonia\Http\StatusCode;
@@ -43,11 +44,11 @@ function getCode(): string {
 					new Generic('h5', ['class' => 'mb-0'],
 						_T('activate_account.card_header')
 					),
-					new Generic('div', [
+					new Spinner([
 						'id' => 'spinner',
-						'class' => 'spinner-border spinner-border-sm',
-						'role' => 'status'
-					], new Generic('span', ['class' => 'visually-hidden'], _T('loading')))
+						':size' => 'sm',
+						':label' => _T('loading')
+					])
 				]),
 				new Generic('div', ['class' => 'card-body'], [
 					_T('activate_account.card_body'),
