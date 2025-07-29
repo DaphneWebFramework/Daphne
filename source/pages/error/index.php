@@ -19,6 +19,7 @@ use \Peneus\Systems\PageSystem\Page;
 $page = (new Page(__DIR__))
 	->SetTitle(_T('error.page_title'))
 	->SetMasterPage('basic')
+	->SetProperty('showLanguage', false)
 	->RemoveLibrary('jquery')
 	->RemoveLibrary('leuce')
 	->RemoveLibrary('app');

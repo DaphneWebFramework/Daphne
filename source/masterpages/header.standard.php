@@ -105,7 +105,9 @@ function createNavItems(Page $page): array {
 	} else {
 		createAccountNavItems($navItems, $page);
 	}
-	createLanguageNavItems($navItems, $page);
+	if ($page->Property('showLanguage', true)) {
+		createLanguageNavItems($navItems, $page);
+	}
 	return $navItems;
 }
 ?>

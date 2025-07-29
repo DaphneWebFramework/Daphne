@@ -47,7 +47,9 @@ function createLanguageNavItems(array &$navItems, Page $page): void {
 
 function createNavItems(Page $page): array {
 	$navItems = [];
-	createLanguageNavItems($navItems, $page);
+	if ($page->Property('showLanguage', true)) {
+		createLanguageNavItems($navItems, $page);
+	}
 	return $navItems;
 }
 ?>

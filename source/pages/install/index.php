@@ -37,6 +37,7 @@ if ($installKey !== Config::Instance()->Option('InstallKey')) {
 $page = (new Page(__DIR__))
 	->SetTitle('Install')
 	->SetMasterPage('basic')
+	->SetProperty('showLanguage', false)
 	->AddLibrary('bootstrap-icons')
 	->SetMeta('app:api-url', 'api')
 	->SetMeta('app:install-key', $installKey);
