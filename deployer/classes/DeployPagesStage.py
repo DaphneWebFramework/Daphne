@@ -31,6 +31,12 @@ class DeployPagesStage(Stage):
         for sourcePageDirectoryPath in sourceSubdirectoryPath.iterdir():
             if not sourcePageDirectoryPath.is_dir():
                 continue
+            # Skip the page directory entirely if it's ignored. This prevents
+            # accidental generation of empty `page.min.js` and `page.min.css`,
+            # and avoids writing a `manifest.json` that references them despite
+            # the page being excluded.
+            if context.ignoreRules.isIgnored(sourcePageDirectoryPath):
+                continue
             self._deployPage(
                 context,
                 sourcePageDirectoryPath,
