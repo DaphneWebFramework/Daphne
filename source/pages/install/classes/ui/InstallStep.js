@@ -11,10 +11,18 @@
 
 class InstallStep
 {
+    /** @type {string} */
     #id;
+
+    /** @type {JQuery} */
     #$icon;
+
+    /** @type {JQuery} */
     #$text;
 
+    /**
+     * @param {string} id
+     */
     constructor(id)
     {
         this.#id = id;
@@ -22,23 +30,48 @@ class InstallStep
         this.#$text = $(`#${id}-text`);
     }
 
+    /**
+     * @returns {void}
+     */
     show()
     {
         $(`#${this.#id}`).removeClass('d-none');
     }
 
-    setSuccessIcon()
+    /**
+     * @param {boolean} [isCreated=false]
+     * @returns {void}
+     */
+    setSuccessIcon(isCreated = false)
     {
-        this.#$icon.html('<i class="bi bi-check-circle-fill text-success"></i>');
+        const iconClass = isCreated ? 'check-circle-fill' : 'check-circle';
+        this.#$icon.html(InstallStep.#iconHtml(iconClass, 'success'));
     }
 
+    /**
+     * @returns {void}
+     */
     setErrorIcon()
     {
-        this.#$icon.html('<i class="bi bi-x-circle-fill text-danger"></i>');
+        this.#$icon.html(InstallStep.#iconHtml('x-circle-fill', 'danger'));
     }
 
+    /**
+     * @param {string} text
+     * @returns {void}
+     */
     setText(text)
     {
         this.#$text.text(text);
+    }
+
+    /**
+     * @param {string} iconClass
+     * @param {string} textClass
+     * @returns {string}
+     */
+    static #iconHtml(iconClass, textClass)
+    {
+        return `<i class="bi bi-${iconClass} text-${textClass}"></i>`;
     }
 }

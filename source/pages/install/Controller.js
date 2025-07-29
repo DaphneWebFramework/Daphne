@@ -122,7 +122,7 @@ class Controller extends App.Controller
             return false;
         }
         // 7
-        step.setSuccessIcon();
+        step.setSuccessIcon(true);
         step.setText(messages.createSuccessText);
         return true;
     }

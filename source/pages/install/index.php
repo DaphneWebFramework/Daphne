@@ -57,9 +57,13 @@ $page = (new Page(__DIR__))
 		], [
 			new Generic('h5', null, 'Installation Complete'),
 			new Generic('p', null,
-				"The application's database structure has been successfully " .
-				"initialized. An administrator account has also been created " .
-				"with the following credentials:"),
+				"The application's database structure is complete. Missing " .
+				"components have been created if necessary."
+			),
+			new Generic('p', null,
+				"If no administrator account was present, a default one has " .
+				"been created with the following credentials:"
+			),
 			new Generic('p', null, [
 				new Generic('strong', null, 'Email: '),
 				CreateAdminAccountAction::ADMIN_EMAIL,
@@ -68,7 +72,7 @@ $page = (new Page(__DIR__))
 				new Generic('em', null, 'Your install key'),
 			]),
 			new Generic('p', ['class' => 'mb-0'], [
-				'You can change your email later from the ',
+				'You can change your email address later from the ',
 				new Generic('a', [
 					'href' => $resource->PageUrl('management'),
 					'class' => 'alert-link'
