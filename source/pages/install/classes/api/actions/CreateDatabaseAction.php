@@ -16,10 +16,13 @@ use \Peneus\Api\Actions\Action;
 
 use \Harmonia\Config;
 use \Harmonia\Systems\DatabaseSystem\Connection;
+use \Harmonia\Systems\DatabaseSystem\Queries\IdentifierEscaper;
 use \Harmonia\Systems\DatabaseSystem\Queries\RawQuery;
 
 class CreateDatabaseAction extends Action
 {
+    use IdentifierEscaper;
+
     protected function onExecute(): mixed
     {
         // 1
@@ -34,7 +37,7 @@ class CreateDatabaseAction extends Action
         $connection = new Connection($host, $username, $password, $charset);
         // 3
         $clauses = [];
-        $clauses[] = "CREATE DATABASE `{$this->escapeBackticks($name)}`";
+        $clauses[] = "CREATE DATABASE `{$this->escapeIdentifier($name)}`";
         if (!empty($charset)) {
             $clauses[] = "CHARACTER SET '{$connection->EscapeString($charset)}'";
         }
@@ -47,10 +50,5 @@ class CreateDatabaseAction extends Action
         // 5
         $connection->Execute($query);
         return null;
-    }
-
-    protected function escapeBackticks(string $string): string
-    {
-        return \str_replace('`', '``', $string);
     }
 }
