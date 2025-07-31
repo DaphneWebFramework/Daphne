@@ -15,12 +15,13 @@ namespace classes\api\actions;
 use \Peneus\Api\Actions\Action;
 
 use \Harmonia\Http\Request;
-use \Harmonia\Systems\DatabaseSystem\Database;
-use \Harmonia\Systems\DatabaseSystem\Queries\RawQuery;
 use \Harmonia\Systems\ValidationSystem\Validator;
+use \Peneus\Api\Actions\Management\ModelClassResolver;
 
 class CheckTableAction extends Action
 {
+    use ModelClassResolver;
+
     protected function onExecute(): mixed
     {
         // 1
@@ -34,11 +35,8 @@ class CheckTableAction extends Action
         $dataAccessor = $validator->Validate(Request::Instance()->QueryParams());
         $table = $dataAccessor->GetField('table');
         // 2
-        $database = Database::Instance();
-        $query = (new RawQuery)
-            ->Sql("SHOW TABLES LIKE '{$database->EscapeString($table)}'");
+        $modelClass = $this->resolveModelClass($table);
         // 3
-        $resultSet = $database->Execute($query);
-        return ['result' => $resultSet !== null && $resultSet->RowCount() > 0];
+        return ['result' => $modelClass::TableExists()];
     }
 }
