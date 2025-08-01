@@ -1787,7 +1787,7 @@ class Table
     /** @type {TableToolbar} */
     #toolbar;
 
-    /** @type {TablePaginator} */
+    /** @type {TablePaginator|null} */
     #paginator;
 
     /** @type {jQuery} */
@@ -1837,8 +1837,12 @@ class Table
         this.#toolbar = new TableToolbar(this.#editor, $table.is('[data-nosearch]'));
         this.#$wrapper.prepend(this.#toolbar.root().addClass('mb-3'));
         // 9
-        this.#paginator = new TablePaginator();
-        this.#$wrapper.append(this.#paginator.root().addClass('mt-3'));
+        if ($table.is('[data-nopaginate]')) {
+            this.#paginator = null;
+        } else {
+            this.#paginator = new TablePaginator();
+            this.#$wrapper.append(this.#paginator.root().addClass('mt-3'));
+        }
         // 10
         this.#$overlay = Table.#createOverlay();
         this.#$wrapper.append(this.#$overlay);
@@ -1885,7 +1889,7 @@ class Table
         this.#actionHandler = actionHandler;
         this.#editor?.setActionHandler(actionHandler);
         this.#toolbar.setActionHandler(actionHandler);
-        this.#paginator.setActionHandler(actionHandler);
+        this.#paginator?.setActionHandler(actionHandler);
         return this;
     }
 
@@ -1960,7 +1964,7 @@ class Table
      */
     updatePaginator(totalRecords, pageSize, currentPage)
     {
-        return this.#paginator.update(totalRecords, pageSize, currentPage);
+        return this.#paginator?.update(totalRecords, pageSize, currentPage);
     }
 
     /**
@@ -2364,13 +2368,20 @@ class TableController
         return this.#fnList(params).then(response => {
             table.setLoading(false);
             if (response.isSuccess()) {
-                table.setData(response.body.data);
-                this.#totalPages = table.updatePaginator(
-                    response.body.total,
-                    this.#pageSize,
-                    this.#page
-                );
-            } else {
+                if (Array.isArray(response.body.data)) {
+                    table.setData(response.body.data);
+                } else {
+                    table.setData([]);
+                    console.warn('Leuce: No "data" array found in response body.');
+                }
+                if (Number.isInteger(response.body.total)) {
+                    this.#totalPages = table.updatePaginator(
+                        response.body.total,
+                        this.#pageSize,
+                        this.#page
+                    );
+                }
+           } else {
                 Leuce.UI.notifyError(response.body.message);
             }
         });
