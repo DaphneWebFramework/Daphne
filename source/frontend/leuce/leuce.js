@@ -1420,13 +1420,14 @@ class TableToolbar
 
     /**
      * @param {TableEditor|null} editor
+     * @param {boolean} noSearch
      */
-    constructor(editor)
+    constructor(editor, noSearch)
     {
-        this.#$root = TableToolbar.#createRoot(editor !== null);
+        this.#$root = TableToolbar.#createRoot(editor !== null, noSearch);
         this.#editor = editor;
         this.#actionHandler = null;
-        this.#bindEvents();
+        this.#bindEvents(noSearch);
     }
 
     /**
@@ -1447,24 +1448,30 @@ class TableToolbar
     }
 
     /**
+     * @param {boolean} noSearch
      * @returns {void}
      */
-    #bindEvents()
+    #bindEvents(noSearch)
     {
-        this.#$root.find('[data-action="search-input"]').on('keydown', (event) => {
-            if (event.key === 'Enter') {
-                this.#actionHandler?.('search', $(event.currentTarget).val().trim());
-            }
-        });
-        this.#$root.find('[data-action="search"]').on('click', () => {
-            const $input = this.#$root.find('[data-action="search-input"]');
-            this.#actionHandler?.('search', $input.val().trim());
-        });
+        // Search box
+        if (!noSearch) {
+            this.#$root.find('[data-action="search-input"]').on('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    this.#actionHandler?.('search', $(event.currentTarget).val().trim());
+                }
+            });
+            this.#$root.find('[data-action="search"]').on('click', () => {
+                const $input = this.#$root.find('[data-action="search-input"]');
+                this.#actionHandler?.('search', $input.val().trim());
+            });
+        }
+        // Add button
         if (this.#editor !== null) {
             this.#$root.find('[data-action="add"]').on('click', () => {
                 this.#editor.showAdd();
             });
         }
+        // Reload button
         this.#$root.find('[data-action="reload"]').on('click', () => {
             this.#actionHandler?.('reload');
         });
@@ -1472,22 +1479,24 @@ class TableToolbar
 
     /**
      * @param {boolean} hasAddButton
+     * @param {boolean} noSearch
      * @returns {jQuery}
      */
-    static #createRoot(hasAddButton)
+    static #createRoot(hasAddButton, noSearch)
     {
         return $('<div>', {
             class: 'leuce-table-controls'
         }).append(
-            this.#createSearchBox(),
+            this.#createSearchBox(noSearch),
             this.#createActionButtons(hasAddButton)
         );
     }
 
     /**
+     * @param {boolean} disabled
      * @returns {jQuery}
      */
-    static #createSearchBox()
+    static #createSearchBox(disabled)
     {
         const $inputGroup = $('<div>', {
             class: 'input-group flex-nowrap'
@@ -1497,9 +1506,11 @@ class TableToolbar
                 class: 'form-control form-control-sm',
                 'data-action': 'search-input',
                 placeholder: UI.translate('search...'),
-                css: { minWidth: '100px', maxWidth: '150px' }
+                css: { minWidth: '100px', maxWidth: '150px' },
+                disabled: disabled
             }),
             this.#createButton('search', 'bi bi-search')
+                .prop('disabled', disabled)
         );
         return $('<div>', {
             class: 'leuce-table-controls-group'
@@ -1823,7 +1834,7 @@ class Table
             this.#editor = null;
         }
         // 8
-        this.#toolbar = new TableToolbar(this.#editor);
+        this.#toolbar = new TableToolbar(this.#editor, $table.is('[data-nosearch]'));
         this.#$wrapper.prepend(this.#toolbar.root().addClass('mb-3'));
         // 9
         this.#paginator = new TablePaginator();
@@ -2103,7 +2114,6 @@ class Table
                 }
             }
         }
-
         // Inline actions
         if (this.#editor !== null) {
             this.#$tbody.on('click', '[data-action="edit"]', event => {
