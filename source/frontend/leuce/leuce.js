@@ -1957,17 +1957,24 @@ class Table
      */
     #decorateHeaders()
     {
-        for (const th of this.#$thead.find('th').get()) {
-            const $th = $(th);
-            $th.addClass('leuce-table-header');
-            if ($th.is('[data-key]')) {
-                const $span = $('<span>').append(
-                    $th.text().trim(),
-                    $('<i>').attr('class', Table.#sortIconClasses.none)
-                )
-                $th.addClass('leuce-table-header-sortable')
-                   .empty()
-                   .append($span);
+        const ths = this.#$thead.find('th').get();
+        // 1
+        for (const th of ths) {
+            $(th).addClass('leuce-table-header');
+        }
+        // 2
+        if (!this.#$thead.is('[data-nosort]')) {
+            for (const th of ths) {
+                const $th = $(th);
+                if ($th.is('[data-key]') && !$th.is('[data-nosort]')) {
+                    const $span = $('<span>').append(
+                        $th.text().trim(),
+                        $('<i>').attr('class', Table.#sortIconClasses.none)
+                    );
+                    $th.addClass('leuce-table-header-sortable')
+                       .empty()
+                       .append($span);
+                }
             }
         }
     }
@@ -2088,12 +2095,15 @@ class Table
     #bindEvents()
     {
         // Sortable headers
-        const onHeaderClick = this.#onHeaderClick.bind(this);
-        for (const column of this.#columns) {
-            if (column.key !== null) {
-                column.$th.on('click', onHeaderClick);
+        if (!this.#$thead.is('[data-nosort]')) {
+            const onHeaderClick = this.#onHeaderClick.bind(this);
+            for (const column of this.#columns) {
+                if (column.key !== null && !column.$th.is('[data-nosort]')) {
+                    column.$th.on('click', onHeaderClick);
+                }
             }
         }
+
         // Inline actions
         if (this.#editor !== null) {
             this.#$tbody.on('click', '[data-action="edit"]', event => {

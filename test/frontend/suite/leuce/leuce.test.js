@@ -786,7 +786,7 @@ QUnit.module('Leuce', function()
                 assert.ok(tbl instanceof Leuce.UI.Table);
             });
 
-            QUnit.test('Sortable headers are decorated automatically',
+            QUnit.test('Decorates sortable headers when data-key is present',
             function(assert) {
                 $('#qunit-fixture').html(`
                     <table id="tbl">
@@ -808,6 +808,115 @@ QUnit.module('Leuce', function()
                 assert.strictEqual($span.contents().first().text(), 'Name');
                 const $icon = $span.find('i.bi.bi-chevron-expand');
                 assert.strictEqual($icon.length, 1);
+            });
+
+            QUnit.test('Does not decorate sortable headers when thead has data-nosort',
+            function(assert) {
+                $('#qunit-fixture').html(`
+                    <table id="tbl">
+                        <thead data-nosort>
+                            <tr>
+                                <th data-key="name">Name</th>
+                                <th data-key="email">Email</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                `);
+                const $tbl = $('#tbl');
+                $tbl.leuceTable();
+                const $sortableHeaders = $tbl.find('th.leuce-table-header-sortable');
+                assert.strictEqual($sortableHeaders.length, 0);
+            });
+
+            QUnit.test('Does not decorate header when th has data-nosort',
+            function(assert) {
+                $('#qunit-fixture').html(`
+                    <table id="tbl">
+                        <thead>
+                            <tr>
+                                <th data-key="name">Name</th>
+                                <th data-key="email" data-nosort>Email</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                `);
+                const $tbl = $('#tbl');
+                $tbl.leuceTable();
+                const $ths = $tbl.find('th');
+                assert.ok($ths.eq(0).hasClass('leuce-table-header-sortable'));
+                assert.notOk($ths.eq(1).hasClass('leuce-table-header-sortable'));
+            });
+
+            QUnit.test('Responds to header click when th is sortable',
+            function(assert) {
+                $('#qunit-fixture').html(`
+                    <table id="tbl">
+                        <thead>
+                            <tr>
+                                <th data-key="name">Name</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                `);
+                const $tbl = $('#tbl');
+                $tbl.leuceTable();
+                const $icon = $tbl.find('th[data-key="name"] i');
+                const initialClass = $icon.attr('class');
+                $tbl.find('th[data-key="name"]').trigger('click');
+                const finalClass = $icon.attr('class');
+                assert.notStrictEqual(finalClass, initialClass);
+            });
+
+            QUnit.test('Does not respond to header click when th has data-nosort',
+            function(assert) {
+                $('#qunit-fixture').html(`
+                    <table id="tbl">
+                        <thead>
+                            <tr>
+                                <th data-key="name" data-nosort>Name</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                `);
+                const $tbl = $('#tbl');
+                $tbl.leuceTable();
+                const $icon = $tbl.find('th[data-key="name"] i');
+                const initialClass = $icon.attr('class');
+                $tbl.find('th[data-key="name"]').trigger('click');
+                const finalClass = $icon.attr('class');
+                assert.strictEqual(finalClass, initialClass);
+            });
+
+            QUnit.test('Cycles sort icon class on repeated header clicks',
+            function(assert) {
+                $('#qunit-fixture').html(`
+                    <table id="tbl">
+                        <thead>
+                            <tr>
+                                <th data-key="name">Name</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                `);
+                const $tbl = $('#tbl');
+                $tbl.leuceTable();
+                const $icon = $tbl.find('th[data-key="name"] i');
+                const class1 = $icon.attr('class');
+                $tbl.find('th[data-key="name"]').trigger('click');
+                const class2 = $icon.attr('class');
+                $tbl.find('th[data-key="name"]').trigger('click');
+                const class3 = $icon.attr('class');
+                $tbl.find('th[data-key="name"]').trigger('click');
+                const class4 = $icon.attr('class');
+                assert.strictEqual(class1, 'bi bi-chevron-expand');
+                assert.strictEqual(class2, 'bi bi-chevron-down');
+                assert.strictEqual(class3, 'bi bi-chevron-up');
+                assert.strictEqual(class4, 'bi bi-chevron-expand');
             });
 
             QUnit.test('Stores entire row in row data',
