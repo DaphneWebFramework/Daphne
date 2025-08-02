@@ -11,6 +11,12 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
+.leuce-user-select-none {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
 /**
  * leuce-notifications
  */
@@ -112,6 +118,18 @@
   background-color: var(--bs-secondary-bg);
   opacity: 1;
 }
-.leuce-table-editor-form .form-check-label {
-  user-select: none;
+.leuce-table-editor-form .form-check.form-switch {
+  height: 2.25rem; /* Matches .form-control height */
+  display: flex;
+  align-items: center; /* Centers .form-switch vertically */
+}
+.leuce-table-editor-form .form-check.form-switch .form-check-input {
+  width: 3rem;
+  height: 1.5rem;
+}
+.leuce-table-editor-form .leuce-nullable-boolean-input-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 0.75rem;
 }

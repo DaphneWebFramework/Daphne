@@ -1117,10 +1117,10 @@ class TableEditor
      */
     #resetNullableInputGroups()
     {
-        const $checkboxes = this.#$form.find('.form-check-input[data-null-for]');
+        const $checkboxes = this.#$form.find('.form-check-input[data-nullifier-for]');
         for (const checkbox of $checkboxes.get()) {
             const $checkbox = $(checkbox);
-            const inputId = $checkbox.data('null-for');
+            const inputId = $checkbox.data('nullifier-for');
             const $input = $('#' + inputId);
             $input.prop('disabled', false);
             $checkbox.prop('checked', false);
@@ -1136,13 +1136,21 @@ class TableEditor
     #clearForm()
     {
         if (!this.#primaryKey.inColumns) {
-            this.#findInput(this.#primaryKey.key).val('');
+            const $input = this.#findInput(this.#primaryKey.key);
+            $input.val('');
         }
         for (const column of this.#columns) {
             if (column.key === null) {
                 continue;
             }
-            this.#findInput(column.key).val('');
+            const $input = this.#findInput(column.key);
+            switch (column.type) {
+            case 'boolean':
+                $input.prop('checked', false);
+                break;
+            default:
+                $input.val('');
+            }
         }
     }
 
@@ -1163,19 +1171,26 @@ class TableEditor
             }
             const $input = this.#findInput(column.key);
             const value = rowData[column.key];
-            if (column.type === 'datetime' && typeof value === 'string') {
-                // Format datetime values to use 'T' separator required by
-                // "datetime-local" inputs.
-                $input.val(value.replace(' ', 'T'));
-            } else {
-                $input.val(value);
+            switch (column.type) {
+            case 'boolean':
+                $input.prop('checked', Boolean(value));
+                break;
+            case 'datetime':
+                if (typeof value === 'string') {
+                    // Format datetime values to use 'T' separator required by
+                    // "datetime-local" inputs.
+                    $input.val(value.replace(' ', 'T'));
+                }
+                break;
+            default:
+                $input.val(value ?? '');
             }
             // If the value is null and the column is nullable, disable
             // the input and check the corresponding 'null' checkbox.
             if (column.nullable && value === null) {
                 const inputId = $input.attr('id');
                 const $checkbox = this.#$form.find(
-                    `.form-check-input[data-null-for="${inputId}"]`);
+                    `.form-check-input[data-nullifier-for="${inputId}"]`);
                 $input.prop('disabled', true);
                 $checkbox.prop('checked', true);
             }
@@ -1305,24 +1320,43 @@ class TableEditor
      */
     static #createNullableInputGroup(inputId, inputName, inputType)
     {
-        const checkboxId = `form-input-${this.#uniqueId()}`;
+        // 1
+        const $input = this.#createInput(inputId, inputName, inputType);
+        const $nullifier = this.#createNullifierFor(inputId);
+        // 2
+        if (inputType === 'boolean') {
+            return $('<div>', {
+                class: 'leuce-nullable-boolean-input-group'
+            }).append($input, $nullifier);
+        }
+        // 3
         return $('<div>', { class: 'input-group' }).append(
-            this.#createInput(inputId, inputName, inputType),
+            $input,
             $('<div>', { class: 'input-group-text' }).append(
-                $('<div>', { class: 'form-check' }).append(
-                    $('<input>', {
-                        type: 'checkbox',
-                        class: 'form-check-input',
-                        id: checkboxId,
-                        'data-null-for': inputId
-                    }),
-                    $('<label>', {
-                        for: checkboxId,
-                        class: 'form-check-label',
-                        text: 'null'
-                    })
-                )
+                $nullifier
             )
+        );
+    }
+
+    /**
+     * @param {string} inputId
+     * @returns {jQuery}
+     */
+    static #createNullifierFor(inputId)
+    {
+        const checkboxId = `form-input-${this.#uniqueId()}`;
+        return $('<div>', { class: 'form-check' }).append(
+            $('<input>', {
+                type: 'checkbox',
+                class: 'form-check-input',
+                id: checkboxId,
+                'data-nullifier-for': inputId
+            }),
+            $('<label>', {
+                for: checkboxId,
+                class: 'form-check-label leuce-user-select-none',
+                text: 'null'
+            })
         );
     }
 
@@ -1338,13 +1372,13 @@ class TableEditor
     {
         const $input = $('<input>', {
             ...this.#inputAttributesFor(type),
-            class: 'form-control',
             id: id,
             name: name,
             // The `required` attribute is always set to true. If the field is
             // nullable, a separate checkbox is used to disable the input, which
-            // bypasses validation.
-            required: true,
+            // bypasses validation. For boolean fields, required is never set,
+            // since `false` is also a valid value.
+            required: type !== 'boolean',
             readonly: readonly
         });
         // Store type information using a data-* attribute for later use during
@@ -1354,6 +1388,13 @@ class TableEditor
         if (type != null) {
             $input.attr('data-type', type);
         }
+        // Boolean fields are rendered as Bootstrap 5 switches.
+        if (type === 'boolean') {
+            return $('<div>', {
+                class: 'form-check form-switch'
+            }).append($input);
+        }
+        // All other types...
         return $input;
     }
 
@@ -1364,16 +1405,38 @@ class TableEditor
     static #inputAttributesFor(type)
     {
         switch (type) {
+        case 'boolean':
+            return {
+                type: 'checkbox',
+                class: 'form-check-input',
+                role: 'switch',
+                switch: '' // Enables haptics on mobile Safari (iOS 17.4+)
+            };
         case 'integer':
-            return { type: 'number', step: '1' };
+            return {
+                type: 'number',
+                class: 'form-control',
+                step: '1'
+            };
         case 'float':
-            return { type: 'number', step: 'any' };
-        case 'datetime':
-            return { type: 'datetime-local', step: '1' };
+            return {
+                type: 'number',
+                class: 'form-control',
+                step: 'any'
+            };
         case 'string':
-            return { type: 'text' };
+            return {
+                type: 'text',
+                class: 'form-control'
+            };
+        case 'datetime':
+            return {
+                type: 'datetime-local',
+                class: 'form-control',
+                step: '1'
+            };
         default:
-            return {};
+            return { class: 'form-control' };
         }
     }
 
@@ -1385,14 +1448,16 @@ class TableEditor
     {
         const value = $input.val();
         switch ($input.data('type')) {
+        case 'boolean':
+            return $input.prop('checked');
         case 'integer':
             return parseInt(value, 10);
         case 'float':
             return parseFloat(value);
-        case 'datetime':
-            return value.replace('T', ' ') + (value.length === 16 ? ':00' : '');
         case 'string':
             return value;
+        case 'datetime':
+            return value.replace('T', ' ') + (value.length === 16 ? ':00' : '');
         default:
             return value;
         }
