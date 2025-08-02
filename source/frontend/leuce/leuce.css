@@ -49,7 +49,7 @@
   display: inline-flex;
   gap: 0.25rem;
 }
-.leuce-table th[data-render="inlineActions"] {
+.leuce-table th[data-renderer="inlineActions"] {
   width: 1px; /* Shrinks to fit content */
 }
 .leuce-table .leuce-table-inline-actions {

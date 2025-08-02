@@ -987,8 +987,8 @@ class TableEditor
      *   key: string|null,
      *   type: string|null,
      *   nullable: boolean,
-     *   format: { name: string, arg?: string }|null
-     *   render: string|null,
+     *   formatter: { name: string, arg?: string }|null
+     *   renderer: string|null,
      *   $th: jQuery
      * }>}
      */
@@ -1010,8 +1010,8 @@ class TableEditor
      *   key: string|null,
      *   type: string|null,
      *   nullable: boolean,
-     *   format: { name: string, arg?: string }|null,
-     *   render: string|null,
+     *   formatter: { name: string, arg?: string }|null,
+     *   renderer: string|null,
      *   $th: jQuery
      * }>} columns
      */
@@ -1233,8 +1233,8 @@ class TableEditor
      *   key: string|null,
      *   type: string|null,
      *   nullable: boolean,
-     *   format: { name: string, arg?: string }|null,
-     *   render: string|null,
+     *   formatter: { name: string, arg?: string }|null,
+     *   renderer: string|null,
      *   $th: jQuery
      * }>} columns
      * @returns {jQuery}
@@ -1774,8 +1774,8 @@ class Table
      *   key: string|null,
      *   type: string|null,
      *   nullable: boolean,
-     *   format: { name: string, arg?: string }|null
-     *   render: string|null,
+     *   formatter: { name: string, arg?: string }|null
+     *   renderer: string|null,
      *   $th: jQuery
      * }>}
      */
@@ -1860,23 +1860,23 @@ class Table
 
     /**
      * @param {string} name
-     * @param {(row: object, value: *, arg?: string) => *} formatter
+     * @param {(row: object, value: *, arg?: string) => *} fn
      * @returns {Leuce.UI.Table}
      */
-    setFormatter(name, formatter)
+    setFormatter(name, fn)
     {
-        this.#formatters[name] = formatter;
+        this.#formatters[name] = fn;
         return this;
     }
 
     /**
      * @param {string} name
-     * @param {(row: object) => string|jQuery} renderer
+     * @param {(row: object) => string|jQuery} fn
      * @returns {Leuce.UI.Table}
      */
-    setRenderer(name, renderer)
+    setRenderer(name, fn)
     {
-        this.#renderers[name] = renderer;
+        this.#renderers[name] = fn;
         return this;
     }
 
@@ -1928,7 +1928,7 @@ class Table
                 console.warn(`Leuce: Primary key "${this.#primaryKey.key}" not found in row data.`);
             }
             $tr.data('row', row);
-            for (const { key, nullable, format, render } of this.#columns) {
+            for (const { key, nullable, formatter, renderer } of this.#columns) {
                 const $td = $('<td>');
                 let value = '';
                 if (key !== null) {
@@ -1938,11 +1938,11 @@ class Table
                     value = row[key];
                     if (nullable && value === null) {
                         $td.addClass('leuce-null');
-                    } else if (format !== null) {
-                        value = this.#callFormatter(format, row, value);
+                    } else if (formatter !== null) {
+                        value = this.#callFormatter(formatter, row, value);
                     }
-                } else if (render !== null) {
-                    value = this.#callRenderer(render, row);
+                } else if (renderer !== null) {
+                    value = this.#callRenderer(renderer, row);
                 }
                 if (value instanceof jQuery) {
                     $td.append(value);
@@ -2034,7 +2034,7 @@ class Table
     {
         this.#$thead.find('tr').first().append($('<th>', {
             scope: 'col',
-            'data-render': Table.#inlineActionRendererName
+            'data-renderer': Table.#inlineActionRendererName
         }));
         this.setRenderer(
             Table.#inlineActionRendererName,
@@ -2047,8 +2047,8 @@ class Table
      *   key: string|null,
      *   type: string|null,
      *   nullable: boolean,
-     *   format: { name: string, arg?: string }|null,
-     *   render: string|null,
+     *   formatter: { name: string, arg?: string }|null,
+     *   renderer: string|null,
      *   $th: jQuery
      * }>}
      */
@@ -2060,33 +2060,33 @@ class Table
             const key = Table.#readDataAttribute($th, 'key');
             const type = Table.#readDataAttribute($th, 'type');
             const nullable = $th.is('[data-nullable]');
-            let format = Table.#readDataAttribute($th, 'format');
-            if (format !== null) {
-                format = Table.#parseColumnFormat(format);
+            let formatter = Table.#readDataAttribute($th, 'formatter');
+            if (formatter !== null) {
+                formatter = Table.#parseColumnFormatter(formatter);
             }
-            let render = null;
+            let renderer = null;
             if (key === null) {
-                render = Table.#readDataAttribute($th, 'render');
+                renderer = Table.#readDataAttribute($th, 'renderer');
             }
-            columns.push({ key, type, nullable, format, render, $th });
+            columns.push({ key, type, nullable, formatter, renderer, $th });
         }
         return columns;
     }
 
     /**
-     * @param {{ name: string, arg?: string }} format
+     * @param {{ name: string, arg?: string }} formatter
      * @param {object} row
      * @param {*} value
      * @returns {*}
      */
-    #callFormatter(format, row, value)
+    #callFormatter(formatter, row, value)
     {
-        const formatter = this.#formatters[format.name];
-        if (typeof formatter !== 'function') {
-            console.warn(`Leuce: No formatter found for "${format.name}".`);
+        const fn = this.#formatters[formatter.name];
+        if (typeof fn !== 'function') {
+            console.warn(`Leuce: No formatter found for "${formatter.name}".`);
             return value;
         }
-        return formatter(row, value, format.arg);
+        return fn(row, value, formatter.arg);
     }
 
     /**
@@ -2096,12 +2096,12 @@ class Table
      */
     #callRenderer(name, row)
     {
-        const renderer = this.#renderers[name];
-        if (typeof renderer !== 'function') {
+        const fn = this.#renderers[name];
+        if (typeof fn !== 'function') {
             console.warn(`Leuce: No renderer found for "${name}".`);
             return '';
         }
-        return renderer(row);
+        return fn(row);
     }
 
     /**
@@ -2231,15 +2231,15 @@ class Table
     }
 
     /**
-     * @param {string} format
-     * @returns {{ name: string, arg?: string }}
+     * @param {string} formatter
+     * @returns {{ name: string, arg?: string }|null}
      */
-    static #parseColumnFormat(format)
+    static #parseColumnFormatter(formatter)
     {
-        let [name, arg] = format.split(':');
+        let [name, arg] = formatter.split(':');
         name = name.trim();
         if (name === '') {
-            console.warn("Leuce: Attribute 'data-format' must have a nonempty name.");
+            console.warn("Leuce: Attribute 'data-formatter' must have a nonempty name.");
             return null;
         }
         if (arg !== undefined) {

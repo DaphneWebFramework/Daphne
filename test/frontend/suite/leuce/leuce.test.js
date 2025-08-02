@@ -1123,13 +1123,13 @@ QUnit.module('Leuce', function()
                     <table id="tbl">
                         <thead>
                             <tr>
-                                <th data-key="a" data-format="plain"></th>
-                                <th data-key="b" data-format="plain:"></th>
-                                <th data-key="c" data-format="  plain  "></th>
-                                <th data-key="d" data-format="plain:42"></th>
-                                <th data-key="e" data-format="plain :42"></th>
-                                <th data-key="f" data-format="plain: 42"></th>
-                                <th data-key="g" data-format="plain :  42  "></th>
+                                <th data-key="a" data-formatter="plain"></th>
+                                <th data-key="b" data-formatter="plain:"></th>
+                                <th data-key="c" data-formatter="  plain  "></th>
+                                <th data-key="d" data-formatter="plain:42"></th>
+                                <th data-key="e" data-formatter="plain :42"></th>
+                                <th data-key="f" data-formatter="plain: 42"></th>
+                                <th data-key="g" data-formatter="plain :  42  "></th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -1182,11 +1182,11 @@ QUnit.module('Leuce', function()
                     <table id="tbl">
                         <thead>
                             <tr>
-                                <th data-key="a" data-format="true"></th>
-                                <th data-key="b" data-format="false"></th>
-                                <th data-key="c" data-format="123"></th>
-                                <th data-key="d" data-format="null"></th>
-                                <th data-key="e" data-format="{}"></th>
+                                <th data-key="a" data-formatter="true"></th>
+                                <th data-key="b" data-formatter="false"></th>
+                                <th data-key="c" data-formatter="123"></th>
+                                <th data-key="d" data-formatter="null"></th>
+                                <th data-key="e" data-formatter="{}"></th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -1198,7 +1198,7 @@ QUnit.module('Leuce', function()
                 assert.strictEqual(warnMessages.length, 5);
                 warnMessages.forEach(msg => {
                     assert.strictEqual(msg,
-                        "Leuce: Attribute 'data-format' must be a string.");
+                        "Leuce: Attribute 'data-formatter' must be a string.");
                 });
                 const $cells = $tbl.find('tbody tr').first().children('td');
                 const expected = ['A', 'B', 'C', 'D', 'E'];
@@ -1213,8 +1213,8 @@ QUnit.module('Leuce', function()
                     <table id="tbl">
                         <thead>
                             <tr>
-                                <th data-key="a" data-format=""></th>
-                                <th data-key="b" data-format="  "></th>
+                                <th data-key="a" data-formatter=""></th>
+                                <th data-key="b" data-formatter="  "></th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -1226,7 +1226,7 @@ QUnit.module('Leuce', function()
                 assert.strictEqual(warnMessages.length, 2);
                 warnMessages.forEach(msg => {
                     assert.strictEqual(msg,
-                        "Leuce: Attribute 'data-format' must be a nonempty string.");
+                        "Leuce: Attribute 'data-formatter' must be a nonempty string.");
                 });
                 const $cells = $tbl.find('tbody tr').first().children('td');
                 const expected = ['A', 'B'];
@@ -1241,11 +1241,11 @@ QUnit.module('Leuce', function()
                     <table id="tbl">
                         <thead>
                             <tr>
-                                <th data-key="a" data-format=":"></th>
-                                <th data-key="b" data-format="  :  "></th>
-                                <th data-key="c" data-format=":arg"></th>
-                                <th data-key="d" data-format="  :arg  "></th>
-                                <th data-key="e" data-format="  :  arg  "></th>
+                                <th data-key="a" data-formatter=":"></th>
+                                <th data-key="b" data-formatter="  :  "></th>
+                                <th data-key="c" data-formatter=":arg"></th>
+                                <th data-key="d" data-formatter="  :arg  "></th>
+                                <th data-key="e" data-formatter="  :  arg  "></th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -1257,7 +1257,7 @@ QUnit.module('Leuce', function()
                 assert.strictEqual(warnMessages.length, 5);
                 warnMessages.forEach(msg => {
                     assert.strictEqual(msg,
-                        "Leuce: Attribute 'data-format' must have a nonempty name.");
+                        "Leuce: Attribute 'data-formatter' must have a nonempty name.");
                 });
                 const $cells = $tbl.find('tbody tr').first().children('td');
                 const expected = ['A', 'B', 'C', 'D', 'E'];
@@ -1272,7 +1272,7 @@ QUnit.module('Leuce', function()
                     <table id="tbl">
                         <thead>
                             <tr>
-                                <th data-key="value" data-format="missing"></th>
+                                <th data-key="value" data-formatter="missing"></th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -1374,8 +1374,8 @@ QUnit.module('Leuce', function()
                     <table id="tbl">
                         <thead>
                             <tr>
-                                <th data-render="textOnly"></th>
-                                <th data-render="buttonGroup"></th>
+                                <th data-renderer="textOnly"></th>
+                                <th data-renderer="buttonGroup"></th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -1401,7 +1401,7 @@ QUnit.module('Leuce', function()
                     <table id="tbl">
                         <thead>
                             <tr>
-                                <th data-key="name" data-render="ignoredRenderer"></th>
+                                <th data-key="name" data-renderer="ignoredRenderer"></th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -1422,7 +1422,7 @@ QUnit.module('Leuce', function()
                     <table id="tbl">
                         <thead>
                             <tr>
-                                <th data-render="missing"></th>
+                                <th data-renderer="missing"></th>
                             </tr>
                         </thead>
                         <tbody></tbody>
