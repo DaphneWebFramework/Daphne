@@ -2282,22 +2282,22 @@ class Table
 
 class TableController
 {
-    /** @type {string} */
-    #tableName;
-
     /** @type {jQuery} */
     #$table;
+
+    /** @type {string|null} */
+    #tableName;
 
     /** @type {(params: object) => Promise<Leuce.HTTP.Response>} */
     #fnList;
 
-    /** @type {((tableName: string, data: object) => Promise<Leuce.HTTP.Response>)|undefined} */
+    /** @type {((tableName: string, data: object) => Promise<Leuce.HTTP.Response>)|null} */
     #fnAdd;
 
-    /** @type {((tableName: string, data: object) => Promise<Leuce.HTTP.Response>)|undefined} */
+    /** @type {((tableName: string, data: object) => Promise<Leuce.HTTP.Response>)|null} */
     #fnEdit;
 
-    /** @type {((tableName: string, id: number) => Promise<Leuce.HTTP.Response>)|undefined} */
+    /** @type {((tableName: string, id: number) => Promise<Leuce.HTTP.Response>)|null} */
     #fnDelete;
 
     /** @type {string|null} */
@@ -2322,8 +2322,8 @@ class TableController
 
     /**
      * @param {{
-     *   tableName: string,
      *   $table: jQuery,
+     *   tableName?: string,
      *   fnList: (params: object) => Promise<Leuce.HTTP.Response>
      *   fnAdd?: (tableName: string, data: object) => Promise<Leuce.HTTP.Response>,
      *   fnEdit?: (tableName: string, data: object) => Promise<Leuce.HTTP.Response>
@@ -2333,11 +2333,11 @@ class TableController
     constructor({ $table, tableName, fnList, fnAdd, fnEdit, fnDelete })
     {
         this.#$table = $table;
-        this.#tableName = tableName;
+        this.#tableName = tableName ?? null;
         this.#fnList = fnList;
-        this.#fnAdd = fnAdd;
-        this.#fnEdit = fnEdit;
-        this.#fnDelete = fnDelete;
+        this.#fnAdd = fnAdd ?? null;
+        this.#fnEdit = fnEdit ?? null;
+        this.#fnDelete = fnDelete ?? null;
         this.#search = null;
         this.#sort = null;
         this.#page = 1;
@@ -2351,13 +2351,13 @@ class TableController
      */
     load()
     {
-        const table = this.#$table.leuceTable();
-        table.setLoading(true);
-        const params = {
-            table: this.#tableName,
-            page: this.#page,
-            pagesize: this.#pageSize
-        };
+        // 1
+        const params = {};
+        if (this.#tableName !== null) {
+            params.table = this.#tableName;
+        }
+        params.page = this.#page;
+        params.pagesize = this.#pageSize;
         if (this.#search !== null) {
             params.search = this.#search;
         }
@@ -2365,15 +2365,20 @@ class TableController
             params.sortkey = this.#sort.key;
             params.sortdir = this.#sort.direction;
         }
+        // 2
+        const table = this.#$table.leuceTable();
+        table.setLoading(true);
         return this.#fnList(params).then(response => {
             table.setLoading(false);
             if (response.isSuccess()) {
+                // 2.1
                 if (Array.isArray(response.body.data)) {
                     table.setData(response.body.data);
                 } else {
                     table.setData([]);
                     console.warn('Leuce: No "data" array found in response body.');
                 }
+                // 2.2
                 if (Number.isInteger(response.body.total)) {
                     this.#totalPages = table.updatePaginator(
                         response.body.total,
@@ -2454,7 +2459,9 @@ class TableController
      */
     #onAdd(rowData)
     {
-        if (!this.#fnAdd) {
+        if (this.#fnAdd === null || this.#tableName === null) {
+            console.warn('Leuce: Cannot perform add because '
+                + '`fnAdd` or `tableName` is not set.');
             return;
         }
         const table = this.#$table.leuceTable();
@@ -2475,7 +2482,9 @@ class TableController
      */
     #onEdit(rowData)
     {
-        if (!this.#fnEdit) {
+        if (this.#fnEdit === null || this.#tableName === null) {
+            console.warn('Leuce: Cannot perform edit because '
+                       + '`fnEdit` or `tableName` is not set.');
             return;
         }
         const table = this.#$table.leuceTable();
@@ -2496,7 +2505,9 @@ class TableController
      */
     #onDelete(id)
     {
-        if (!this.#fnDelete) {
+        if (this.#fnDelete === null || this.#tableName === null) {
+            console.warn('Leuce: Cannot perform delete because '
+                       + '`fnDelete` or `tableName` is not set.');
             return;
         }
         const table = this.#$table.leuceTable();
