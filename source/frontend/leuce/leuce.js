@@ -1802,7 +1802,7 @@ class Table
     });
 
     /** @type {string} */
-    static #inlineActionRendererName = 'inlineActions';
+    static #inlineActionsRendererName = 'inlineActions';
 
     /** @type {jQuery} */
     #$wrapper;
@@ -1990,7 +1990,8 @@ class Table
         for (const row of data) {
             const $tr = $('<tr>');
             if (this.#primaryKey !== null && !(this.#primaryKey.key in row)) {
-                console.warn(`Leuce: Primary key "${this.#primaryKey.key}" not found in row data.`);
+                console.warn(`Leuce: Primary key "${this.#primaryKey.key}" `
+                           + `not found in row data.`);
             }
             $tr.data('row', row);
             for (const { key, nullable, formatter, renderer } of this.#columns) {
@@ -2081,8 +2082,8 @@ class Table
         }
         let type = Table.#readDataAttribute($tr, 'primaryKeyType');
         if (type === null) {
-            console.warn(`Leuce: No \`data-primary-key-type\` specified for`
-                + ` primary key "${key}"; defaulting to "integer".`);
+            console.warn(`Leuce: No \`data-primary-key-type\` specified for `
+                       + `primary key "${key}"; defaulting to "integer".`);
             type = 'integer';
         }
         return {
@@ -2099,11 +2100,11 @@ class Table
     {
         this.#$thead.find('tr').first().append($('<th>', {
             scope: 'col',
-            'data-renderer': Table.#inlineActionRendererName
+            'data-renderer': Table.#inlineActionsRendererName
         }));
         this.setRenderer(
-            Table.#inlineActionRendererName,
-            Table.#renderInlineActions.bind(Table)
+            Table.#inlineActionsRendererName,
+            Table.#inlineActionsRenderer.bind(Table)
         );
     }
 
@@ -2202,9 +2203,9 @@ class Table
      */
     #onHeaderClick(event)
     {
-        const $clickedHeader = $(event.currentTarget);
-        const clickedKey = $clickedHeader.data('key');
-        const clickedIconClass = $clickedHeader.find('i').attr('class');
+        const $th = $(event.currentTarget);
+        const clickedKey = $th.data('key');
+        const clickedIconClass = $th.find('i').attr('class');
         let currentDirection;
         for (const [direction, iconClass] of Object.entries(Table.#sortIconClasses)) {
             if (clickedIconClass === iconClass) {
@@ -2284,12 +2285,12 @@ class Table
             return null;
         }
         if (typeof value !== 'string') {
-            console.warn(`Leuce: Attribute 'data-${name}' must be a string.`);
+            console.warn(`Leuce: Attribute \`data-${name}\` must be a string.`);
             return null;
         }
         value = value.trim();
         if (value === '') {
-            console.warn(`Leuce: Attribute 'data-${name}' must be a nonempty string.`);
+            console.warn(`Leuce: Attribute \`data-${name}\` must be a nonempty string.`);
             return null;
         }
         return value;
@@ -2304,7 +2305,7 @@ class Table
         let [name, arg] = formatter.split(':');
         name = name.trim();
         if (name === '') {
-            console.warn("Leuce: Attribute 'data-formatter' must have a nonempty name.");
+            console.warn('Leuce: Attribute `data-formatter` must have a nonempty name.');
             return null;
         }
         if (arg !== undefined) {
@@ -2320,7 +2321,7 @@ class Table
      * @param {object} row
      * @returns {jQuery}
      */
-    static #renderInlineActions(/*row*/)
+    static #inlineActionsRenderer(/*row*/)
     {
         return $('<div>', {
             class: 'leuce-table-inline-actions btn-group btn-group-sm'
@@ -2441,7 +2442,7 @@ class TableController
                     table.setData(response.body.data);
                 } else {
                     table.setData([]);
-                    console.warn('Leuce: No "data" array found in response body.');
+                    console.warn('Leuce: No `data` array found in response body.');
                 }
                 // 2.2
                 if (Number.isInteger(response.body.total)) {
@@ -2477,7 +2478,7 @@ class TableController
         case 'nextPage':     this.#onNextPage(); break;
         case 'lastPage':     this.#onLastPage(); break;
         default:
-            console.warn('Unknown table action:', action);
+            console.warn('Leuce: Unknown table action:', action);
             break;
         }
     }
@@ -2526,7 +2527,7 @@ class TableController
     {
         if (this.#fnAdd === null || this.#tableName === null) {
             console.warn('Leuce: Cannot perform add because '
-                + '`fnAdd` or `tableName` is not set.');
+                       + '`fnAdd` or `tableName` is not set.');
             return;
         }
         const table = this.#$table.leuceTable();

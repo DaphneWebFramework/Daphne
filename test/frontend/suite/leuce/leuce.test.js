@@ -1198,7 +1198,7 @@ QUnit.module('Leuce', function()
                 assert.strictEqual(warnMessages.length, 5);
                 warnMessages.forEach(msg => {
                     assert.strictEqual(msg,
-                        "Leuce: Attribute 'data-formatter' must be a string.");
+                        "Leuce: Attribute `data-formatter` must be a string.");
                 });
                 const $cells = $tbl.find('tbody tr').first().children('td');
                 const expected = ['A', 'B', 'C', 'D', 'E'];
@@ -1226,7 +1226,7 @@ QUnit.module('Leuce', function()
                 assert.strictEqual(warnMessages.length, 2);
                 warnMessages.forEach(msg => {
                     assert.strictEqual(msg,
-                        "Leuce: Attribute 'data-formatter' must be a nonempty string.");
+                        "Leuce: Attribute `data-formatter` must be a nonempty string.");
                 });
                 const $cells = $tbl.find('tbody tr').first().children('td');
                 const expected = ['A', 'B'];
@@ -1257,7 +1257,7 @@ QUnit.module('Leuce', function()
                 assert.strictEqual(warnMessages.length, 5);
                 warnMessages.forEach(msg => {
                     assert.strictEqual(msg,
-                        "Leuce: Attribute 'data-formatter' must have a nonempty name.");
+                        "Leuce: Attribute `data-formatter` must have a nonempty name.");
                 });
                 const $cells = $tbl.find('tbody tr').first().children('td');
                 const expected = ['A', 'B', 'C', 'D', 'E'];
@@ -1311,7 +1311,7 @@ QUnit.module('Leuce', function()
                 assert.strictEqual(warnMessages.length, 4);
                 warnMessages.forEach(msg => {
                     assert.strictEqual(msg,
-                        "Leuce: Attribute 'data-key' must be a string.");
+                        "Leuce: Attribute `data-key` must be a string.");
                 });
                 const $cells = $tbl.find('tbody tr').first().children('td');
                 $cells.each((i, cell) => {
@@ -1338,7 +1338,7 @@ QUnit.module('Leuce', function()
                 assert.strictEqual(warnMessages.length, 2);
                 warnMessages.forEach(msg => {
                     assert.strictEqual(msg,
-                        "Leuce: Attribute 'data-key' must be a nonempty string.");
+                        "Leuce: Attribute `data-key` must be a nonempty string.");
                 });
                 const $cells = $tbl.find('tbody tr').first().children('td');
                 $cells.each((i, cell) => {
