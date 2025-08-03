@@ -2016,10 +2016,10 @@ class Table
                         console.warn(`Leuce: Key "${key}" not found in row data.`);
                     }
                     value = row[key];
-                    if (nullable && value === null) {
-                        $td.addClass('leuce-null');
-                    } else if (formatter !== null) {
+                    if (formatter !== null) {
                         value = this.#callFormatter(formatter, row, value);
+                    } else if (nullable && value === null) {
+                        $td.addClass('leuce-null');
                     }
                 } else if (renderer !== null) {
                     value = this.#callRenderer(renderer, row);
