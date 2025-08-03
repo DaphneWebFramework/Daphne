@@ -435,7 +435,7 @@ class UI
     });
 
     /** @type {Object.<string, Object.<string, string>>} */
-    static #translations = Object.freeze({
+    static #translations = {
         "add": {
             "en": "Add",
             "tr": "Ekle"
@@ -488,7 +488,7 @@ class UI
             "en": "Search...",
             "tr": "Ara..."
         },
-        "show_*_per_page": {
+        "show_x_per_page": {
             "en": "Show %s per page",
             "tr": "Sayfada %s göster"
         },
@@ -496,7 +496,21 @@ class UI
             "en": "Yes",
             "tr": "Evet"
         },
-    });
+    };
+
+    /**
+     * @param {Object.<string, Object.<string, string>>} translations
+     */
+    static registerTranslations(translations)
+    {
+        for (const key in translations) {
+            if (this.#translations.hasOwnProperty(key)) {
+                console.warn(`Leuce: Translation key "${key}" already exists.`);
+                continue;
+            }
+            this.#translations[key] = translations[key];
+        }
+    }
 
     /**
      * @param {string} key
@@ -1746,7 +1760,7 @@ class TablePaginator
         }
         return $('<div>', {
             class: 'leuce-table-controls-group'
-        }).append(UI.translate('show_*_per_page', $select.prop('outerHTML')));
+        }).append(UI.translate('show_x_per_page', $select.prop('outerHTML')));
     }
 
     /**

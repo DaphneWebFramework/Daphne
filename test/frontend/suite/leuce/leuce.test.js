@@ -514,7 +514,6 @@ QUnit.module('Leuce', function()
                     Leuce.UI.translate('no_matching_records_found'),
                     'No matching records found'
                 );
-
                 document.documentElement.lang = 'tr';
                 assert.strictEqual(
                     Leuce.UI.translate('no_matching_records_found'),
@@ -543,7 +542,7 @@ QUnit.module('Leuce', function()
             function(assert) {
                 document.documentElement.lang = 'en';
                 assert.strictEqual(
-                    Leuce.UI.translate('show_*_per_page', 25),
+                    Leuce.UI.translate('show_x_per_page', 25),
                     'Show 25 per page'
                 );
             });
@@ -552,11 +551,91 @@ QUnit.module('Leuce', function()
             function(assert) {
                 document.documentElement.lang = 'en';
                 assert.strictEqual(
-                    Leuce.UI.translate('show_*_per_page'),
+                    Leuce.UI.translate('show_x_per_page'),
                     'Show  per page'
                 );
             });
         }); // translate
+
+        QUnit.module('registerTranslations', function(hooks)
+        {
+            let warnMessages;
+            let originalWarn;
+            let originalLanguage;
+
+            hooks.beforeEach(function() {
+                warnMessages = [];
+                originalWarn = console.warn;
+                console.warn = msg => warnMessages.push(msg);
+                originalLanguage = document.documentElement.lang;
+            });
+
+            hooks.afterEach(function() {
+                console.warn = originalWarn;
+                document.documentElement.lang = originalLanguage;
+            });
+
+            QUnit.test('Registers a new translation key',
+            function(assert) {
+                Leuce.UI.registerTranslations({
+                    "logout": {
+                        "en": "Log out",
+                        "tr": "Çıkış yap"
+                    }
+                });
+                document.documentElement.lang = 'tr';
+                assert.strictEqual(
+                    Leuce.UI.translate('logout'),
+                    'Çıkış yap'
+                );
+            });
+
+            QUnit.test('Does not override existing keys',
+            function(assert) {
+                const originalUnit = Leuce.UI.translate('add');
+                Leuce.UI.registerTranslations({
+                    "add": {
+                        "en": "Append"
+                    }
+                });
+                const currentUnit = Leuce.UI.translate('add');
+                assert.strictEqual(currentUnit, originalUnit);
+                assert.strictEqual(warnMessages.length, 1);
+                assert.strictEqual(
+                    warnMessages[0],
+                    'Leuce: Translation key "add" already exists.'
+                );
+            });
+
+            QUnit.test('Falls back if registered translation lacks current language',
+            function(assert) {
+                Leuce.UI.registerTranslations({
+                    "export": {
+                        "fr": "Exporter"
+                    }
+                });
+                document.documentElement.lang = 'fr';
+                assert.strictEqual(
+                    Leuce.UI.translate('export'),
+                    'Exporter'
+                );
+                document.documentElement.lang = 'en';
+                assert.strictEqual(
+                    Leuce.UI.translate('export'),
+                    'export'
+                );
+            });
+
+            QUnit.test('Does nothing when registering empty object',
+            function(assert) {
+                Leuce.UI.registerTranslations({});
+                document.documentElement.lang = 'en';
+                assert.strictEqual(
+                    Leuce.UI.translate('no_matching_records_found'),
+                    'No matching records found'
+                );
+            });
+        }); // registerTranslations
 
         QUnit.module('notify', function(hooks)
         {
