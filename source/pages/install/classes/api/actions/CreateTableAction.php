@@ -16,11 +16,11 @@ use \Peneus\Api\Actions\Action;
 
 use \Harmonia\Http\Request;
 use \Harmonia\Systems\ValidationSystem\Validator;
-use \Peneus\Api\Actions\Management\ModelClassResolver;
+use \Peneus\Api\Traits\EntityClassResolver;
 
 class CreateTableAction extends Action
 {
-    use ModelClassResolver;
+    use EntityClassResolver;
 
     protected function onExecute(): mixed
     {
@@ -35,9 +35,9 @@ class CreateTableAction extends Action
         $dataAccessor = $validator->Validate(Request::Instance()->QueryParams());
         $table = $dataAccessor->GetField('table');
         // 2
-        $modelClass = $this->resolveModelClass($table);
+        $entityClass = $this->resolveEntityClass($table);
         // 3
-        if (!$modelClass::CreateTable()) {
+        if (!$entityClass::CreateTable()) {
             throw new \RuntimeException("Failed to create table '$table'.");
         }
         return null;
