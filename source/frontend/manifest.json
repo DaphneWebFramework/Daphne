@@ -1,7 +1,7 @@
 {
   "bootstrap": {
-    "css": "bootstrap-5.3.6/css/bootstrap",
-    "js": "bootstrap-5.3.6/js/bootstrap.bundle",
+    "css": "bootstrap-5.3.7/css/bootstrap",
+    "js": "bootstrap-5.3.7/js/bootstrap.bundle",
     "default": true
   },
   "bootstrap-icons": {
