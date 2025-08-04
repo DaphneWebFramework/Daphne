@@ -12,6 +12,43 @@
 class Model extends App.Model
 {
     /**
+     * @returns {Promise<Leuce.HTTP.Response>}
+     */
+    listEntityMappings()
+    {
+        return this.get()
+            .handler('management')
+            .action('list-entity-mappings')
+            .send();
+    }
+
+    /**
+     * @param {string} entityClass
+     * @returns {Promise<Leuce.HTTP.Response>}
+     */
+    createTable(entityClass)
+    {
+        return this.post()
+            .handler('management')
+            .action('create-table')
+            .body({ entityClass })
+            .send();
+    }
+
+    /**
+     * @param {string} entityClass
+     * @returns {Promise<Leuce.HTTP.Response>}
+     */
+    dropTable(entityClass)
+    {
+        return this.post()
+            .handler('management')
+            .action('drop-table')
+            .body({ entityClass })
+            .send();
+    }
+
+    /**
      * @param {{
      *   table: string,
      *   page: number,

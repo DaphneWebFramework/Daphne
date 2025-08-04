@@ -171,6 +171,10 @@
   },
 
   "management.page_title": "management",
+  "management.entity_mappings": {
+    "en": "Entity Mappings",
+    "tr": "Varlık Eşlemeleri"
+  },
   "management.accounts": {
     "en": "Accounts",
     "tr": "Hesaplar"

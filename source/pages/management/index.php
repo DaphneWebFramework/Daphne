@@ -32,7 +32,11 @@ $page = (new Page(__DIR__))
 	<?=new Generic('main', ['role' => 'main'], [
 		new VerticalPillTabNavigation(['class' => '-align-items-start'], [
 			new VerticalPillTabs(['class' => '-me-3 bg-light'], [
-				new PillTab([':key' => 'accounts', ':active' => true], [
+				new PillTab([':key' => 'entity-mappings', ':active' => true], [
+					new Generic('i', ['class' => 'bi bi-database-fill']),
+					new Generic('span', ['class' => 'label'], _T('management.entity_mappings'))
+				]),
+				new PillTab([':key' => 'accounts'], [
 					new Generic('i', ['class' => 'bi bi-people-fill']),
 					new Generic('span', ['class' => 'label'], _T('management.accounts'))
 				]),
@@ -50,7 +54,48 @@ $page = (new Page(__DIR__))
 				]),
 			]),
 			new TabPanes([], [
-				new TabPane([':key' => 'accounts', ':active' => true], [
+				new TabPane([':key' => 'entity-mappings', ':active' => true], [
+					new Generic('h3', null, _T('management.entity_mappings')),
+					new Generic('table', [
+						'id' => 'entityMappingTable',
+						'class' => 'table table-hover',
+						'data-nosearch' => true,
+						'data-nopaginate' => true
+					], [
+						new Generic('thead', [
+							'class' => 'table-light',
+							'data-nosort' => true
+						], [
+							new Generic('tr', null, [
+								new Generic('th', [
+									'data-key' => 'entityClass',
+									'data-formatter' => 'codeFont',
+								], 'Entity class'),
+								new Generic('th', [
+									'data-key' => 'tableName',
+									'data-formatter' => 'codeFont'
+								], 'Table name'),
+								new Generic('th', [
+									'data-key' => 'tableType',
+									'data-formatter' => 'tableType'
+								], 'Table type'),
+								new Generic('th', [
+									'data-key' => 'tableExists',
+									'data-formatter' => 'boolean'
+								], 'Table exists'),
+								new Generic('th', [
+									'data-key' => 'isSync',
+									'data-nullable' => true,
+									'data-formatter' => 'boolean'
+								], 'Is sync'),
+								new Generic('th', [
+									'data-renderer' => 'inlineActions'
+								])
+							])
+						])
+					])
+				]),
+				new TabPane([':key' => 'accounts'], [
 					new Generic('h3', null, _T('management.accounts')),
 					new Generic('table', ['id' => 'accountTable', 'class' => 'table table-hover'], [
 						new Generic('thead', ['class' => 'table-light'], [
@@ -64,7 +109,7 @@ $page = (new Page(__DIR__))
 								], 'Email'),
 								new Generic('th', [
 									'data-key' => 'passwordHash',
-									'data-format' => 'truncate:100px'
+									'data-formatter' => 'truncate:100px'
 								], 'Password hash'),
 								new Generic('th', [
 									'data-key' => 'displayName'
@@ -117,14 +162,14 @@ $page = (new Page(__DIR__))
 								], 'Email'),
 								new Generic('th', [
 									'data-key' => 'passwordHash',
-									'data-format' => 'truncate:100px'
+									'data-formatter' => 'truncate:100px'
 								], 'Password hash'),
 								new Generic('th', [
 									'data-key' => 'displayName'
 								], 'Display name'),
 								new Generic('th', [
 									'data-key' => 'activationCode',
-									'data-format' => 'truncate:100px'
+									'data-formatter' => 'truncate:100px'
 								], 'Activation code'),
 								new Generic('th', [
 									'data-key' => 'timeRegistered',
@@ -149,7 +194,7 @@ $page = (new Page(__DIR__))
 								], 'Account ID'),
 								new Generic('th', [
 									'data-key' => 'resetCode',
-									'data-format' => 'truncate:100px'
+									'data-formatter' => 'truncate:100px'
 								], 'Reset code'),
 								new Generic('th', [
 									'data-key' => 'timeRequested',
