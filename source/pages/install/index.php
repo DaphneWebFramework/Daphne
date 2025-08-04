@@ -26,8 +26,8 @@ use \Peneus\Systems\PageSystem\Page;
 
 $resource = Resource::Instance();
 
-$installKey = Request::Instance()->QueryParams()->GetOrDefault('key', '');
-if ($installKey === '') {
+$installKey = Request::Instance()->QueryParams()->Get('key');
+if (!\is_string($installKey) || $installKey === '') {
 	(new Response)->Redirect($resource->ErrorPageUrl(StatusCode::BadRequest));
 }
 if ($installKey !== Config::Instance()->Option('InstallKey')) {

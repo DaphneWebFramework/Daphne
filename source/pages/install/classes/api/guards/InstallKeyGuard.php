@@ -22,7 +22,7 @@ class InstallKeyGuard implements IGuard
     public function Verify(): bool
     {
         $installKey = Config::Instance()->Option('InstallKey');
-        if ($installKey === null) {
+        if (!\is_string($installKey) || $installKey === '') {
             return false;
         }
         return $installKey === Request::Instance()->QueryParams()->Get('key');
