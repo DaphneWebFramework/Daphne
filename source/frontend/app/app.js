@@ -1,9 +1,6 @@
 /**
  * app.js
  *
- * Defines base Model, View, and Controller classes for pages, providing
- * centralized logout functionality and global loading state management.
- *
  * (C) 2025 by Eylem Ugurel
  *
  * Licensed under a Creative Commons Attribution 4.0 International License.
@@ -136,7 +133,7 @@ class Controller extends Leuce.MVC.Controller
     }
 }
 
-global.App = global.App || {};
+global.App = {};
 global.App.Model = Model;
 global.App.View = View;
 global.App.Controller = Controller;

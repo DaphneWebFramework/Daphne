@@ -17,6 +17,7 @@
     "default": true
   },
   "app": {
+    "css": "app/app",
     "js": "app/app",
     "default": true
   }
