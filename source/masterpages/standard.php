@@ -24,6 +24,8 @@ if (!isset($this) || !$this instanceof Page) {
 <?=$this->Content()?>
 	<!-- End Content -->
 
+<?php if ($this->Property('hasFooter', true)):?>
 	<!-- Footer -->
 <?php include 'footer.php'?>
 	<!-- End Footer -->
+<?php endif?>
