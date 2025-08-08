@@ -18,7 +18,7 @@
 class Model extends Leuce.MVC.Model
 {
     /**
-     * @returns {Promise}
+     * @returns {Promise<Leuce.HTTP.Response>}
      */
     logout()
     {
@@ -30,7 +30,7 @@ class Model extends Leuce.MVC.Model
 
     /**
      * @param {string} data
-     * @returns {Promise}
+     * @returns {Promise<Leuce.HTTP.Response>}
      */
     changeLanguage(data)
     {
@@ -55,6 +55,7 @@ class View extends Leuce.MVC.View
 
     /**
      * @param {boolean} isLoading
+     * @returns {void}
      */
     setLoading(isLoading)
     {
@@ -65,8 +66,8 @@ class View extends Leuce.MVC.View
 class Controller extends Leuce.MVC.Controller
 {
     /**
-     * @param {Model} model
-     * @param {View} view
+     * @param {App.Model} model
+     * @param {App.View} view
      */
     constructor(model, view)
     {
@@ -78,6 +79,9 @@ class Controller extends Leuce.MVC.Controller
 
     }
 
+    /**
+     * @returns {void}
+     */
     static reloadPage()
     {
         window.location.reload();
@@ -85,6 +89,7 @@ class Controller extends Leuce.MVC.Controller
 
     /**
      * @param {jQuery.Event} event
+     * @returns {void}
      */
     #onLogoutClick(event)
     {
@@ -102,6 +107,7 @@ class Controller extends Leuce.MVC.Controller
 
     /**
      * @param {jQuery.Event} event
+     * @returns {void}
      */
     #onLanguageItemsClick(event)
     {

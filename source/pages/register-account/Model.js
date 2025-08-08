@@ -13,7 +13,7 @@ class Model extends App.Model
 {
     /**
      * @param {string} data
-     * @returns {Promise}
+     * @returns {Promise<Leuce.HTTP.Response>}
      */
     registerAccount(data)
     {

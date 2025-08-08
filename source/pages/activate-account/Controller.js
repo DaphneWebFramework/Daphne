@@ -23,6 +23,7 @@ class Controller extends App.Controller
 
     /**
      * @param {jQuery.Event} event
+     * @returns {void}
      */
     #onFormSubmit(event)
     {
@@ -37,6 +38,9 @@ class Controller extends App.Controller
         });
     }
 
+    /**
+     * @returns {void}
+     */
     init()
     {
         this.view.get('form').submit();

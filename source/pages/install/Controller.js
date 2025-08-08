@@ -17,8 +17,8 @@ class Controller extends App.Controller
     #installKey;
 
     /**
-     * @param {App.Model} model
-     * @param {App.View} view
+     * @param {Model} model
+     * @param {View} view
      */
     constructor(model, view)
     {

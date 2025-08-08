@@ -27,6 +27,7 @@ class Controller extends App.Controller
 
     /**
      * @param {jQuery.Event} event
+     * @returns {void}
      */
     #onFormSubmit(event)
     {
@@ -54,6 +55,7 @@ class Controller extends App.Controller
 
     /**
      * @param {jQuery.Event} event
+     * @returns {void}
      */
     #onLogoutButtonClick(event)
     {

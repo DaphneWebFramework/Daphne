@@ -14,6 +14,10 @@ class Controller extends App.Controller
     /** @type {Object.<string, Leuce.UI.TableController>} */
     #tableControllers;
 
+    /**
+     * @param {Model} model
+     * @param {View} view
+     */
     constructor(model, view)
     {
         super(model, view);

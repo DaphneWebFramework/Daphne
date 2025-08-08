@@ -23,6 +23,7 @@ class Controller extends App.Controller
 
     /**
      * @param {jQuery.Event} event
+     * @returns {void}
      */
     #onFormSubmit(event)
     {

@@ -11,6 +11,10 @@
 
 class Controller extends App.Controller
 {
+    /**
+     * @param {Model} model
+     * @param {View} view
+     */
     constructor(model, view)
     {
         super(model, view);

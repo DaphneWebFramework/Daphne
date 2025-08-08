@@ -30,6 +30,7 @@ class Controller extends App.Controller
 
     /**
      * @param {jQuery.Event} event
+     * @returns {void}
      */
     #onDisplayNameChangeFormSubmit(event)
     {
@@ -47,6 +48,7 @@ class Controller extends App.Controller
 
     /**
      * @param {jQuery.Event} event
+     * @returns {void}
      */
     #onPasswordChangeFormSubmit(event)
     {
@@ -60,7 +62,11 @@ class Controller extends App.Controller
         });
     }
 
-    #onAccountDeleteCheckChange()
+    /**
+     * @param {jQuery.Event} event
+     * @returns {void}
+     */
+    #onAccountDeleteCheckChange(event)
     {
         const checkbox = this.view.get('accountDeleteCheckbox');
         const button = this.view.get('accountDeleteButton');
@@ -69,6 +75,7 @@ class Controller extends App.Controller
 
     /**
      * @param {jQuery.Event} event
+     * @returns {void}
      */
     #onAccountDeleteFormSubmit(event)
     {

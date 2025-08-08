@@ -13,7 +13,7 @@ class Model extends App.Model
 {
     /**
      * @param {string} data
-     * @returns {Promise}
+     * @returns {Promise<Leuce.HTTP.Response>}
      */
     changeDisplayName(data)
     {
@@ -26,7 +26,7 @@ class Model extends App.Model
 
     /**
      * @param {string} data
-     * @returns {Promise}
+     * @returns {Promise<Leuce.HTTP.Response>}
      */
     changePassword(data)
     {
@@ -38,7 +38,7 @@ class Model extends App.Model
     }
 
     /**
-     * @returns {Promise}
+     * @returns {Promise<Leuce.HTTP.Response>}
      */
     deleteAccount() {
         return this.post()
