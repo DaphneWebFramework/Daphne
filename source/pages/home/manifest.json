@@ -1,4 +1,7 @@
 {
+  "css": [
+    "index"
+  ],
   "js": [
     "Model",
     "View",
