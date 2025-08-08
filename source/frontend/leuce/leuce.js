@@ -792,17 +792,17 @@ class MessageBox
     #bindEvents()
     {
         this.#$root.find('.btn-primary').on('click',
-            this.#onPrimaryButtonClick.bind(this));
+            this.#onClickPrimaryButton.bind(this));
         this.#$root.on('hide.bs.modal',
-            this.#onModalHide.bind(this));
+            this.#onHideModal.bind(this));
         this.#$root.on('hidden.bs.modal',
-            this.#onModalHidden.bind(this));
+            this.#onHiddenModal.bind(this));
     }
 
     /**
      * returns {void}
      */
-    #onPrimaryButtonClick()
+    #onClickPrimaryButton()
     {
         if (typeof this.#beforeConfirm === 'function') {
             if (true !== this.#beforeConfirm()) {
@@ -816,7 +816,7 @@ class MessageBox
     /**
      * returns {void}
      */
-    #onModalHide()
+    #onHideModal()
     {
         // Fix: Avoid "aria-hidden + focus retained" warning when modal closes.
         // Blur the modal itself or any element inside it that still has focus.
@@ -832,7 +832,7 @@ class MessageBox
     /**
      * returns {void}
      */
-    #onModalHidden()
+    #onHiddenModal()
     {
         this.#result?.resolve(false);
         this.#result = null;
@@ -2191,10 +2191,10 @@ class Table
     {
         // Sortable headers
         if (!this.#$thead.is('[data-nosort]')) {
-            const onHeaderClick = this.#onHeaderClick.bind(this);
+            const boundOnClickHeader = this.#onClickHeader.bind(this);
             for (const column of this.#columns) {
                 if (column.key !== null && !column.$th.is('[data-nosort]')) {
-                    column.$th.on('click', onHeaderClick);
+                    column.$th.on('click', boundOnClickHeader);
                 }
             }
         }
@@ -2215,7 +2215,7 @@ class Table
      * @param {jQuery.Event} event
      * @returns {void}
      */
-    #onHeaderClick(event)
+    #onClickHeader(event)
     {
         const $th = $(event.currentTarget);
         const clickedKey = $th.data('key');

@@ -70,9 +70,9 @@ class Controller extends Leuce.MVC.Controller
     {
         super(model, view);
         this.view.get('logout')
-            ?.on('click', this.#onLogoutClick.bind(this));
+            ?.on('click', this.#onClickLogout.bind(this));
         this.view.get('languageItems')
-            ?.on('click', this.#onLanguageItemsClick.bind(this));
+            ?.on('click', this.#onClickLanguageItems.bind(this));
 
     }
 
@@ -88,7 +88,7 @@ class Controller extends Leuce.MVC.Controller
      * @param {jQuery.Event} event
      * @returns {void}
      */
-    #onLogoutClick(event)
+    #onClickLogout(event)
     {
         event.preventDefault();
         this.view.setLoading(true);
@@ -106,7 +106,7 @@ class Controller extends Leuce.MVC.Controller
      * @param {jQuery.Event} event
      * @returns {void}
      */
-    #onLanguageItemsClick(event)
+    #onClickLanguageItems(event)
     {
         event.preventDefault();
         const $language = this.view.get('language');

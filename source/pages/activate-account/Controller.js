@@ -18,14 +18,14 @@ class Controller extends App.Controller
     constructor(model, view)
     {
         super(model, view);
-        this.view.get('form').on('submit', this.#onFormSubmit.bind(this));
+        this.view.get('form').on('submit', this.#onSubmitForm.bind(this));
     }
 
     /**
      * @param {jQuery.Event} event
      * @returns {void}
      */
-    #onFormSubmit(event)
+    #onSubmitForm(event)
     {
         event.preventDefault();
         this.model.activateAccount(this.view.formData()).then(response => {

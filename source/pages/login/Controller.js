@@ -19,9 +19,10 @@ class Controller extends App.Controller
     {
         super(model, view);
         if (this.view.has('form')) {
-            this.view.get('form').on('submit', this.#onFormSubmit.bind(this));
+            this.view.get('form').on('submit', this.#onSubmitForm.bind(this));
         } else {
-            this.view.get('logoutButton').on('click', this.#onLogoutButtonClick.bind(this));
+            this.view.get('logoutButton')
+                .on('click', this.#onClickLogoutButton.bind(this));
         }
     }
 
@@ -29,7 +30,7 @@ class Controller extends App.Controller
      * @param {jQuery.Event} event
      * @returns {void}
      */
-    #onFormSubmit(event)
+    #onSubmitForm(event)
     {
         event.preventDefault();
         this.view.get('loginButton').leuceButton().setLoading(true);
@@ -57,7 +58,7 @@ class Controller extends App.Controller
      * @param {jQuery.Event} event
      * @returns {void}
      */
-    #onLogoutButtonClick(event)
+    #onClickLogoutButton(event)
     {
         event.preventDefault();
         this.view.get('logoutButton').leuceButton().setLoading(true);

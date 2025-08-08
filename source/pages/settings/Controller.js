@@ -19,20 +19,20 @@ class Controller extends App.Controller
     {
         super(model, view);
         this.view.get('displayNameChangeForm')
-            .on('submit', this.#onDisplayNameChangeFormSubmit.bind(this));
+            .on('submit', this.#onSubmitDisplayNameChangeForm.bind(this));
         this.view.get('passwordChangeForm')
-            .on('submit', this.#onPasswordChangeFormSubmit.bind(this));
+            .on('submit', this.#onSubmitPasswordChangeForm.bind(this));
         this.view.get('accountDeleteCheckbox')
-            .on('change', this.#onAccountDeleteCheckChange.bind(this));
+            .on('change', this.#onChangeAccountDeleteCheckbox.bind(this));
         this.view.get('accountDeleteForm')
-            .on('submit', this.#onAccountDeleteFormSubmit.bind(this));
+            .on('submit', this.#onSubmitAccountDeleteForm.bind(this));
     }
 
     /**
      * @param {jQuery.Event} event
      * @returns {void}
      */
-    #onDisplayNameChangeFormSubmit(event)
+    #onSubmitDisplayNameChangeForm(event)
     {
         event.preventDefault();
         this.view.get('displayNameChangeButton').leuceButton().setLoading(true);
@@ -50,7 +50,7 @@ class Controller extends App.Controller
      * @param {jQuery.Event} event
      * @returns {void}
      */
-    #onPasswordChangeFormSubmit(event)
+    #onSubmitPasswordChangeForm(event)
     {
         event.preventDefault();
         this.view.get('passwordChangeButton').leuceButton().setLoading(true);
@@ -66,7 +66,7 @@ class Controller extends App.Controller
      * @param {jQuery.Event} event
      * @returns {void}
      */
-    #onAccountDeleteCheckChange(event)
+    #onChangeAccountDeleteCheckbox(event)
     {
         const checkbox = this.view.get('accountDeleteCheckbox');
         const button = this.view.get('accountDeleteButton');
@@ -77,7 +77,7 @@ class Controller extends App.Controller
      * @param {jQuery.Event} event
      * @returns {void}
      */
-    #onAccountDeleteFormSubmit(event)
+    #onSubmitAccountDeleteForm(event)
     {
         event.preventDefault();
         this.view.get('accountDeleteButton').leuceButton().setLoading(true);
