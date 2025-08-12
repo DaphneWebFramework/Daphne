@@ -677,43 +677,31 @@ class Deferred
     }
 }
 
-class MessageBox
+class Modal
 {
-    /** @type {Object.<number, string>} */
-    static #buttonLabelTranslationKeys = Object.freeze({
-        [UI.MessageBoxButton.OK]: 'ok',
-        [UI.MessageBoxButton.CANCEL]: 'cancel',
-        [UI.MessageBoxButton.YES]: 'yes',
-        [UI.MessageBoxButton.NO]: 'no'
-    });
-
     /** @type {jQuery} */
     #$root;
 
     /** @type {bootstrap.Modal} */
     #modal;
 
-    /** @type {(() => boolean)|null} */
-    #beforeConfirm;
-
     /** @type {Deferred<boolean>|null} */
     #result;
 
-    constructor()
+    /**
+     * @param {*} selector
+     *
+     * @todo Make draggable via jQuery UI or similar.
+     */
+    constructor(selector)
     {
-        this.#$root = MessageBox.#createRoot();
+        this.#$root = $(selector);
+        if (this.#$root.length === 0) {
+            throw new Error(`Leuce: Modal root element not found: ${selector}`);
+        }
         this.#modal = new bootstrap.Modal(this.#$root[0]);
-        this.#beforeConfirm = null; // per-call state
         this.#result = null; // per-call state
         this.#bindEvents();
-    }
-
-    /**
-     * @returns {string}
-     */
-    static elementId()
-    {
-        return 'leuce-messagebox';
     }
 
     /**
@@ -725,61 +713,10 @@ class MessageBox
     }
 
     /**
-     * @param {string|null} title
-     * @param {string|jQuery} message
-     * @param {string|number|null} primaryButtonLabel
-     * @param {string|number|null} secondaryButtonLabel
-     * @param {(() => void)|null} beforeShow
-     * @param {(() => boolean)|null} beforeConfirm
      * @returns {Promise<boolean>}
      */
-    open(
-        title,
-        message,
-        primaryButtonLabel,
-        secondaryButtonLabel,
-        beforeShow,
-        beforeConfirm
-    ) {
-        // 1
-        const $title = this.#$root.find('.modal-title');
-        if (title === null) {
-            $title.text(UI.translate('message'));
-        } else if (typeof title === 'string') {
-            $title.text(title);
-        } else {
-            throw new Error('Leuce: Title must be a string or null.');
-        }
-        // 2
-        const $body = this.#$root.find('.modal-body');
-        $body.empty();
-        if (typeof message === 'string') {
-            $body.html(message);
-        } else if (message instanceof jQuery) {
-            $body.append(message);
-        } else {
-            throw new Error('Leuce: Message must be a string or jQuery object.');
-        }
-        // 3
-        const $primaryButton = this.#$root.find('.btn-primary');
-        primaryButtonLabel = MessageBox.#translateButtonLabel(
-            primaryButtonLabel, 'ok');
-        $primaryButton.text(primaryButtonLabel);
-        // 4
-        const $secondaryButton = this.#$root.find('.btn-secondary');
-        if (secondaryButtonLabel === null) {
-            $secondaryButton.addClass('d-none');
-        } else {
-            secondaryButtonLabel = MessageBox.#translateButtonLabel(
-                secondaryButtonLabel, 'cancel');
-            $secondaryButton.removeClass('d-none').text(secondaryButtonLabel);
-        }
-        // 5
-        if (typeof beforeShow === 'function') {
-            beforeShow();
-        }
-        // 6
-        this.#beforeConfirm = beforeConfirm;
+    open()
+    {
         this.#result?.resolve(false); // settle previous result, if any
         this.#result = new Deferred();
         this.#modal.show();
@@ -791,24 +728,19 @@ class MessageBox
      */
     #bindEvents()
     {
-        this.#$root.find('.btn-primary').on('click',
-            this.#onClickPrimaryButton.bind(this));
-        this.#$root.on('hide.bs.modal',
-            this.#onHideModal.bind(this));
-        this.#$root.on('hidden.bs.modal',
-            this.#onHiddenModal.bind(this));
+        this.#$root.find('[data-leuce-primary-button]')
+            .on('click', this._onClickPrimaryButton.bind(this));
+        this.#$root
+            .on('hide.bs.modal', this.#onHideModal.bind(this));
+        this.#$root
+            .on('hidden.bs.modal', this.#onHiddenModal.bind(this));
     }
 
     /**
      * returns {void}
      */
-    #onClickPrimaryButton()
+    _onClickPrimaryButton()
     {
-        if (typeof this.#beforeConfirm === 'function') {
-            if (true !== this.#beforeConfirm()) {
-                return;
-            }
-        }
         this.#result?.resolve(true);
         this.#modal.hide();
     }
@@ -837,6 +769,107 @@ class MessageBox
         this.#result?.resolve(false);
         this.#result = null;
     }
+}
+
+class MessageBox extends Modal
+{
+    /** @type {Object.<number, string>} */
+    static #buttonLabelTranslationKeys = Object.freeze({
+        [UI.MessageBoxButton.OK]: 'ok',
+        [UI.MessageBoxButton.CANCEL]: 'cancel',
+        [UI.MessageBoxButton.YES]: 'yes',
+        [UI.MessageBoxButton.NO]: 'no'
+    });
+
+    /** @type {(() => boolean)|null} */
+    #beforeConfirm;
+
+    constructor()
+    {
+        super(MessageBox.#createRoot());
+        this.#beforeConfirm = null; // per-call state
+    }
+
+    /**
+     * @returns {string}
+     */
+    static elementId()
+    {
+        return 'leuce-messagebox';
+    }
+
+    /**
+     * @param {string|null} title
+     * @param {string|jQuery} message
+     * @param {string|number|null} primaryButtonLabel
+     * @param {string|number|null} secondaryButtonLabel
+     * @param {(() => void)|null} beforeShow
+     * @param {(() => boolean)|null} beforeConfirm
+     * @returns {Promise<boolean>}
+     */
+    open(
+        title,
+        message,
+        primaryButtonLabel,
+        secondaryButtonLabel,
+        beforeShow,
+        beforeConfirm
+    ) {
+        const root = this.root();
+        // 1
+        const $title = root.find('.modal-title');
+        if (title === null) {
+            $title.text(UI.translate('message'));
+        } else if (typeof title === 'string') {
+            $title.text(title);
+        } else {
+            throw new Error('Leuce: Title must be a string or null.');
+        }
+        // 2
+        const $body = root.find('.modal-body');
+        $body.empty();
+        if (typeof message === 'string') {
+            $body.html(message);
+        } else if (message instanceof jQuery) {
+            $body.append(message);
+        } else {
+            throw new Error('Leuce: Message must be a string or jQuery object.');
+        }
+        // 3
+        const $primaryButton = root.find('.btn-primary');
+        primaryButtonLabel = MessageBox.#translateButtonLabel(
+            primaryButtonLabel, 'ok');
+        $primaryButton.text(primaryButtonLabel);
+        // 4
+        const $secondaryButton = root.find('.btn-secondary');
+        if (secondaryButtonLabel === null) {
+            $secondaryButton.addClass('d-none');
+        } else {
+            secondaryButtonLabel = MessageBox.#translateButtonLabel(
+                secondaryButtonLabel, 'cancel');
+            $secondaryButton.removeClass('d-none').text(secondaryButtonLabel);
+        }
+        // 5
+        if (typeof beforeShow === 'function') {
+            beforeShow();
+        }
+        // 6
+        this.#beforeConfirm = beforeConfirm;
+        return super.open();
+    }
+
+    /**
+     * returns {void}
+     */
+    _onClickPrimaryButton()
+    {
+        if (typeof this.#beforeConfirm === 'function') {
+            if (true !== this.#beforeConfirm()) {
+                return;
+            }
+        }
+        super._onClickPrimaryButton();
+    }
 
     /**
      * @param {string|number|null} label
@@ -863,8 +896,6 @@ class MessageBox
 
     /**
      * @returns {jQuery}
-     *
-     * @todo Make draggable via jQuery UI or similar.
      */
     static #createRoot()
     {
@@ -893,7 +924,8 @@ class MessageBox
                         }),
                         $('<button>', {
                             type: 'button',
-                            class: 'btn btn-primary'
+                            class: 'btn btn-primary',
+                            'data-leuce-primary-button': ''
                         })
                     )
                 )
@@ -2748,6 +2780,7 @@ global.Leuce.MVC.View = View;
 global.Leuce.MVC.Controller = Controller;
 
 global.Leuce.UI = UI;
+global.Leuce.UI.Modal = Modal;
 global.Leuce.UI.Button = Button;
 global.Leuce.UI.Table = Table;
 global.Leuce.UI.TableController = TableController;
