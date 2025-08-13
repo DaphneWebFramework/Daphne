@@ -58,9 +58,9 @@ $account = $page->LoggedInAccount();
 							new Generic('div', ['class' => 'd-flex align-items-end gap-2 mb-3'], [
 								new FormText([
 									':label' => _T('display_name'),
-									':name' => 'displayName',
-									':value' => $account->displayName,
-									':required' => true,
+									':input:name' => 'displayName',
+									':input:value' => $account->displayName,
+									':input:required' => true,
 									'class' => '-mb-3 flex-grow-1'
 								]),
 								new Button([
@@ -80,15 +80,15 @@ $account = $page->LoggedInAccount();
 							]),
 							new FormPassword([
 								':label' => _T('current_password'),
-								':name' => 'currentPassword',
-								':autocomplete' => 'off',
-								':required' => true
+								':input:name' => 'currentPassword',
+								':input:autocomplete' => 'off',
+								':input:required' => true
 							]),
 							new FormPassword([
 								':label' => _T('new_password'),
-								':name' => 'newPassword',
-								':autocomplete' => 'new-password',
-								':required' => true
+								':input:name' => 'newPassword',
+								':input:autocomplete' => 'new-password',
+								':input:required' => true
 							]),
 							new Generic('div', ['class' => 'd-flex justify-content-between align-items-center'], [
 								new Generic('a', [
@@ -107,7 +107,7 @@ $account = $page->LoggedInAccount();
 						new Form(['id' => 'accountDeleteForm'], [
 							new FormCheck([
 								':label' => _T('settings.delete_account_checkbox'),
-								':required' => true,
+								':input:required' => true,
 								'class' => 'mb-3'
 							]),
 							new Button([

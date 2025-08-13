@@ -43,20 +43,20 @@ $resource = Resource::Instance();
 						]),
 						new FormEmailFL([
 							':label' => _T('email_address'),
-							':name' => 'email',
-							':autocomplete' => 'off',
-							':required' => true
+							':input:name' => 'email',
+							':input:autocomplete' => 'off',
+							':input:required' => true
 						]),
 						new FormPasswordFL([
 							':label' => _T('password'),
-							':name' => 'password',
-							':autocomplete' => 'new-password',
-							':required' => true
+							':input:name' => 'password',
+							':input:autocomplete' => 'new-password',
+							':input:required' => true
 						]),
 						new FormTextFL([
 							':label' => _T('display_name'),
-							':name' => 'displayName',
-							':required' => true
+							':input:name' => 'displayName',
+							':input:required' => true
 						]),
 						new Generic('div', ['class' => 'd-flex justify-content-end'], [
 							new Button([

@@ -38,9 +38,9 @@ $page = (new Page(__DIR__))
 						]),
 						new FormEmailFL([
 							':label' => _T('email_address'),
-							':name' => 'email',
-							':autocomplete' => 'off',
-							':required' => true,
+							':input:name' => 'email',
+							':input:autocomplete' => 'off',
+							':input:required' => true,
 							':help' => _T('forgot_password.email_help')
 						]),
 						new Generic('div', ['class' => 'd-flex justify-content-end'], [

@@ -62,9 +62,9 @@ function getCode(): string {
 						]),
 						new FormPasswordFL([
 							':label' => _T('new_password'),
-							':name' => 'newPassword',
-							':autocomplete' => 'new-password',
-							':required' => true
+							':input:name' => 'newPassword',
+							':input:autocomplete' => 'new-password',
+							':input:required' => true
 						]),
 						new Generic('div', ['class' => 'd-flex justify-content-end'], [
 							new Button([
