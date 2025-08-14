@@ -580,7 +580,7 @@ class UI
      *   primaryButtonLabel?: string|null,
      *   secondaryButtonLabel?: string|null
      *   beforeShow?: (() => void)|null,
-     *   beforeConfirm?: (() => boolean)|null
+     *   beforeConfirm?: (() => boolean|Promise<boolean>)|null
      * }} options
      * @returns {Promise<boolean>}
      */
@@ -677,8 +677,11 @@ class Modal
     /** @type {bootstrap.Modal} */
     #modal;
 
+    /** @type {(() => boolean|Promise<boolean>)|null} */
+    #beforeConfirm;
+
     /** @type {Deferred<boolean>|null} */
-    #result;
+    #isConfirmed;
 
     /**
      * @param {*} selector
@@ -690,7 +693,8 @@ class Modal
             throw new Error(`Leuce: Modal root element not found: ${selector}`);
         }
         this.#modal = new bootstrap.Modal(this.#$root[0]);
-        this.#result = null; // per-call state
+        this.#beforeConfirm = null; // per-call state
+        this.#isConfirmed = null; // per-call state
         this.#bindEvents();
     }
 
@@ -703,14 +707,16 @@ class Modal
     }
 
     /**
+     * @param {(() => boolean|Promise<boolean>)|null} beforeConfirm
      * @returns {Promise<boolean>}
      */
-    open()
+    open(beforeConfirm = null)
     {
-        this.#result?.resolve(false); // settle previous result, if any
-        this.#result = new Deferred();
+        this.#beforeConfirm = beforeConfirm;
+        this.#isConfirmed?.resolve(false); // settle previous result, if any
+        this.#isConfirmed = new Deferred();
         this.#modal.show();
-        return this.#result.promise();
+        return this.#isConfirmed.promise();
     }
 
     /**
@@ -718,8 +724,8 @@ class Modal
      */
     #bindEvents()
     {
-        this.#$root.find('[data-leuce-primary-button]')
-            .on('click', this._onClickPrimaryButton.bind(this));
+        this.#$root.find('[data-leuce-modal-primary-button]')
+            .on('click', this.#onClickPrimaryButton.bind(this));
         this.#$root
             .on('hide.bs.modal', this.#onHideModal.bind(this))
             .on('hidden.bs.modal', this.#onHiddenModal.bind(this))
@@ -727,18 +733,25 @@ class Modal
     }
 
     /**
-     * returns {void}
+     * @param {jQuery.Event} event
+     * @returns {void}
      */
-    _onClickPrimaryButton()
+    async #onClickPrimaryButton(event)
     {
-        this.#result?.resolve(true);
+        if (typeof this.#beforeConfirm === 'function') {
+            if (true !== await this.#beforeConfirm()) {
+                return;
+            }
+        }
+        this.#isConfirmed?.resolve(true);
         this.#modal.hide();
     }
 
     /**
-     * returns {void}
+     * @param {jQuery.Event} event
+     * @returns {void}
      */
-    #onHideModal()
+    #onHideModal(event)
     {
         // Fix: Avoid "aria-hidden + focus retained" warning when modal closes.
         // Blur the modal itself or any element inside it that still has focus.
@@ -752,24 +765,22 @@ class Modal
     }
 
     /**
-     * returns {void}
+     * @param {jQuery.Event} event
+     * @returns {void}
      */
-    #onHiddenModal()
+    #onHiddenModal(event)
     {
-        this.#result?.resolve(false);
-        this.#result = null;
+        this.#beforeConfirm = null;
+        this.#isConfirmed?.resolve(false);
+        this.#isConfirmed = null;
     }
 }
 
 class MessageBox extends Modal
 {
-    /** @type {(() => boolean)|null} */
-    #beforeConfirm;
-
     constructor()
     {
         super(MessageBox.#createRoot());
-        this.#beforeConfirm = null; // per-call state
     }
 
     /**
@@ -786,7 +797,7 @@ class MessageBox extends Modal
      * @param {string|null} primaryButtonLabel
      * @param {string|null} secondaryButtonLabel
      * @param {(() => void)|null} beforeShow
-     * @param {(() => boolean)|null} beforeConfirm
+     * @param {(() => boolean|Promise<boolean>)|null} beforeConfirm
      * @returns {Promise<boolean>}
      */
     open(
@@ -832,21 +843,7 @@ class MessageBox extends Modal
             beforeShow();
         }
         // 6
-        this.#beforeConfirm = beforeConfirm;
-        return super.open();
-    }
-
-    /**
-     * returns {void}
-     */
-    _onClickPrimaryButton()
-    {
-        if (typeof this.#beforeConfirm === 'function') {
-            if (true !== this.#beforeConfirm()) {
-                return;
-            }
-        }
-        super._onClickPrimaryButton();
+        return super.open(beforeConfirm);
     }
 
     /**
@@ -886,7 +883,7 @@ class MessageBox extends Modal
                         $('<button>', {
                             type: 'button',
                             class: 'btn btn-primary',
-                            'data-leuce-primary-button': ''
+                            'data-leuce-modal-primary-button': ''
                         })
                     )
                 )
