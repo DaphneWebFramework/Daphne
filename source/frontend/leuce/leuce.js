@@ -426,14 +426,6 @@ class Controller
 
 class UI
 {
-    /** @type {Object.<string, number>} */
-    static MessageBoxButton = Object.freeze({
-        OK: 1,
-        CANCEL: 2,
-        YES: 3,
-        NO: 4
-    });
-
     /** @type {Object.<string, Object.<string, string>>} */
     static #translations = {
         "add": {
@@ -585,8 +577,8 @@ class UI
      * @param {{
      *   title?: string|null,
      *   message: string|jQuery,
-     *   primaryButtonLabel?: string|number|null,
-     *   secondaryButtonLabel?: string|number|null
+     *   primaryButtonLabel?: string|null,
+     *   secondaryButtonLabel?: string|null
      *   beforeShow?: (() => void)|null,
      *   beforeConfirm?: (() => boolean)|null
      * }} options
@@ -773,14 +765,6 @@ class Modal
 
 class MessageBox extends Modal
 {
-    /** @type {Object.<number, string>} */
-    static #buttonLabelTranslationKeys = Object.freeze({
-        [UI.MessageBoxButton.OK]: 'ok',
-        [UI.MessageBoxButton.CANCEL]: 'cancel',
-        [UI.MessageBoxButton.YES]: 'yes',
-        [UI.MessageBoxButton.NO]: 'no'
-    });
-
     /** @type {(() => boolean)|null} */
     #beforeConfirm;
 
@@ -801,8 +785,8 @@ class MessageBox extends Modal
     /**
      * @param {string|null} title
      * @param {string|jQuery} message
-     * @param {string|number|null} primaryButtonLabel
-     * @param {string|number|null} secondaryButtonLabel
+     * @param {string|null} primaryButtonLabel
+     * @param {string|null} secondaryButtonLabel
      * @param {(() => void)|null} beforeShow
      * @param {(() => boolean)|null} beforeConfirm
      * @returns {Promise<boolean>}
@@ -837,16 +821,12 @@ class MessageBox extends Modal
         }
         // 3
         const $primaryButton = root.find('.btn-primary');
-        primaryButtonLabel = MessageBox.#translateButtonLabel(
-            primaryButtonLabel, 'ok');
-        $primaryButton.text(primaryButtonLabel);
+        $primaryButton.text(primaryButtonLabel ?? UI.translate('ok'));
         // 4
         const $secondaryButton = root.find('.btn-secondary');
         if (secondaryButtonLabel === null) {
             $secondaryButton.addClass('d-none');
         } else {
-            secondaryButtonLabel = MessageBox.#translateButtonLabel(
-                secondaryButtonLabel, 'cancel');
             $secondaryButton.removeClass('d-none').text(secondaryButtonLabel);
         }
         // 5
@@ -869,29 +849,6 @@ class MessageBox extends Modal
             }
         }
         super._onClickPrimaryButton();
-    }
-
-    /**
-     * @param {string|number|null} label
-     * @param {string} defaultTranslationKey
-     * @returns {string}
-     */
-    static #translateButtonLabel(label, defaultTranslationKey)
-    {
-        if (label === null) {
-            return UI.translate(defaultTranslationKey);
-        }
-        if (typeof label === 'number') {
-            const translationKey = this.#buttonLabelTranslationKeys[label];
-            if (!translationKey) {
-                throw new Error(`Leuce: Unknown message box button: ${label}`);
-            }
-            return UI.translate(translationKey);
-        }
-        if (typeof label === 'string') {
-            return label;
-        }
-        throw new Error('Leuce: Button label must be a string, number or null.');
     }
 
     /**
@@ -1134,8 +1091,8 @@ class TableEditor
         UI.messageBox({
             title: UI.translate('delete'),
             message: UI.translate('are_you_sure_you_want_to_delete_this_record'),
-            primaryButtonLabel: UI.MessageBoxButton.YES,
-            secondaryButtonLabel: UI.MessageBoxButton.NO
+            primaryButtonLabel: UI.translate('delete'),
+            secondaryButtonLabel: UI.translate('cancel')
         }).then(confirmed => {
             if (confirmed) {
                 const rowData = $tr.data('row');

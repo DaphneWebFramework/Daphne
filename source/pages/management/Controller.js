@@ -132,8 +132,8 @@ class Controller extends App.Controller
             Leuce.UI.messageBox({
                 title: Leuce.UI.translate('drop'),
                 message: Leuce.UI.translate('are_you_sure_you_want_to_drop_this_table'),
-                primaryButtonLabel: Leuce.UI.MessageBoxButton.YES,
-                secondaryButtonLabel: Leuce.UI.MessageBoxButton.NO
+                primaryButtonLabel: Leuce.UI.translate('yes'),
+                secondaryButtonLabel: Leuce.UI.translate('no')
             }).then(confirmed => {
                 if (confirmed) {
                     performAction.call(this);
