@@ -1057,7 +1057,7 @@ class TableEditor
             beforeConfirm: () => this.#validateForm()
         }).then(confirmed => {
             if (confirmed) {
-                this.#actionHandler?.('add', this.#extractFormData());
+                this.#actionHandler?.('add', this.#extractFormData(false));
             }
         });
     }
@@ -1081,7 +1081,7 @@ class TableEditor
             beforeConfirm: () => this.#validateForm()
         }).then(confirmed => {
             if (confirmed) {
-                this.#actionHandler?.('edit', this.#extractFormData());
+                this.#actionHandler?.('edit', this.#extractFormData(true));
             }
         });
     }
@@ -1124,7 +1124,8 @@ class TableEditor
      */
     #resetNullableInputGroups()
     {
-        const $checkboxes = this.#$form.find('.form-check-input[data-nullifier-for]');
+        const $checkboxes = this.#$form.find(
+            '.form-check-input[data-nullifier-for]');
         for (const checkbox of $checkboxes.get()) {
             const $checkbox = $(checkbox);
             const inputId = $checkbox.data('nullifier-for');
@@ -1218,15 +1219,19 @@ class TableEditor
     }
 
     /**
+     * @param {boolean} includePrimaryKey
      * @returns {object}
      */
-    #extractFormData()
+    #extractFormData(includePrimaryKey)
     {
         const data = {};
-        const $inputs = this.#$form.find('input[name]:visible');
+        const $inputs = this.#$form.find('input[name]');
         for (const input of $inputs.get()) {
             const $input = $(input);
             const name = $input.attr('name');
+            if (!includePrimaryKey && name === this.#primaryKey.key) {
+                continue;
+            }
             if ($input.prop('disabled')) {
                 data[name] = null;
             } else {
