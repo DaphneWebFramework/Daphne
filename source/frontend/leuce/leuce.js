@@ -1300,7 +1300,7 @@ class TableEditor
      */
     static #createFormField(label, name, type, readonly, nullable = false)
     {
-        const inputId = `form-input-${this.#uniqueId()}`;
+        const inputId = `form-input-${Utility.uniqueId()}`;
         return $('<div>', { class: 'row mb-3' }).append(
             $('<label>', {
                 for: inputId,
@@ -1347,7 +1347,7 @@ class TableEditor
      */
     static #createNullifierFor(inputId)
     {
-        const checkboxId = `form-input-${this.#uniqueId()}`;
+        const checkboxId = `form-input-${Utility.uniqueId()}`;
         return $('<div>', { class: 'form-check' }).append(
             $('<input>', {
                 type: 'checkbox',
@@ -1464,14 +1464,6 @@ class TableEditor
         default:
             return value;
         }
-    }
-
-    /**
-     * @returns {string}
-     */
-    static #uniqueId()
-    {
-        return Math.random().toString(36).slice(2, 10);
     }
 }
 
@@ -2717,6 +2709,14 @@ class Utility
     {
         const params = new URLSearchParams(search);
         return params.get(name);
+    }
+
+    /**
+     * @returns {string}
+     */
+    static uniqueId()
+    {
+        return Math.random().toString(36).slice(2, 10);
     }
 }
 

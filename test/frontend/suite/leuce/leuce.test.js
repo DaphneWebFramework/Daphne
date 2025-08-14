@@ -1653,6 +1653,22 @@ QUnit.module('Leuce', function()
                 assert.strictEqual(Leuce.Utility.queryParameter('encoded', testSearch), 'hello world');
             });
         }); // queryParameter
+
+        QUnit.module('uniqueId', function()
+        {
+            QUnit.test('Generates 8-character alphanumeric IDs',
+            function(assert) {
+                const id = Leuce.Utility.uniqueId();
+                assert.ok(/^[a-z0-9]{8}$/.test(id));
+            });
+
+            QUnit.test('Generates unique IDs on each call',
+            function(assert) {
+                const id1 = Leuce.Utility.uniqueId();
+                const id2 = Leuce.Utility.uniqueId();
+                assert.notStrictEqual(id1, id2);
+            });
+        }); // uniqueId
     }); // Utility
 }); // Leuce
 
