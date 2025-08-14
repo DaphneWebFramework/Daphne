@@ -682,8 +682,6 @@ class Modal
 
     /**
      * @param {*} selector
-     *
-     * @todo Make draggable via jQuery UI or similar.
      */
     constructor(selector)
     {
@@ -723,9 +721,9 @@ class Modal
         this.#$root.find('[data-leuce-primary-button]')
             .on('click', this._onClickPrimaryButton.bind(this));
         this.#$root
-            .on('hide.bs.modal', this.#onHideModal.bind(this));
-        this.#$root
-            .on('hidden.bs.modal', this.#onHiddenModal.bind(this));
+            .on('hide.bs.modal', this.#onHideModal.bind(this))
+            .on('hidden.bs.modal', this.#onHiddenModal.bind(this))
+            .draggable({ handle: '.modal-header' }); // via jQuery UI
     }
 
     /**
