@@ -856,15 +856,21 @@ class MessageBox extends Modal
      */
     static #createRoot()
     {
+        const modalTitleId = `modal-title-${Utility.uniqueId()}`;
         return $('<div>', {
             id: this.elementId(),
-            class: 'modal fade',
+            class: 'modal',
+            'aria-hidden': 'true',
+            'aria-labelledby': modalTitleId,
             tabIndex: -1
         }).append(
-            $('<div>', { class: 'modal-dialog modal-dialog-centered' }).append(
+            $('<div>', { class: 'modal-dialog' }).append(
                 $('<div>', { class: 'modal-content' }).append(
                     $('<div>', { class: 'modal-header' }).append(
-                        $('<h5>', { class: 'modal-title' }),
+                        $('<h5>', {
+                            class: 'modal-title',
+                            id: modalTitleId
+                        }),
                         $('<button>', {
                             type: 'button',
                             class: 'btn-close',
