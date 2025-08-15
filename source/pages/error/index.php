@@ -21,6 +21,7 @@ $page = (new Page(__DIR__))
 	->SetMasterPage('basic')
 	->SetProperty('showLanguage', false)
 	->RemoveLibrary('jquery')
+	->RemoveLibrary('jquery-ui')
 	->RemoveLibrary('leuce')
 	->RemoveLibrary('app');
 
