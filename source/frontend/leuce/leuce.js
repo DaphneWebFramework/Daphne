@@ -675,7 +675,7 @@ class Modal
     #$root;
 
     /** @type {jQuery} */
-    #$primaryButton;
+    #$confirmButton;
 
     /** @type {bootstrap.Modal} */
     #modal;
@@ -695,9 +695,9 @@ class Modal
         if (this.#$root.length === 0) {
             throw new Error(`Leuce: Modal root element not found: ${selector}`);
         }
-        this.#$primaryButton = this.#$root.find('[data-leuce-modal-primary-button]');
-        if (this.#$primaryButton.length === 0) {
-            console.warn('Leuce: Modal primary button not found.');
+        this.#$confirmButton = this.#$root.find('[data-leuce-modal-confirm-button]');
+        if (this.#$confirmButton.length === 0) {
+            console.warn('Leuce: Modal confirm button not found.');
         }
         this.#modal = new bootstrap.Modal(this.#$root[0]);
         this.#beforeConfirm = null; // per-call state
@@ -741,7 +741,7 @@ class Modal
      */
     setLoading(isLoading)
     {
-        this.#$primaryButton.leuceButton().setLoading(isLoading);
+        this.#$confirmButton.leuceButton().setLoading(isLoading);
     }
 
     /**
@@ -753,8 +753,8 @@ class Modal
             .on('hide.bs.modal', this.#onHideModal.bind(this))
             .on('hidden.bs.modal', this.#onHiddenModal.bind(this))
             .draggable({ cursor: 'move' }); // via jQuery UI
-        this.#$primaryButton
-            .on('click', this.#onClickPrimaryButton.bind(this));
+        this.#$confirmButton
+            .on('click', this.#onClickConfirmButton.bind(this));
     }
 
     /**
@@ -797,7 +797,7 @@ class Modal
      * @param {jQuery.Event} event
      * @returns {void}
      */
-    async #onClickPrimaryButton(event)
+    async #onClickConfirmButton(event)
     {
         if (typeof this.#beforeConfirm === 'function') {
             if (true !== await this.#beforeConfirm()) {
@@ -916,7 +916,7 @@ class MessageBox extends Modal
                         $('<button>', {
                             type: 'button',
                             class: 'btn btn-primary',
-                            'data-leuce-modal-primary-button': ''
+                            'data-leuce-modal-confirm-button': ''
                         })
                     )
                 )
