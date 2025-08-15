@@ -670,6 +670,124 @@ class Deferred
     }
 }
 
+class Form
+{
+    /** @type {jQuery} */
+    #$root;
+
+    /**
+     * @param {*} selector
+     * @throws {Error}
+     */
+    constructor(selector)
+    {
+        this.#$root = $(selector);
+        if (this.#$root.length !== 1 || !this.#$root.is('form')) {
+            throw new Error(
+                `Leuce: Selector must match a single form element: ${selector}`);
+        }
+        this.#bindEvents();
+    }
+
+    /**
+     * @returns {jQuery}
+     */
+    root()
+    {
+        return this.#$root;
+    }
+
+    /**
+     * @returns {boolean}
+     */
+    validate()
+    {
+        const form = this.#$root[0];
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * @returns {Object}
+     */
+    data()
+    {
+        const data = {};
+        jQuery.map(this.#$root.serializeArray(), function(item) {
+            if (item.name.endsWith('[]')) {
+                const name = item.name.slice(0, -2);
+                if (!Array.isArray(data[name])) {
+                    data[name] = [];
+                }
+                data[name].push(item.value);
+            } else {
+                data[item.name] = item.value;
+            }
+        });
+        return data;
+    }
+
+    /**
+     * @param {Object} data
+     * @returns {void}
+     */
+    populate(data)
+    {
+        for (const [key, value] of Object.entries(data)) {
+            this.findInput(key).val(value);
+        }
+    }
+
+    /**
+     * @returns {void}
+     */
+    clear()
+    {
+        this.#$root[0].reset();
+    }
+
+    /**
+     * @returns {void}
+     */
+    submit()
+    {
+        if (!this.validate()) {
+            return;
+        }
+        this.#$root.submit();
+    }
+
+    /**
+     * @param {string} name
+     * @returns {jQuery}
+     */
+    findInput(name)
+    {
+        return this.#$root.find(`[name="${name}"]`);
+    }
+
+    /**
+     * @returns {void}
+     */
+    #bindEvents()
+    {
+        this.#$root.on('submit', this.#onSubmit.bind(this));
+    }
+
+    /**
+     * @param {jQuery.Event} event
+     * @returns {void}
+     */
+    #onSubmit(event)
+    {
+        event.preventDefault();
+        this.#$root.trigger('leuce:form:submit', [this.data()]);
+    }
+}
+
 class Modal
 {
     /** @type {jQuery} */
@@ -2781,6 +2899,7 @@ global.Leuce.MVC.View = View;
 global.Leuce.MVC.Controller = Controller;
 
 global.Leuce.UI = UI;
+global.Leuce.UI.Form = Form;
 global.Leuce.UI.Modal = Modal;
 global.Leuce.UI.Button = Button;
 global.Leuce.UI.Table = Table;
