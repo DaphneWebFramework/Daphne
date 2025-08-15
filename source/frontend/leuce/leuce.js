@@ -263,6 +263,7 @@ class RequestBuilder
      * @param {(function(Response))=} onResponse
      * @param {(function(number))=} onProgress
      * @returns {Promise<Response>|undefined}
+     * @throws {Error}
      */
     send(onResponse = null, onProgress = null)
     {
@@ -688,12 +689,13 @@ class Modal
 
     /**
      * @param {*} selector
+     * @throws {Error}
      */
     constructor(selector)
     {
         this.#$root = $(selector);
         if (this.#$root.length === 0) {
-            throw new Error(`Leuce: Modal root element not found: ${selector}`);
+            throw new Error(`Leuce: Modal element not found: ${selector}`);
         }
         this.#$confirmButton = this.#$root.find('[data-leuce-modal-confirm-button]');
         if (this.#$confirmButton.length === 0) {
@@ -832,6 +834,7 @@ class MessageBox extends Modal
      * @param {(() => void)|null} beforeShow
      * @param {(() => boolean|Promise<boolean>)|null} beforeConfirm
      * @returns {Promise<boolean>}
+     * @throws {Error}
      */
     show(
         title,
@@ -944,6 +947,7 @@ class Button
 
     /**
      * @param {jQuery} $button
+     * @throws {Error}
      */
     constructor($button)
     {
@@ -1894,6 +1898,7 @@ class Table
 
     /**
      * @param {jQuery} $table
+     * @throws {Error}
      */
     constructor($table)
     {
