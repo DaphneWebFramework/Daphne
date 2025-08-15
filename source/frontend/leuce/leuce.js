@@ -603,7 +603,7 @@ class UI
         } else {
             instance = $modal.data(dataKey);
         }
-        return instance.open(
+        return instance.show(
             title,
             message,
             primaryButtonLabel,
@@ -710,7 +710,7 @@ class Modal
      * @param {(() => boolean|Promise<boolean>)|null} beforeConfirm
      * @returns {Promise<boolean>}
      */
-    open(beforeConfirm = null)
+    show(beforeConfirm = null)
     {
         this.#beforeConfirm = beforeConfirm;
         this.#isConfirmed?.resolve(false); // settle previous result, if any
@@ -718,6 +718,14 @@ class Modal
         this.#resetDraggable();
         this.#modal.show();
         return this.#isConfirmed.promise();
+    }
+
+    /**
+     * @returns {void}
+     */
+    hide()
+    {
+        this.#modal.hide();
     }
 
     /**
@@ -809,7 +817,7 @@ class MessageBox extends Modal
      * @param {(() => boolean|Promise<boolean>)|null} beforeConfirm
      * @returns {Promise<boolean>}
      */
-    open(
+    show(
         title,
         message,
         primaryButtonLabel,
@@ -852,7 +860,7 @@ class MessageBox extends Modal
             beforeShow();
         }
         // 6
-        return super.open(beforeConfirm);
+        return super.show(beforeConfirm);
     }
 
     /**
