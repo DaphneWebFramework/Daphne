@@ -715,6 +715,7 @@ class Modal
         this.#beforeConfirm = beforeConfirm;
         this.#isConfirmed?.resolve(false); // settle previous result, if any
         this.#isConfirmed = new Deferred();
+        this.#resetDraggable();
         this.#modal.show();
         return this.#isConfirmed.promise();
     }
@@ -729,7 +730,15 @@ class Modal
         this.#$root
             .on('hide.bs.modal', this.#onHideModal.bind(this))
             .on('hidden.bs.modal', this.#onHiddenModal.bind(this))
-            .draggable({ handle: '.modal-header' }); // via jQuery UI
+            .draggable({ cursor: 'move' }); // via jQuery UI
+    }
+
+    /**
+     * @returns {void}
+     */
+    #resetDraggable()
+    {
+        this.#$root.css({ position: '', left: '', top: '' });
     }
 
     /**

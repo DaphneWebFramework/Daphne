@@ -16,9 +16,6 @@
   -moz-user-select: none;
   user-select: none;
 }
-.modal-header.ui-draggable-handle {
-  cursor: move; /* Indicates the modal header can be dragged */
-}
 
 /**
  * leuce-notifications
