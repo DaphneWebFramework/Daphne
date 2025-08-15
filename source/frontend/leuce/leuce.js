@@ -674,6 +674,9 @@ class Modal
     /** @type {jQuery} */
     #$root;
 
+    /** @type {jQuery} */
+    #$primaryButton;
+
     /** @type {bootstrap.Modal} */
     #modal;
 
@@ -691,6 +694,10 @@ class Modal
         this.#$root = $(selector);
         if (this.#$root.length === 0) {
             throw new Error(`Leuce: Modal root element not found: ${selector}`);
+        }
+        this.#$primaryButton = this.#$root.find('[data-leuce-modal-primary-button]');
+        if (this.#$primaryButton.length === 0) {
+            console.warn('Leuce: Modal primary button not found.');
         }
         this.#modal = new bootstrap.Modal(this.#$root[0]);
         this.#beforeConfirm = null; // per-call state
@@ -729,16 +736,25 @@ class Modal
     }
 
     /**
+     * @param {boolean} isLoading
+     * @returns {void}
+     */
+    setLoading(isLoading)
+    {
+        this.#$primaryButton.leuceButton().setLoading(isLoading);
+    }
+
+    /**
      * @returns {void}
      */
     #bindEvents()
     {
-        this.#$root.find('[data-leuce-modal-primary-button]')
-            .on('click', this.#onClickPrimaryButton.bind(this));
         this.#$root
             .on('hide.bs.modal', this.#onHideModal.bind(this))
             .on('hidden.bs.modal', this.#onHiddenModal.bind(this))
             .draggable({ cursor: 'move' }); // via jQuery UI
+        this.#$primaryButton
+            .on('click', this.#onClickPrimaryButton.bind(this));
     }
 
     /**
@@ -747,21 +763,6 @@ class Modal
     #resetDraggable()
     {
         this.#$root.css({ position: '', left: '', top: '' });
-    }
-
-    /**
-     * @param {jQuery.Event} event
-     * @returns {void}
-     */
-    async #onClickPrimaryButton(event)
-    {
-        if (typeof this.#beforeConfirm === 'function') {
-            if (true !== await this.#beforeConfirm()) {
-                return;
-            }
-        }
-        this.#isConfirmed?.resolve(true);
-        this.#modal.hide();
     }
 
     /**
@@ -790,6 +791,21 @@ class Modal
         this.#beforeConfirm = null;
         this.#isConfirmed?.resolve(false);
         this.#isConfirmed = null;
+    }
+
+    /**
+     * @param {jQuery.Event} event
+     * @returns {void}
+     */
+    async #onClickPrimaryButton(event)
+    {
+        if (typeof this.#beforeConfirm === 'function') {
+            if (true !== await this.#beforeConfirm()) {
+                return;
+            }
+        }
+        this.#isConfirmed?.resolve(true);
+        this.hide();
     }
 }
 
