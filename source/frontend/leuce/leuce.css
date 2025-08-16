@@ -25,7 +25,7 @@
   top: 4rem;
   right: 1rem;
   max-width: 300px;
-  z-index: 1050; /* Same as BS z-index for .modal-backdrop */
+  z-index: 1056; /* Higher than --bs-modal-zindex */
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
