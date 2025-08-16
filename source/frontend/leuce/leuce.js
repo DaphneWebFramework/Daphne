@@ -1518,7 +1518,7 @@ class TableEditor
             }),
             $('<label>', {
                 for: checkboxId,
-                class: 'form-check-label leuce-user-select-none',
+                class: 'form-check-label leuce-no-user-select',
                 text: 'null'
             })
         );
@@ -1764,7 +1764,7 @@ class TableToolbar
     {
         const $button = $('<button>', {
             type: 'button',
-            class: 'leuce-table-button btn btn-sm',
+            class: 'btn btn-sm leuce-button',
             'data-action': action
         }).append($('<i>', { class: iconClass }));
         if (label !== null) {
@@ -1942,7 +1942,7 @@ class TablePaginator
     {
         return $('<button>', {
             type: 'button',
-            class: 'leuce-table-button btn btn-sm',
+            class: 'btn btn-sm leuce-button',
             'data-action': action
         }).append($('<i>', { class: iconClass }));
     }
@@ -2497,7 +2497,7 @@ class Table
     {
         return $('<button>', {
             type: 'button',
-            class: 'leuce-table-button btn btn-sm',
+            class: 'btn btn-sm leuce-button',
             'data-action': action
         }).append($('<i>', { class: iconClass }));
     }
