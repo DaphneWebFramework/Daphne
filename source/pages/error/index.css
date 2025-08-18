@@ -10,11 +10,11 @@
  */
 
 :root {
-  --navbar-height: 3.5rem;
+  --page-navbar-height: 3.5rem;
 }
 main {
-  height: calc(100vh - var(--navbar-height)); /* fallback */
-  height: calc(100dvh - var(--navbar-height));
+  height: calc(100vh - var(--page-navbar-height)); /* fallback */
+  height: calc(100dvh - var(--page-navbar-height));
   display: flex;
   align-items: center;
   justify-content: center;
