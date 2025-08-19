@@ -111,7 +111,7 @@ class Model extends App.Model
             .handler('management')
             .action('delete-record')
             .query({ table: tableName })
-            .body({ id })
+            .jsonBody({ id })
             .send();
     }
 }
