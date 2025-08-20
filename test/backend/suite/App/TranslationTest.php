@@ -23,12 +23,24 @@ class TranslationTest extends TestCase
     function testFilePaths()
     {
         $sut = $this->systemUnderTest();
-        $reflectionClass = new \ReflectionClass(Translation::class);
-        $directory = \dirname($reflectionClass->getFileName());
-        $path = CPath::Join($directory, 'translations.json');
 
-        $paths = AccessHelper::CallMethod($sut, 'filePaths');
-        $this->assertEquals([$path], $paths);
+        $expected = [];
+        // 1. Peneus translation file
+        $reflectionClass = new \ReflectionClass(\Peneus\Translation::class);
+        $expected[] = CPath::Join(
+            \dirname($reflectionClass->getFileName()),
+            'translations.json'
+        );
+        // 2. App translation file
+        $reflectionClass = new \ReflectionClass(Translation::class);
+        $expected[] = CPath::Join(
+            \dirname($reflectionClass->getFileName()),
+            'translations.json'
+        );
+
+        $actual = AccessHelper::CallMethod($sut, 'filePaths');
+
+        $this->assertEquals($expected, $actual);
     }
 
     #endregion filePaths

@@ -17,17 +17,19 @@ use \Harmonia\Core\CPath;
 /**
  * Manages translations specific to the main application.
  */
-class Translation extends \Harmonia\Translation
+class Translation extends \Peneus\Translation
 {
     /**
-     * Specifies the JSON file containing translations.
+     * Specifies the JSON files containing translations.
      *
      * @return array<CPath>
-     *   A single-element array with the path to the JSON file containing
-     *   translations.
+     *   An array of paths to translation files, including both Peneus base
+     *   translations and App-specific overrides.
      */
     protected function filePaths(): array
     {
-        return [CPath::Join(__DIR__, 'translations.json')];
+        return \array_merge(parent::filePaths(), [
+            CPath::Join(__DIR__, 'translations.json')
+        ]);
     }
 }
