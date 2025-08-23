@@ -870,8 +870,9 @@ class Modal
     #bindEvents()
     {
         this.#$root
-            .on('hide.bs.modal', this.#onHideModal.bind(this))
-            .on('hidden.bs.modal', this.#onHiddenModal.bind(this))
+            .on('shown.bs.modal', this.#onShown.bind(this))
+            .on('hide.bs.modal', this.#onHide.bind(this))
+            .on('hidden.bs.modal', this.#onHidden.bind(this))
             .draggable({ cursor: 'move' }); // via jQuery UI
         this.#$confirmButton
             .on('click', this.#onClickConfirmButton.bind(this));
@@ -889,7 +890,19 @@ class Modal
      * @param {jQuery.Event} event
      * @returns {void}
      */
-    #onHideModal(event)
+    #onShown(event)
+    {
+        const $autofocus = this.#$root.find('[autofocus]');
+        if ($autofocus.length) {
+            $autofocus.first().trigger('focus');
+        }
+    }
+
+    /**
+     * @param {jQuery.Event} event
+     * @returns {void}
+     */
+    #onHide(event)
     {
         // Fix: Avoid "aria-hidden + focus retained" warning when modal closes.
         // Blur the modal itself or any element inside it that still has focus.
@@ -906,7 +919,7 @@ class Modal
      * @param {jQuery.Event} event
      * @returns {void}
      */
-    #onHiddenModal(event)
+    #onHidden(event)
     {
         this.#beforeConfirm = null;
         this.#isConfirmed?.resolve(false);
