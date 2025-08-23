@@ -578,8 +578,11 @@ class UI
      * @param {{
      *   title?: string|null,
      *   message: string|jQuery,
+     *   theme?: string|null,
      *   primaryButtonLabel?: string|null,
-     *   secondaryButtonLabel?: string|null
+     *   primaryButtonVariant?: string|null,
+     *   secondaryButtonLabel?: string|null,
+     *   secondaryButtonVariant?: string|null,
      *   beforeShow?: (() => void)|null,
      *   beforeConfirm?: (() => boolean|Promise<boolean>)|null
      * }} options
@@ -588,8 +591,11 @@ class UI
     static messageBox({
         title = null,
         message,
+        theme = null,
         primaryButtonLabel = null,
+        primaryButtonVariant = null,
         secondaryButtonLabel = null,
+        secondaryButtonVariant = null,
         beforeShow = null,
         beforeConfirm = null
     } = {}) {
@@ -607,8 +613,11 @@ class UI
         return instance.show(
             title,
             message,
+            theme,
             primaryButtonLabel,
+            primaryButtonVariant,
             secondaryButtonLabel,
+            secondaryButtonVariant,
             beforeShow,
             beforeConfirm
         );
@@ -960,56 +969,87 @@ class MessageBox extends Modal
     /**
      * @param {string|null} title
      * @param {string|jQuery} message
+     * @param {string|null} theme
      * @param {string|null} primaryButtonLabel
+     * @param {string|null} primaryButtonVariant
      * @param {string|null} secondaryButtonLabel
+     * @param {string|null} secondaryButtonVariant
      * @param {(() => void)|null} beforeShow
      * @param {(() => boolean|Promise<boolean>)|null} beforeConfirm
      * @returns {Promise<boolean>}
-     * @throws {Error}
      */
     show(
         title,
         message,
+        theme,
         primaryButtonLabel,
+        primaryButtonVariant,
         secondaryButtonLabel,
+        secondaryButtonVariant,
         beforeShow,
         beforeConfirm
     ) {
+        // 1. Normalize parameters
+        title = (typeof title === 'string')
+            ? title : null;
+        message = (typeof message === 'string' || message instanceof jQuery)
+            ? message : '';
+        theme = (typeof theme === 'string')
+            ? theme : null;
+        primaryButtonLabel = (typeof primaryButtonLabel === 'string')
+            ? primaryButtonLabel : UI.translate('ok');
+        primaryButtonVariant = (typeof primaryButtonVariant === 'string')
+            ? primaryButtonVariant : 'primary';
+        secondaryButtonLabel = (typeof secondaryButtonLabel === 'string')
+            ? secondaryButtonLabel : null;
+        secondaryButtonVariant = (typeof secondaryButtonVariant === 'string')
+            ? secondaryButtonVariant : 'secondary';
+        beforeShow = (typeof beforeShow === 'function')
+            ? beforeShow : null;
+        beforeConfirm = (typeof beforeConfirm === 'function')
+            ? beforeConfirm : null;
+        // 2. Get root
         const root = this.root();
-        // 1
+        // 3. Title
         const $title = root.find('.modal-title');
-        if (title === null) {
-            $title.text(UI.translate('message'));
-        } else if (typeof title === 'string') {
-            $title.text(title);
-        } else {
-            throw new Error('Leuce: Title must be a string or null.');
-        }
-        // 2
+        $title.text(title ?? UI.translate('message'));
+        // 4. Message
         const $body = root.find('.modal-body');
         $body.empty();
         if (typeof message === 'string') {
             $body.html(message);
-        } else if (message instanceof jQuery) {
+        } else { // instanceof jQuery
             $body.append(message);
-        } else {
-            throw new Error('Leuce: Message must be a string or jQuery object.');
         }
-        // 3
-        const $primaryButton = root.find('.btn-primary');
-        $primaryButton.text(primaryButtonLabel ?? UI.translate('ok'));
-        // 4
-        const $secondaryButton = root.find('.btn-secondary');
+        // 5. Theme
+        if (theme !== null) {
+            root.attr('data-bs-theme', theme);
+        } else {
+            root.removeAttr('data-bs-theme');
+        }
+        // 6. Primary button
+        const $primaryButton = root
+            .find('[data-leuce-modal-confirm-button]');
+        $primaryButton
+            .text(primaryButtonLabel)
+            .attr('class', `btn btn-${primaryButtonVariant}`);
+        // 7. Secondary button
+        const $secondaryButton = root
+            .find('.modal-footer button')
+            .not('[data-leuce-modal-confirm-button]');
         if (secondaryButtonLabel === null) {
             $secondaryButton.addClass('d-none');
         } else {
-            $secondaryButton.removeClass('d-none').text(secondaryButtonLabel);
+            $secondaryButton
+                .removeClass('d-none')
+                .text(secondaryButtonLabel)
+                .attr('class', `btn btn-${secondaryButtonVariant}`);
         }
-        // 5
-        if (typeof beforeShow === 'function') {
+        // 8. Before show
+        if (beforeShow !== null) {
             beforeShow();
         }
-        // 6
+        // 9. Show
         return super.show(beforeConfirm);
     }
 
@@ -1044,12 +1084,12 @@ class MessageBox extends Modal
                     $('<div>', { class: 'modal-footer' }).append(
                         $('<button>', {
                             type: 'button',
-                            class: 'btn btn-secondary',
+                            class: '',
                             'data-bs-dismiss': 'modal'
                         }),
                         $('<button>', {
                             type: 'button',
-                            class: 'btn btn-primary',
+                            class: '',
                             'data-leuce-modal-confirm-button': ''
                         })
                     )
