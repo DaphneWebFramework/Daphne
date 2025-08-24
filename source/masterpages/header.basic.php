@@ -11,6 +11,7 @@
  */
 
 use \Charis\Container;
+use \Charis\Generic;
 use \Charis\Navbar;
 use \Charis\NavbarBrand;
 use \Charis\NavbarCollapse;
@@ -59,9 +60,15 @@ function createNavItems(Page $page): array {
 				? 'container-fluid'
 				: 'container'
 		], [
-			new NavbarBrand(['href' => Resource::Instance()->AppUrl()],
+			new NavbarBrand(['href' => Resource::Instance()->AppUrl()], [
+				new Generic('img', [
+					'class' => 'navbar-logo',
+					'src' => Resource::Instance()->AppSubdirectoryUrl('assets')
+						->Extend('image', 'logo.png'),
+					'alt' => 'Logo'
+				], null, true),
 				Config::Instance()->Option('AppName')
-			),
+			]),
 			new NavbarToggler([
 				'data-bs-target' => '#navbarTogglerTarget',
 				'aria-controls' => 'navbarTogglerTarget'

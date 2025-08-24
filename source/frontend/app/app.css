@@ -12,3 +12,10 @@
 :root {
   --app-navbar-height: 3.5rem; /* 56px */
 }
+
+.navbar-logo {
+  display: inline-block;
+  vertical-align: text-top;
+  margin-right: 0.5rem;
+  height: 29px;
+}
