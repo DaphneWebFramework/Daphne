@@ -321,7 +321,7 @@ class Model
      */
     get()
     {
-        return this.#buildRequest().get();
+        return this._buildRequest().get();
     }
 
     /**
@@ -329,13 +329,14 @@ class Model
      */
     post()
     {
-        return this.#buildRequest().post();
+        return this._buildRequest().post();
     }
 
     /**
      * @returns {RequestBuilder}
+     * @protected
      */
-    #buildRequest()
+    _buildRequest()
     {
         return new RequestBuilder(this.#client);
     }
