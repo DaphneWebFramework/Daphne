@@ -154,19 +154,19 @@ class Client
 class RequestBuilder
 {
     /** @type {Client} */
-    #client = null;
+    #client;
 
     /** @type {Request} */
-    #request = null;
+    #request;
 
     /** @type {string} */
-    #handler = '';
+    #handler;
 
     /** @type {string} */
-    #action = '';
+    #action;
 
     /** @type {Object.<string, string|number>|null} */
-    #queryParams = null;
+    #queryParams;
 
     /**
      * @param {Client} client
@@ -175,6 +175,9 @@ class RequestBuilder
     {
         this.#client = client;
         this.#request = new Request();
+        this.#handler = '';
+        this.#action = '';
+        this.#queryParams = null;
     }
 
     /**
@@ -306,7 +309,7 @@ class RequestBuilder
 class Model
 {
     /** @type {Client} */
-    #client = null;
+    #client;
 
     /**
      * @param {Client=} client
@@ -345,7 +348,12 @@ class Model
 class View
 {
     /** @type {Object.<string, jQuery|object>} */
-    #registry = {};
+    #registry;
+
+    constructor()
+    {
+        this.#registry = {};
+    }
 
     /**
      * @param {string} key
@@ -401,10 +409,10 @@ class View
 class Controller
 {
     /** @type {Model} */
-    #model = null;
+    #model;
 
     /** @type {View} */
-    #view = null;
+    #view;
 
     /**
      * @param {Model} model
@@ -648,7 +656,7 @@ class Deferred
     #reject;
 
     /** @type {boolean} */
-    #settled = false;
+    #settled;
 
     constructor()
     {
@@ -656,6 +664,7 @@ class Deferred
             this.#resolve = resolve;
             this.#reject = reject;
         });
+        this.#settled = false;
     }
 
     /**
@@ -1117,16 +1126,16 @@ class Button
     #$button;
 
     /** @type {boolean} */
-    #isLoading = false;
+    #isLoading;
 
     /** @type {string|null} */
-    #htmlBackup = null;
+    #htmlBackup;
 
     /** @type {boolean} */
-    #alreadyDisabled = false;
+    #alreadyDisabled;
 
     /** @type {string} */
-    #inlineWidth = '';
+    #inlineWidth;
 
     /**
      * @param {jQuery} $button
@@ -1138,6 +1147,10 @@ class Button
             throw new Error('Leuce: Only button elements are supported.');
         }
         this.#$button = $button;
+        this.#isLoading = false;
+        this.#htmlBackup = null;
+        this.#alreadyDisabled = false;
+        this.#inlineWidth = '';
     }
 
     /**
