@@ -313,6 +313,24 @@ QUnit.module('Leuce', function()
                     .send();
                 assert.strictEqual(capturedRequest.url, 'api/search/song?title=test&page=2');
             });
+
+            QUnit.test('Sets a custom header', function(assert)
+            {
+                var capturedRequest = null;
+                var fakeClient = {
+                    send: function(request) {
+                        capturedRequest = request;
+                    }
+                };
+                var builder = new Leuce.HTTP.RequestBuilder(fakeClient);
+                builder
+                    .post()
+                    .handler('ping')
+                    .action('check')
+                    .header('X-Test-Header', 'HelloWorld')
+                    .send();
+                assert.strictEqual(capturedRequest.headers['X-Test-Header'], 'HelloWorld');
+            });
         }); // RequestBuilder
     }); // HTTP
 

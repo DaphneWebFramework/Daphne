@@ -226,6 +226,17 @@ class RequestBuilder
     }
 
     /**
+     * @param {string} name
+     * @param {string} value
+     * @returns {RequestBuilder}
+     */
+    header(name, value)
+    {
+        this.#request.headers[name] = value;
+        return this;
+    }
+
+    /**
      * @param {any} body
      * @returns {RequestBuilder}
      */
