@@ -12,6 +12,7 @@
 
 require '../../autoload.php';
 
+use \Charis\Generic;
 use \Harmonia\Http\Request;
 use \Harmonia\Http\StatusCode;
 use \Peneus\Systems\PageSystem\Page;
@@ -19,11 +20,7 @@ use \Peneus\Systems\PageSystem\Page;
 $page = (new Page(__DIR__))
 	->SetTitle(_T('error.page_title'))
 	->SetMasterPage('basic')
-	->SetProperty('showLanguage', false)
-	->RemoveLibrary('jquery')
-	->RemoveLibrary('jquery-ui')
-	->RemoveLibrary('leuce')
-	->RemoveLibrary('app');
+	->SetProperty('showLanguage', false);
 
 $statusCode = StatusCode::tryFrom(
 	(int)Request::Instance()->QueryParams()->Get('statusCode')
@@ -45,10 +42,10 @@ function mixedCaseToWords(string $mixedCase): string {
 }
 ?>
 <?php $page->Begin()?>
-	<main role="main">
-		<div class="text-center">
-			<h1><?=$statusCode->value?></h1>
-			<h2><?=mixedCaseToWords($statusCode->name)?></h2>
-		</div>
-	</main>
+	<?=new Generic('main', ['role' => 'main'], [
+		new Generic('div', ['class' => 'text-center'], [
+			new Generic('h1', null, (string)$statusCode->value),
+			new Generic('h2', null, mixedCaseToWords($statusCode->name))
+		])
+	])?>
 <?php $page->End()?>

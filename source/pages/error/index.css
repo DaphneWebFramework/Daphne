@@ -9,12 +9,9 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-:root {
-  --page-navbar-height: 3.5rem;
-}
 main {
-  height: calc(100vh - var(--page-navbar-height)); /* fallback */
-  height: calc(100dvh - var(--page-navbar-height));
+  height: calc(100vh - var(--app-navbar-height)); /* fallback */
+  height: calc(100dvh - var(--app-navbar-height));
   display: flex;
   align-items: center;
   justify-content: center;
