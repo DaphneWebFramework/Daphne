@@ -57,6 +57,7 @@ def main(argv):
     )
     pipeline = Pipeline([
         CreateTargetDirectoryStage(),
+        DeployDirectoryStage('assets'),
         DeployDirectoryStage('backend'),
         DeployFrontendStage(),
         DeployDirectoryStage('masterpages'),
