@@ -12,10 +12,31 @@
 class Model extends App.Model
 {
     /**
+     * @param {string} csrfToken
+     * @param {string} credential
+     * @returns {Promise<Leuce.HTTP.Response<
+     *   {
+     *     redirectUrl: string
+     *   } | {
+     *     message: string
+     *   }
+     * >>}
+     */
+    signInWithGoogle(csrfToken, credential)
+    {
+        return this.post()
+            .handler('account')
+            .action('sign-in-with-google')
+            .header('x-csrf-token', csrfToken)
+            .body({ credential })
+            .send();
+    }
+
+    /**
      * @param {string} data
      * @returns {Promise<Leuce.HTTP.Response>}
      */
-    login(data)
+    logIn(data)
     {
         return this.post()
             .handler('account')

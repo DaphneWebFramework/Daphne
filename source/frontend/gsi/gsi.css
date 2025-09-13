@@ -1,0 +1,27 @@
+/**
+ * gsi.css
+ *
+ * (C) 2025 by Eylem Ugurel
+ *
+ * Licensed under a Creative Commons Attribution 4.0 International License.
+ *
+ * You should have received a copy of the license along with this work. If not,
+ * see <http://creativecommons.org/licenses/by/4.0/>.
+ */
+
+.gsi-button {
+  min-height: 44px; /* Placeholder height to prevent jumping */
+}
+.gsi-or-separator {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 0.75rem 0;
+}
+.gsi-or-separator::before,
+.gsi-or-separator::after {
+  content: "";
+  flex: 1;
+  border-bottom: thin solid var(--bs-border-color);
+  margin: 0 0.5rem; /* Space around the "OR" text */
+}

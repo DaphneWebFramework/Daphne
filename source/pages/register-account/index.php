@@ -19,14 +19,16 @@ use \Charis\FormComposites\FormPasswordFL;
 use \Charis\FormComposites\FormTextFL;
 use \Charis\FormControls\FormHiddenInput;
 use \Charis\Generic;
+use \Harmonia\Config;
 use \Peneus\Resource;
 use \Peneus\Systems\PageSystem\Page;
 
 $page = (new Page(__DIR__))
 	->SetTitle(_T('register_account.page_title'))
-	->SetMasterPage('basic');
-
-$resource = Resource::Instance();
+	->SetMasterPage('basic')
+	->SetMeta('app:google-auth-client-id',
+		Config::Instance()->OptionOrDefault('Google.Auth.ClientID', ''))
+	->AddLibrary('gsi');
 ?>
 <?php $page->Begin()?>
 	<?=new Generic('main', ['role' => 'main', 'class' => 'container mt-5'], [
@@ -36,6 +38,11 @@ $resource = Resource::Instance();
 					_T('register_account.card_header')
 				),
 				new Generic('div', ['class' => 'card-body'], [
+					new Generic('div', [
+						'id' => 'googleSignInButton',
+						'class' => 'gsi-button'
+					]),
+					new Generic('div', ['class' => 'gsi-or-separator'], 'OR'),
 					new Form(null, [
 						new FormHiddenInput([
 							'name' => $page->CsrfTokenName(),
@@ -69,7 +76,7 @@ $resource = Resource::Instance();
 					_T('register_account.card_footer'),
 					' ',
 					new Generic('a', [
-						'href' => $resource->LoginPageUrl('home')
+						'href' => Resource::Instance()->LoginPageUrl('home')
 					], _T('log_in'))
 				])
 			])

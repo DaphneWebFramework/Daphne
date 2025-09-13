@@ -741,6 +741,14 @@ class Form
     }
 
     /**
+     * @returns {string}
+     */
+    serialize()
+    {
+        return this.#$root.serialize();
+    }
+
+    /**
      * @returns {Object}
      */
     data()

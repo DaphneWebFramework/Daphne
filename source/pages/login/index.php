@@ -18,12 +18,16 @@ use \Charis\FormComposites\FormEmailFL;
 use \Charis\FormComposites\FormPasswordFL;
 use \Charis\FormControls\FormHiddenInput;
 use \Charis\Generic;
+use \Harmonia\Config;
 use \Peneus\Resource;
 use \Peneus\Systems\PageSystem\Page;
 
 $page = (new Page(__DIR__))
 	->SetTitle(_T('login.page_title'))
-	->SetMasterPage('basic');
+	->SetMasterPage('basic')
+	->SetMeta('app:google-auth-client-id',
+		Config::Instance()->OptionOrDefault('Google.Auth.ClientID', ''))
+	->AddLibrary('gsi');
 
 $resource = Resource::Instance();
 ?>
@@ -37,6 +41,11 @@ $resource = Resource::Instance();
 					_T('login.card_header')
 				),
 				new Generic('div', ['class' => 'card-body'], [
+					new Generic('div', [
+						'id' => 'googleSignInButton',
+						'class' => 'gsi-button'
+					]),
+					new Generic('div', ['class' => 'gsi-or-separator'], 'OR'),
 					new Form(null, [
 						new FormHiddenInput([
 							'name' => $page->CsrfTokenName(),

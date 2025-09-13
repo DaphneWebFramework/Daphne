@@ -14,8 +14,22 @@ class View extends App.View
     constructor()
     {
         super();
+        this.set('googleSignInButton', '#googleSignInButton').gsiButton({
+            theme: 'filled_blue',
+            text: 'signup_with',
+            width: 'responsive'
+        });
         this.set('form', 'form');
         this.set('submitButton', 'form button[type=submit]').leuceButton();
+    }
+
+    /**
+     * @returns {string}
+     */
+    csrfToken()
+    {
+        const form = new Leuce.UI.Form(this.get('form'));
+        return form.findInput('csrfToken').val();
     }
 
     /**

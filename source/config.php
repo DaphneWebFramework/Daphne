@@ -34,5 +34,6 @@ return [
     'MailerUsername' => "noreply@localhost",
     'MailerPassword' => "",
     'SupportEmail' => "support@localhost",
+    'Google.Auth.ClientID' => "",
 //}}OPTIONS
 ];

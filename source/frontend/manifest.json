@@ -25,5 +25,9 @@
     "css": "app/app",
     "js": "app/app",
     "default": true
+  },
+  "gsi": {
+    "css": "gsi/gsi",
+    "js": "gsi/gsi"
   }
 }

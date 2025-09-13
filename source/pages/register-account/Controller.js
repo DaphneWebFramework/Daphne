@@ -18,7 +18,31 @@ class Controller extends App.Controller
     constructor(model, view)
     {
         super(model, view);
-        this.view.get('form').on('submit', this.#onSubmitForm.bind(this));
+        this.view.get('googleSignInButton')
+            .on('gsi:signedin', this.#onGoogleSignedIn.bind(this));
+        this.view.get('form')
+            .on('submit', this.#onSubmitForm.bind(this));
+    }
+
+    /**
+     * @param {jQuery.Event} event
+     * @param {Object} response
+     * @returns {void}
+     */
+    #onGoogleSignedIn(event, response)
+    {
+        this.view.get('submitButton').prop('disabled', true);
+        this.model.signInWithGoogle(
+            this.view.csrfToken(),
+            response.credential
+        ).then(response => {
+            if (response.isSuccess()) {
+                window.location.replace(response.body.redirectUrl);
+            } else {
+                this.view.get('submitButton').prop('disabled', false);
+                Leuce.UI.notifyError(response.body.message);
+            }
+        });
     }
 
     /**

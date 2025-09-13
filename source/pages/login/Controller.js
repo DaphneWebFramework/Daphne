@@ -19,11 +19,35 @@ class Controller extends App.Controller
     {
         super(model, view);
         if (this.view.has('form')) {
-            this.view.get('form').on('submit', this.#onSubmitForm.bind(this));
+            this.view.get('googleSignInButton')
+                .on('gsi:signedin', this.#onGoogleSignedIn.bind(this));
+            this.view.get('form')
+                .on('submit', this.#onSubmitForm.bind(this));
         } else {
             this.view.get('logoutButton')
                 .on('click', this.#onClickLogoutButton.bind(this));
         }
+    }
+
+    /**
+     * @param {jQuery.Event} event
+     * @param {Object} response
+     * @returns {void}
+     */
+    #onGoogleSignedIn(event, response)
+    {
+        this.view.get('loginButton').prop('disabled', true);
+        this.model.signInWithGoogle(
+            this.view.csrfToken(),
+            response.credential
+        ).then(response => {
+            if (response.isSuccess()) {
+                this.#redirect();
+            } else {
+                this.view.get('loginButton').prop('disabled', false);
+                Leuce.UI.notifyError(response.body.message);
+            }
+        });
     }
 
     /**
@@ -34,19 +58,9 @@ class Controller extends App.Controller
     {
         event.preventDefault();
         this.view.get('loginButton').leuceButton().setLoading(true);
-        this.model.login(this.view.formData()).then(response => {
+        this.model.logIn(this.view.formData()).then(response => {
             if (response.isSuccess()) {
-                let redirectUri = Leuce.Utility.queryParameter('redirect');
-                if (!redirectUri) {
-                    Controller.reloadPage();
-                } else {
-                    redirectUri = decodeURIComponent(redirectUri);
-                    if (Leuce.Utility.isSameOrigin(redirectUri)) {
-                        window.location.replace(redirectUri);
-                    } else {
-                        Controller.reloadPage();
-                    }
-                }
+                this.#redirect();
             } else {
                 this.view.get('loginButton').leuceButton().setLoading(false);
                 Leuce.UI.notifyError(response.body.message);
@@ -70,5 +84,23 @@ class Controller extends App.Controller
                 Leuce.UI.notifyError(response.body.message);
             }
         });
+    }
+
+    /**
+     * @returns {void}
+     */
+    #redirect()
+    {
+        let redirectUri = Leuce.Utility.queryParameter('redirect');
+        if (!redirectUri) {
+            Controller.reloadPage();
+        } else {
+            redirectUri = decodeURIComponent(redirectUri);
+            if (Leuce.Utility.isSameOrigin(redirectUri)) {
+                window.location.replace(redirectUri);
+            } else {
+                Controller.reloadPage();
+            }
+        }
     }
 }
