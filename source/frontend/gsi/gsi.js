@@ -102,7 +102,7 @@ class Button
         // 2
         const options = { ...this.#options }; // clone
         if (options.width === 'responsive') {
-            options.width = this.#$button.width();
+            options.width = Math.round(this.#$button.width());
         }
         // 3
         google.accounts.id.renderButton(this.#$button[0], options);
