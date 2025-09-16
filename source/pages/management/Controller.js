@@ -25,21 +25,6 @@ class Controller extends App.Controller
         this.#tableControllers = {};
         this.#createTableControllers();
         // 2
-        Leuce.UI.registerTranslations({
-            "are_you_sure_you_want_to_drop_this_table": {
-                "en": "Are you sure you want to drop this table?",
-                "tr": "Bu tabloyu silmek istediğinize emin misiniz?"
-            },
-            "create": {
-                "en": "Create",
-                "tr": "Oluştur"
-            },
-            "drop": {
-                "en": "Drop",
-                "tr": "Sil"
-            }
-        });
-        // 3
         this.view.get('entityMappingTable').on('click', '[data-action]',
             this.#onClickEntityMappingTableInlineAction.bind(this));
     }
@@ -130,10 +115,10 @@ class Controller extends App.Controller
         // 3
         if (action === 'drop') {
             Leuce.UI.messageBox({
-                title: Leuce.UI.translate('drop'),
-                message: Leuce.UI.translate('are_you_sure_you_want_to_drop_this_table'),
-                primaryButtonLabel: Leuce.UI.translate('yes'),
-                secondaryButtonLabel: Leuce.UI.translate('no')
+                title: "Drop",
+                message: "Are you sure you want to drop this table?",
+                primaryButtonLabel: "Yes",
+                secondaryButtonLabel: "No",
             }).then(confirmed => {
                 if (confirmed) {
                     performAction.call(this);

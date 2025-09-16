@@ -22,7 +22,7 @@ use \Peneus\Model\Role;
 use \Peneus\Systems\PageSystem\Page;
 
 $page = (new Page(__DIR__))
-	->SetTitle(_T('management.page_title'))
+	->SetTitle("Management")
 	->SetMasterPage('standard')
 	->RequireLogin(Role::Admin)
 	->AddLibrary('bootstrap-icons')
@@ -34,28 +34,28 @@ $page = (new Page(__DIR__))
 			new VerticalPillTabs(['class' => '-me-3 bg-light'], [
 				new PillTab([':key' => 'entity-mappings', ':active' => true], [
 					new Generic('i', ['class' => 'bi bi-database-fill']),
-					new Generic('span', ['class' => 'label'], _T('management.entity_mappings'))
+					new Generic('span', ['class' => 'label'], "Entity Mappings")
 				]),
 				new PillTab([':key' => 'accounts'], [
 					new Generic('i', ['class' => 'bi bi-people-fill']),
-					new Generic('span', ['class' => 'label'], _T('management.accounts'))
+					new Generic('span', ['class' => 'label'], "Accounts")
 				]),
 				new PillTab([':key' => 'account-roles'], [
 					new Generic('i', ['class' => 'bi bi-person-check-fill']),
-					new Generic('span', ['class' => 'label'], _T('management.account_roles'))
+					new Generic('span', ['class' => 'label'], "Account Roles")
 				]),
 				new PillTab([':key' => 'pending-accounts'], [
 					new Generic('i', ['class' => 'bi bi-hourglass-split']),
-					new Generic('span', ['class' => 'label'], _T('management.pending_accounts'))
+					new Generic('span', ['class' => 'label'], "Pending Accounts")
 				]),
 				new PillTab([':key' => 'password-resets'], [
 					new Generic('i', ['class' => 'bi bi-key']),
-					new Generic('span', ['class' => 'label'], _T('management.password_resets'))
+					new Generic('span', ['class' => 'label'], "Password Resets")
 				]),
 			]),
 			new TabPanes([], [
 				new TabPane([':key' => 'entity-mappings', ':active' => true], [
-					new Generic('h3', null, _T('management.entity_mappings')),
+					new Generic('h3', null, "Entity Mappings"),
 					new Generic('table', [
 						'id' => 'entityMappingTable',
 						'class' => 'table table-hover',
@@ -96,7 +96,7 @@ $page = (new Page(__DIR__))
 					])
 				]),
 				new TabPane([':key' => 'accounts'], [
-					new Generic('h3', null, _T('management.accounts')),
+					new Generic('h3', null, "Accounts"),
 					new Generic('table', ['id' => 'accountTable', 'class' => 'table table-hover'], [
 						new Generic('thead', ['class' => 'table-light'], [
 							new Generic('tr', ['data-primary-key' => 'id'], [
@@ -128,7 +128,7 @@ $page = (new Page(__DIR__))
 					])
 				]),
 				new TabPane([':key' => 'account-roles'], [
-					new Generic('h3', null, _T('management.account_roles')),
+					new Generic('h3', null, "Account Roles"),
 					new Generic('table', ['id' => 'accountRoleTable', 'class' => 'table table-hover'], [
 						new Generic('thead', ['class' => 'table-light'], [
 							new Generic('tr', ['data-primary-key' => 'id'], [
@@ -149,7 +149,7 @@ $page = (new Page(__DIR__))
 					])
 				]),
 				new TabPane([':key' => 'pending-accounts'], [
-					new Generic('h3', null, _T('management.pending_accounts')),
+					new Generic('h3', null, "Pending Accounts"),
 					new Generic('table', ['id' => 'pendingAccountTable', 'class' => 'table table-hover'], [
 						new Generic('thead', ['class' => 'table-light'], [
 							new Generic('tr', ['data-primary-key' => 'id'], [
@@ -180,7 +180,7 @@ $page = (new Page(__DIR__))
 					])
 				]),
 				new TabPane([':key' => 'password-resets'], [
-					new Generic('h3', null, _T('management.password_resets')),
+					new Generic('h3', null, "Password Resets"),
 					new Generic('table', ['id' => 'passwordResetTable', 'class' => 'table table-hover'], [
 						new Generic('thead', ['class' => 'table-light'], [
 							new Generic('tr', ['data-primary-key' => 'id'], [

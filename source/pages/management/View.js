@@ -116,14 +116,14 @@ class View extends App.View
                 type: 'button',
                 class: 'btn btn-outline-success btn-sm',
                 disabled: row.tableType === 'table' && row.tableExists,
-                text: Leuce.UI.translate('create'),
+                text: "Create",
                 'data-action': 'create'
             }),
             $('<button>', {
                 type: 'button',
                 class: 'btn btn-outline-danger btn-sm',
                 disabled: !row.tableExists,
-                text: Leuce.UI.translate('drop'),
+                text: "Drop",
                 'data-action': 'drop'
             })
         );

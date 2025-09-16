@@ -24,19 +24,6 @@ class Model extends Leuce.MVC.Model
             .action('logout')
             .send();
     }
-
-    /**
-     * @param {string} data
-     * @returns {Promise<Leuce.HTTP.Response>}
-     */
-    changeLanguage(data)
-    {
-        return this.post()
-            .handler('language')
-            .action('change')
-            .body(data)
-            .send();
-    }
 }
 
 class View extends Leuce.MVC.View
@@ -46,8 +33,6 @@ class View extends Leuce.MVC.View
         super();
         this.set('root', ':root');
         this.set('logout', '#navbarLogout');
-        this.set('language', '#navbarLanguage');
-        this.set('languageItems', '#navbarLanguage + .dropdown-menu .dropdown-item');
     }
 
     /**
@@ -71,9 +56,6 @@ class Controller extends Leuce.MVC.Controller
         super(model, view);
         this.view.get('logout')
             ?.on('click', this.#onClickLogout.bind(this));
-        this.view.get('languageItems')
-            ?.on('click', this.#onClickLanguageItems.bind(this));
-
     }
 
     /**
@@ -97,36 +79,6 @@ class Controller extends Leuce.MVC.Controller
             if (response.isSuccess()) {
                 Controller.reloadPage();
             } else {
-                Leuce.UI.notifyError(response.body.message);
-            }
-        });
-    }
-
-    /**
-     * @param {jQuery.Event} event
-     * @returns {void}
-     */
-    #onClickLanguageItems(event)
-    {
-        event.preventDefault();
-        const $language = this.view.get('language');
-        const currentLanguageCode = $language.text();
-        const targetLanguageCode = $(event.currentTarget).data('language-code');
-        if (targetLanguageCode === currentLanguageCode) {
-            return;
-        }
-        $language.text(targetLanguageCode);
-        const data = {
-            languageCode: targetLanguageCode,
-            csrfToken: $language.data('csrf-token')
-        };
-        this.view.setLoading(true);
-        this.model.changeLanguage(data).then(response => {
-            if (response.isSuccess()) {
-                Controller.reloadPage();
-            } else {
-                $language.text(currentLanguageCode);
-                this.view.setLoading(false);
                 Leuce.UI.notifyError(response.body.message);
             }
         });

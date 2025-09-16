@@ -23,7 +23,7 @@ use \Peneus\Resource;
 use \Peneus\Systems\PageSystem\Page;
 
 $page = (new Page(__DIR__))
-	->SetTitle(_T('login.page_title'))
+	->SetTitle("Login")
 	->SetMasterPage('basic')
 	->SetMeta('app:google-auth-client-id',
 		Config::Instance()->OptionOrDefault('Google.Auth.ClientID', ''))
@@ -38,7 +38,7 @@ $resource = Resource::Instance();
 			?
 			new Generic('div', ['class' => 'card'], [
 				new Generic('h5', ['class' => 'card-header'],
-					_T('login.card_header')
+					"Welcome back"
 				),
 				new Generic('div', ['class' => 'card-body'], [
 					new Generic('div', [
@@ -52,13 +52,13 @@ $resource = Resource::Instance();
 							'value' => $page->CsrfTokenValue()
 						]),
 						new FormEmailFL([
-							':label' => _T('email_address'),
+							':label' => "Email address",
 							':input:name' => 'email',
 							':input:autocomplete' => 'username',
 							':input:required' => true
 						]),
 						new FormPasswordFL([
-							':label' => _T('password'),
+							':label' => "Password",
 							':input:name' => 'password',
 							':input:autocomplete' => 'current-password',
 							':input:required' => true
@@ -66,36 +66,38 @@ $resource = Resource::Instance();
 						new Generic('div', ['class' => 'd-flex justify-content-between align-items-center'], [
 							new Generic('a', [
 								'href' => $resource->PageUrl('forgot-password')
-							], _T('forgot_your_password')),
+							], "Forgot your password?"),
 							new Button([
 								'type' => 'submit'
-							], _T('log_in'))
+							], "Log in")
 						])
 					])
 				]),
 				new Generic('div', ['class' => 'card-footer text-center'], [
-					_T('login.card_footer'),
+					"Don't have an account?",
 					' ',
 					new Generic('a', [
 						'href' => $resource->PageUrl('register-account')
-					], _T('register'))
+					], "Register")
 				])
 			])
 			:
 			new Generic('div', ['class' => 'card'], [
 				new Generic('h5', ['class' => 'card-header'],
-					_T('login.done.card_header')
+					"You've successfully logged in"
 				),
 				new Generic('div', ['class' => 'card-body'], [
-					new Generic('p', null, _T('login.done.card_body')),
+					new Generic('p', null,
+						"You can return to the home page or log out to use a different account."
+					),
 					new Generic('div', ['class' => 'd-flex justify-content-between align-items-center'], [
 						new Generic('a', [
 							'href' => $resource->PageUrl('home')
-						], _T('home_page')),
+						], "Home page"),
 						new Button([
 							'id' => 'logoutButton',
 							'class' => 'btn-secondary'
-						], _T('log_out'))
+						], "Log out")
 					])
 				])
 			])

@@ -26,7 +26,7 @@ use \Peneus\Resource;
 use \Peneus\Systems\PageSystem\Page;
 
 $page = (new Page(__DIR__))
-	->SetTitle(_T('reset_password.page_title'))
+	->SetTitle("Reset Password")
 	->SetMasterPage('basic');
 
 function getCode(): string {
@@ -43,7 +43,7 @@ function getCode(): string {
 		new Generic('div', ['class' => 'd-flex justify-content-center'], [
 			new Generic('div', ['class' => 'card'], [
 				new Generic('h5', ['class' => 'card-header'],
-					_T('reset_password.card_header')
+					"Choose a new password"
 				),
 				new Generic('div', ['class' => 'card-body'], [
 					new Form(null, [
@@ -61,7 +61,7 @@ function getCode(): string {
 							'autocomplete' => 'username'
 						]),
 						new FormPasswordFL([
-							':label' => _T('new_password'),
+							':label' => "New password",
 							':input:name' => 'newPassword',
 							':input:autocomplete' => 'new-password',
 							':input:required' => true
@@ -69,7 +69,7 @@ function getCode(): string {
 						new Generic('div', ['class' => 'd-flex justify-content-end'], [
 							new Button([
 								'type' => 'submit'
-							], _T('change'))
+							], "Change")
 						])
 					])
 				])

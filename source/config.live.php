@@ -14,7 +14,6 @@ return [
 //{{OPTIONS
     'AppName' => "Daphne",
     'Description' => "A full-stack framework for building database-driven web applications with ease.",
-    'Languages' => ["English" => "en", "Türkçe" => "tr"],
     'Language' => "en",
     'Locale' => "en_US",
     'Viewport' => "width=device-width, initial-scale=1, shrink-to-fit=no",

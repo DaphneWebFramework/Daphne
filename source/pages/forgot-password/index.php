@@ -20,7 +20,7 @@ use \Charis\Generic;
 use \Peneus\Systems\PageSystem\Page;
 
 $page = (new Page(__DIR__))
-	->SetTitle(_T('forgot_password.page_title'))
+	->SetTitle("Forgot Password")
 	->SetMasterPage('basic');
 ?>
 <?php $page->Begin()?>
@@ -28,7 +28,7 @@ $page = (new Page(__DIR__))
 		new Generic('div', ['class' => 'd-flex justify-content-center'], [
 			new Generic('div', ['class' => 'card'], [
 				new Generic('h5', ['class' => 'card-header'],
-					_T('forgot_password.card_header')
+					"Forgot your password?"
 				),
 				new Generic('div', ['class' => 'card-body'], [
 					new Form(null, [
@@ -37,16 +37,16 @@ $page = (new Page(__DIR__))
 							'value' => $page->CsrfTokenValue()
 						]),
 						new FormEmailFL([
-							':label' => _T('email_address'),
+							':label' => "Email address",
 							':input:name' => 'email',
 							':input:autocomplete' => 'off',
 							':input:required' => true,
-							':help' => _T('forgot_password.email_help')
+							':help' => "We'll send a password reset link to this address if it's registered."
 						]),
 						new Generic('div', ['class' => 'd-flex justify-content-end'], [
 							new Button([
 								'type' => 'submit'
-							], _T('send'))
+							], "Send")
 						])
 					])
 				])

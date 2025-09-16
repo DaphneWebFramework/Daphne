@@ -42,23 +42,6 @@ QUnit.module('App', function()
             assert.strictEqual(capturedRequest.method, 'POST');
             assert.strictEqual(capturedRequest.url, 'api/account/logout');
         });
-
-        QUnit.test('changeLanguage() sends a POST request to "language/change"', function(assert)
-        {
-            let capturedRequest = null;
-            const fakeClient = {
-                send(request) {
-                    capturedRequest = request;
-                    return Promise.resolve({ isSuccess: () => true });
-                }
-            };
-            const model = new App.Model(fakeClient);
-            const payload = { languageCode: 'fr', csrfToken: 'csrf123' };
-            model.changeLanguage(payload);
-            assert.strictEqual(capturedRequest.method, 'POST');
-            assert.strictEqual(capturedRequest.url, 'api/language/change');
-            assert.deepEqual(capturedRequest.body, payload);
-        });
     }); // Model
 
     QUnit.module('View', function()
@@ -67,16 +50,10 @@ QUnit.module('App', function()
         {
             $('#qunit-fixture').html(`
                 <a id="navbarLogout"></a>
-                <span id="navbarLanguage" data-csrf-token="xyz"></span>
-                <div class="dropdown-menu">
-                    <a class="dropdown-item" data-language-code="fr">Français</a>
-                </div>
             `);
             const view = new App.View();
             assert.ok(view.get('root') instanceof jQuery);
             assert.ok(view.get('logout') instanceof jQuery);
-            assert.ok(view.get('language') instanceof jQuery);
-            assert.ok(view.get('languageItems') instanceof jQuery);
         });
 
         QUnit.test('setLoading() sets and restores cursor style', function(assert)
@@ -161,99 +138,6 @@ QUnit.module('App', function()
                 assert.strictEqual(view.get('root')[0].style.cursor, '');
                 done();
             });
-        });
-
-        QUnit.test('language click triggers changeLanguage and reloads on success', function(assert)
-        {
-            $('#qunit-fixture').html(`
-                <span id="navbarLanguage" data-csrf-token="csrf123">en</span>
-                <div class="dropdown-menu">
-                    <a class="dropdown-item" data-language-code="fr">Français</a>
-                </div>
-            `);
-            assert.expect(3);
-            const model = new App.Model();
-            const view = new App.View();
-            const controller = new App.Controller(model, view);
-            const done = assert.async();
-            let calledWith = null;
-            model.changeLanguage = function(data) {
-                calledWith = data;
-                const response = {
-                    isSuccess: () => true
-                };
-                return Promise.resolve(response);
-            };
-            App.Controller.reloadPage = function() {
-                assert.ok(true);
-            };
-            view.get('languageItems').trigger('click');
-            Promise.resolve().then(function() {
-                assert.deepEqual(calledWith, {
-                    languageCode: 'fr',
-                    csrfToken: 'csrf123'
-                });
-                assert.strictEqual(view.get('language').text(), 'fr');
-                done();
-            });
-        });
-
-        QUnit.test('language click restores text and shows error on failure', function(assert)
-        {
-            $('#qunit-fixture').html(`
-                <span id="navbarLanguage" data-csrf-token="csrf123">en</span>
-                <div class="dropdown-menu">
-                    <a class="dropdown-item" data-language-code="fr">Français</a>
-                </div>
-            `);
-            assert.expect(4);
-            const model = new App.Model();
-            const view = new App.View();
-            const controller = new App.Controller(model, view);
-            const done = assert.async();
-            model.changeLanguage = function(data) {
-                const response = {
-                    isSuccess: () => false,
-                    body: { message: 'Unsupported language.' }
-                };
-                return Promise.resolve(response);
-            };
-            Leuce.UI.notifyError = function(message) {
-                assert.strictEqual(message, 'Unsupported language.');
-            };
-            const $language = view.get('language');
-            assert.strictEqual($language.text(), 'en');
-            view.get('languageItems').trigger('click');
-            Promise.resolve().then(function() {
-                assert.strictEqual($language.text(), 'en');
-                assert.strictEqual(view.get('root')[0].style.cursor, '');
-                done();
-            });
-        });
-
-        QUnit.test('language click on current language does nothing', function(assert)
-        {
-            $('#qunit-fixture').html(`
-                <span id="navbarLanguage" data-csrf-token="csrf123">en</span>
-                <div class="dropdown-menu">
-                    <a class="dropdown-item" data-language-code="en">English</a>
-                </div>
-            `);
-            assert.expect(1);
-            const model = new App.Model();
-            const view = new App.View();
-            const controller = new App.Controller(model, view);
-            model.changeLanguage = function() {
-                assert.ok(false, 'changeLanguage should not be called');
-            };
-            App.Controller.reloadPage = function() {
-                assert.ok(false, 'reloadPage should not be called');
-            };
-            Leuce.UI.notifyError = function() {
-                assert.ok(false, 'notifyError should not be called');
-            };
-            view.get('languageItems').trigger('click');
-            assert.strictEqual(view.get('root')[0].style.cursor, '');
         });
     }); // Controller
 });

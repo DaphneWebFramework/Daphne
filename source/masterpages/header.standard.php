@@ -24,7 +24,6 @@ use \Charis\NavbarToggler;
 use \Harmonia\Config;
 use \Peneus\Model\Role;
 use \Peneus\Resource;
-use \Peneus\Services\LanguageService;
 use \Peneus\Systems\PageSystem\Page;
 
 if (!isset($this) || !$this instanceof Page) {
@@ -42,11 +41,11 @@ function escapeLabel(string $label): string {
 function createGuestNavItems(array &$navItems): void {
 	$resource = Resource::Instance();
 	$navItems[] = new NavbarItem([
-		':label' => _T('register'),
+		':label' => "Register",
 		':href' => $resource->PageUrl('register-account')
 	]);
 	$navItems[] = new NavbarItem([
-		':label' => _T('log_in'),
+		':label' => "Log in",
 		':href' => $resource->LoginPageUrl()
 	]);
 }
@@ -58,43 +57,25 @@ function createAccountNavItems(array &$navItems, Page $page): void {
 	$wideLayout = $page->Property('wideLayout', false);
 	$dropdownItems = [
 		new NavbarDropdownItem([
-			':label' => _T('settings'),
+			':label' => "Settings",
 			':href' => $resource->PageUrl('settings')
 		])
 	];
 	if ($role->value >= Role::Admin->value) {
 		$dropdownItems[] = new NavbarDropdownDivider();
 		$dropdownItems[] = new NavbarDropdownItem([
-			':label' => _T('management'),
+			':label' => "Management",
 			':href' => $resource->PageUrl('management')
 		]);
 	}
 	$dropdownItems[] = new NavbarDropdownDivider();
 	$dropdownItems[] = new NavbarDropdownItem([
-		':label' => _T('log_out'),
+		':label' => "Log out",
 		':link:id' => 'navbarLogout'
 	]);
 	$navItems[] = new NavbarDropdown([
 		':label' => escapeLabel($account->displayName),
 		':link:id' => 'navbarDisplayName',
-		':menu:class' => $wideLayout ? 'dropdown-menu-end' : 'dropdown-menu-start'
-	], $dropdownItems);
-}
-
-function createLanguageNavItems(array &$navItems, Page $page): void {
-	$languageService = LanguageService::Instance();
-	$wideLayout = $page->Property('wideLayout', false);
-	$dropdownItems = [];
-	foreach ($languageService->Languages() as $label => $code) {
-		$dropdownItems[] = new NavbarDropdownItem([
-			':label' => $label,
-			':link:data-language-code' => $code
-		]);
-	}
-	$navItems[] = new NavbarDropdown([
-		':label' => $languageService->CurrentLanguage(),
-		':link:id' => 'navbarLanguage',
-		':link:data-csrf-token' => $languageService->CsrfTokenValue(),
 		':menu:class' => $wideLayout ? 'dropdown-menu-end' : 'dropdown-menu-start'
 	], $dropdownItems);
 }
@@ -105,9 +86,6 @@ function createNavItems(Page $page): array {
 		createGuestNavItems($navItems);
 	} else {
 		createAccountNavItems($navItems, $page);
-	}
-	if ($page->Property('showLanguage', true)) {
-		createLanguageNavItems($navItems, $page);
 	}
 	return $navItems;
 }

@@ -28,7 +28,7 @@ use \Peneus\Resource;
 use \Peneus\Systems\PageSystem\Page;
 
 $page = (new Page(__DIR__))
-	->SetTitle(_T('settings.page_title'))
+	->SetTitle("Settings")
 	->SetMasterPage('standard')
 	->RequireLogin()
 	->AddLibrary('bootstrap-icons')
@@ -43,21 +43,21 @@ $account = $page->LoggedInAccount();
 			new VerticalPillTabs(['class' => '-me-3 bg-light'], [
 				new PillTab([':key' => 'account', ':active' => true], [
 					new Generic('i', ['class' => 'bi bi-person-circle']),
-					new Generic('span', ['class' => 'label'], _T('settings.account'))
+					new Generic('span', ['class' => 'label'], "Account")
 				]),
 				new PillTab([':key' => 'preferences'], [
 					new Generic('i', ['class' => 'bi bi-sliders']),
-					new Generic('span', ['class' => 'label'], _T('settings.preferences'))
+					new Generic('span', ['class' => 'label'], "Preferences")
 				])
 			]),
 			new TabPanes([], [
 				new TabPane([':key' => 'account', ':active' => true], [
-					new Generic('h3', null, _T('settings.account')),
+					new Generic('h3', null, "Account"),
 					new Generic('section', null, [
 						new Form(['id' => 'displayNameChangeForm'], [
 							new Generic('div', ['class' => 'd-flex align-items-end gap-2 mb-3'], [
 								new FormText([
-									':label' => _T('display_name'),
+									':label' => "Display name",
 									':input:name' => 'displayName',
 									':input:value' => $account->displayName,
 									':input:required' => true,
@@ -66,12 +66,12 @@ $account = $page->LoggedInAccount();
 								new Button([
 									'type' => 'submit',
 									'class' => 'btn-outline-secondary'
-								], _T('change'))
+								], "Change")
 							])
 						])
 					]),
 					new Generic('section', null, [
-						new Generic('h5', null, _T('settings.change_password')),
+						new Generic('h5', null, "Change password"),
 						new Form(['id' => 'passwordChangeForm'], [
 							new FormEmailInput([
 								'class' => 'd-none',
@@ -79,13 +79,13 @@ $account = $page->LoggedInAccount();
 								'autocomplete' => 'username'
 							]),
 							new FormPassword([
-								':label' => _T('current_password'),
+								':label' => "Current password",
 								':input:name' => 'currentPassword',
 								':input:autocomplete' => 'off',
 								':input:required' => true
 							]),
 							new FormPassword([
-								':label' => _T('new_password'),
+								':label' => "New password",
 								':input:name' => 'newPassword',
 								':input:autocomplete' => 'new-password',
 								':input:required' => true
@@ -93,20 +93,22 @@ $account = $page->LoggedInAccount();
 							new Generic('div', ['class' => 'd-flex justify-content-between align-items-center'], [
 								new Generic('a', [
 									'href' => $resource->PageUrl('forgot-password')
-								], _T('forgot_your_password')),
+								], "Forgot your password?"),
 								new Button([
 									'type' => 'submit',
 									'class' => 'btn-outline-secondary'
-								], _T('change'))
+								], "Change")
 							])
 						])
 					]),
 					new Generic('section', null, [
-						new Generic('h5', null, _T('settings.delete_account')),
-						new Generic('p', null, _T('settings.delete_account_paragraph')),
+						new Generic('h5', null, "Delete account"),
+						new Generic('p', null,
+							"Deleting your account will permanently erase all your data. This action cannot be undone."
+						),
 						new Form(['id' => 'accountDeleteForm'], [
 							new FormCheck([
-								':label' => _T('settings.delete_account_checkbox'),
+								':label' => "I understand my account cannot be recovered after deletion.",
 								':input:required' => true,
 								'class' => 'mb-3'
 							]),
@@ -114,13 +116,13 @@ $account = $page->LoggedInAccount();
 								'type' => 'submit',
 								'class' => 'btn-outline-danger',
 								'disabled' => true
-							], _T('settings.delete_account_button'))
+							], "Delete account")
 						])
 					])
 				]),
 				new TabPane([':key' => 'preferences'], [
-					new Generic('h3', null, _T('settings.preferences')),
-					// todo: Language, theme, notification preferences, etc.
+					new Generic('h3', null, "Preferences"),
+					// todo: Theme, notification preferences, etc.
 				])
 			])
 		])

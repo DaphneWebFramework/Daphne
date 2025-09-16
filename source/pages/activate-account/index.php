@@ -24,7 +24,7 @@ use \Peneus\Resource;
 use \Peneus\Systems\PageSystem\Page;
 
 $page = (new Page(__DIR__))
-	->SetTitle(_T('activate_account.page_title'))
+	->SetTitle("Activate Account")
 	->SetMasterPage('basic');
 
 function getCode(): string {
@@ -42,16 +42,15 @@ function getCode(): string {
 			new Generic('div', ['class' => 'card'], [
 				new Generic('div', ['class' => 'card-header d-flex align-items-baseline justify-content-between'], [
 					new Generic('h5', ['class' => 'mb-0'],
-						_T('activate_account.card_header')
+						"Activating account"
 					),
 					new Spinner([
 						'id' => 'spinner',
-						':size' => 'sm',
-						':label' => _T('loading')
+						':size' => 'sm'
 					])
 				]),
 				new Generic('div', ['class' => 'card-body'], [
-					_T('activate_account.card_body'),
+					"Please wait while we activate your account.",
 					new Form(['class' => 'd-none'], [
 						new FormHiddenInput([
 							'name' => $page->CsrfTokenName(),

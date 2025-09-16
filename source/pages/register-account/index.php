@@ -24,7 +24,7 @@ use \Peneus\Resource;
 use \Peneus\Systems\PageSystem\Page;
 
 $page = (new Page(__DIR__))
-	->SetTitle(_T('register_account.page_title'))
+	->SetTitle("Register Account")
 	->SetMasterPage('basic')
 	->SetMeta('app:google-auth-client-id',
 		Config::Instance()->OptionOrDefault('Google.Auth.ClientID', ''))
@@ -35,7 +35,7 @@ $page = (new Page(__DIR__))
 		new Generic('div', ['class' => 'd-flex justify-content-center'], [
 			new Generic('div', ['class' => 'card'], [
 				new Generic('h5', ['class' => 'card-header'],
-					_T('register_account.card_header')
+					"Create your account"
 				),
 				new Generic('div', ['class' => 'card-body'], [
 					new Generic('div', [
@@ -49,35 +49,35 @@ $page = (new Page(__DIR__))
 							'value' => $page->CsrfTokenValue()
 						]),
 						new FormEmailFL([
-							':label' => _T('email_address'),
+							':label' => "Email address",
 							':input:name' => 'email',
 							':input:autocomplete' => 'off',
 							':input:required' => true
 						]),
 						new FormPasswordFL([
-							':label' => _T('password'),
+							':label' => "Password",
 							':input:name' => 'password',
 							':input:autocomplete' => 'new-password',
 							':input:required' => true
 						]),
 						new FormTextFL([
-							':label' => _T('display_name'),
+							':label' => "Display name",
 							':input:name' => 'displayName',
 							':input:required' => true
 						]),
 						new Generic('div', ['class' => 'd-flex justify-content-end'], [
 							new Button([
 								'type' => 'submit'
-							], _T('register'))
+							], "Register")
 						])
 					])
 				]),
 				new Generic('div', ['class' => 'card-footer text-center'], [
-					_T('register_account.card_footer'),
+					"Already have an account?",
 					' ',
 					new Generic('a', [
 						'href' => Resource::Instance()->LoginPageUrl('home')
-					], _T('log_in'))
+					], "Log in")
 				])
 			])
 		])

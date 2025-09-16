@@ -18,9 +18,8 @@ use \Harmonia\Http\StatusCode;
 use \Peneus\Systems\PageSystem\Page;
 
 $page = (new Page(__DIR__))
-	->SetTitle(_T('error.page_title'))
-	->SetMasterPage('basic')
-	->SetProperty('showLanguage', false);
+	->SetTitle("Error")
+	->SetMasterPage('basic');
 
 $statusCode = StatusCode::tryFrom(
 	(int)Request::Instance()->QueryParams()->Get('statusCode')
