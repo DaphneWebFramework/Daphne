@@ -26,8 +26,8 @@ use \Peneus\Systems\PageSystem\Page;
 $page = (new Page(__DIR__))
 	->SetTitle("Register Account")
 	->SetMasterPage('basic')
-	->SetMeta('app:google-auth-client-id',
-		Config::Instance()->OptionOrDefault('Google.Auth.ClientID', ''))
+	->SetMeta('app:google-oauth2-client-id',
+		Config::Instance()->OptionOrDefault('Google.OAuth2.ClientID', ''))
 	->AddLibrary('gsi');
 ?>
 <?php $page->Begin()?>

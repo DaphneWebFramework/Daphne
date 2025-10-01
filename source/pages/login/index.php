@@ -16,6 +16,7 @@ use \Charis\Button;
 use \Charis\Form;
 use \Charis\FormComposites\FormEmailFL;
 use \Charis\FormComposites\FormPasswordFL;
+use \Charis\FormComposites\FormSwitch;
 use \Charis\FormControls\FormHiddenInput;
 use \Charis\Generic;
 use \Harmonia\Config;
@@ -25,8 +26,8 @@ use \Peneus\Systems\PageSystem\Page;
 $page = (new Page(__DIR__))
 	->SetTitle("Login")
 	->SetMasterPage('basic')
-	->SetMeta('app:google-auth-client-id',
-		Config::Instance()->OptionOrDefault('Google.Auth.ClientID', ''))
+	->SetMeta('app:google-oauth2-client-id',
+		Config::Instance()->OptionOrDefault('Google.OAuth2.ClientID', ''))
 	->AddLibrary('gsi');
 
 $resource = Resource::Instance();
@@ -35,7 +36,7 @@ $resource = Resource::Instance();
 	<?=new Generic('main', ['role' => 'main', 'class' => 'container mt-5'], [
 		new Generic('div', ['class' => 'd-flex justify-content-center'], [
 			$page->LoggedInAccount() === null
-			?
+			? // Not logged in:
 			new Generic('div', ['class' => 'card'], [
 				new Generic('h5', ['class' => 'card-header'],
 					"Welcome back"
@@ -63,6 +64,11 @@ $resource = Resource::Instance();
 							':input:autocomplete' => 'current-password',
 							':input:required' => true
 						]),
+						new FormSwitch([
+							':label' => 'Keep me logged in',
+							':input:name' => 'keepLoggedIn',
+							'class' => 'mb-3'
+						]),
 						new Generic('div', ['class' => 'd-flex justify-content-between align-items-center'], [
 							new Generic('a', [
 								'href' => $resource->PageUrl('forgot-password')
@@ -81,7 +87,7 @@ $resource = Resource::Instance();
 					], "Register")
 				])
 			])
-			:
+			: // Already logged in:
 			new Generic('div', ['class' => 'card'], [
 				new Generic('h5', ['class' => 'card-header'],
 					"You've successfully logged in"

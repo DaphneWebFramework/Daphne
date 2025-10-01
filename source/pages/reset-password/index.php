@@ -31,7 +31,7 @@ $page = (new Page(__DIR__))
 
 function getCode(): string {
 	$code = Request::Instance()->QueryParams()->GetOrDefault('code', '');
-	if (1 !== \preg_match(SecurityService::TOKEN_PATTERN, $code)) {
+	if (1 !== \preg_match(SecurityService::TOKEN_DEFAULT_PATTERN, $code)) {
 		(new Response)->Redirect(Resource::Instance()->ErrorPageUrl(
 			StatusCode::BadRequest));
 	}

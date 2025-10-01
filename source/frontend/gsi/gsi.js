@@ -1,6 +1,8 @@
 /**
  * gsi.js
  *
+ * A jQuery plugin for rendering and managing responsive Google Sign-In Button.
+ *
  * (C) 2025 by Eylem Ugurel
  *
  * Licensed under a Creative Commons Attribution 4.0 International License.
@@ -65,7 +67,7 @@ class Button
         // 1
         this.#$button = $button;
         this.#options = options;
-        this.#clientId = Leuce.Utility.metaContent('app:google-auth-client-id');
+        this.#clientId = Leuce.Utility.metaContent('app:google-oauth2-client-id');
         this.#resizeTimer = null;
         this.#lastWidth = null;
         // 2

@@ -20,6 +20,7 @@ return [
     'IsDebug' => true,
     'LogFile' => "default.log",
     'LogLevel' => 3,
+    'CsrfSecret' => "",
     'InstallKey' => "",
     'DatabaseHost' => "localhost",
     'DatabaseUsername' => "root",
@@ -33,6 +34,6 @@ return [
     'MailerUsername' => "noreply@localhost",
     'MailerPassword' => "",
     'SupportEmail' => "support@localhost",
-    'Google.Auth.ClientID' => "",
+    'Google.OAuth2.ClientID' => "",
 //}}OPTIONS
 ];
