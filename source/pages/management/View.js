@@ -34,7 +34,8 @@ class View extends App.View
             'accountTable',
             'accountRoleTable',
             'pendingAccountTable',
-            'passwordResetTable'
+            'passwordResetTable',
+            'persistentLoginTable',
         ];
         for (const name of tableNames) {
             this.set(name, `#${name}`)

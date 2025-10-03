@@ -54,7 +54,8 @@ class Controller extends App.Controller
             accountTable: 'account',
             accountRoleTable: 'accountrole',
             pendingAccountTable: 'pendingaccount',
-            passwordResetTable: 'passwordreset'
+            passwordResetTable: 'passwordreset',
+            persistentLoginTable: 'persistentlogin',
         };
         const fnList = this.#bindModelMethod('listRecords');
         const fnAdd = this.#bindModelMethod('addRecord');

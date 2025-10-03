@@ -52,6 +52,10 @@ $page = (new Page(__DIR__))
 					new Generic('i', ['class' => 'bi bi-key']),
 					new Generic('span', ['class' => 'label'], "Password Resets")
 				]),
+				new PillTab([':key' => 'persistent-logins'], [
+					new Generic('i', ['class' => 'bi bi-box-arrow-in-right']),
+					new Generic('span', ['class' => 'label'], "Persistent Logins")
+				]),
 			]),
 			new TabPanes([], [
 				new TabPane([':key' => 'entity-mappings', ':active' => true], [
@@ -200,6 +204,39 @@ $page = (new Page(__DIR__))
 									'data-key' => 'timeRequested',
 									'data-type' => 'datetime'
 								], 'Time requested')
+							])
+						])
+					])
+				]),
+				new TabPane([':key' => 'persistent-logins'], [
+					new Generic('h3', null, "Persistent Logins"),
+					new Generic('table', ['id' => 'persistentLoginTable', 'class' => 'table table-hover'], [
+						new Generic('thead', ['class' => 'table-light'], [
+							new Generic('tr', ['data-primary-key' => 'id'], [
+								new Generic('th', [
+									'data-key' => 'id',
+									'data-type' => 'integer'
+								], 'ID'),
+								new Generic('th', [
+									'data-key' => 'accountId',
+									'data-type' => 'integer'
+								], 'Account ID'),
+								new Generic('th', [
+									'data-key' => 'clientSignature',
+									'data-formatter' => 'truncate:100px'
+								], 'Client signature'),
+								new Generic('th', [
+									'data-key' => 'lookupKey',
+									'data-formatter' => 'truncate:100px'
+								], 'Lookup key'),
+								new Generic('th', [
+									'data-key' => 'tokenHash',
+									'data-formatter' => 'truncate:100px'
+								], 'Token hash'),
+								new Generic('th', [
+									'data-key' => 'timeExpires',
+									'data-type' => 'datetime'
+								], 'Time expires')
 							])
 						])
 					])
