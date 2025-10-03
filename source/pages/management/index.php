@@ -113,7 +113,7 @@ $page = (new Page(__DIR__))
 								], 'Email'),
 								new Generic('th', [
 									'data-key' => 'passwordHash',
-									'data-formatter' => 'truncate:100px'
+									'data-formatter' => 'truncate'
 								], 'Password hash'),
 								new Generic('th', [
 									'data-key' => 'displayName'
@@ -166,14 +166,14 @@ $page = (new Page(__DIR__))
 								], 'Email'),
 								new Generic('th', [
 									'data-key' => 'passwordHash',
-									'data-formatter' => 'truncate:100px'
+									'data-formatter' => 'truncate'
 								], 'Password hash'),
 								new Generic('th', [
 									'data-key' => 'displayName'
 								], 'Display name'),
 								new Generic('th', [
 									'data-key' => 'activationCode',
-									'data-formatter' => 'truncate:100px'
+									'data-formatter' => 'truncate'
 								], 'Activation code'),
 								new Generic('th', [
 									'data-key' => 'timeRegistered',
@@ -198,7 +198,7 @@ $page = (new Page(__DIR__))
 								], 'Account ID'),
 								new Generic('th', [
 									'data-key' => 'resetCode',
-									'data-formatter' => 'truncate:100px'
+									'data-formatter' => 'truncate'
 								], 'Reset code'),
 								new Generic('th', [
 									'data-key' => 'timeRequested',
@@ -222,16 +222,14 @@ $page = (new Page(__DIR__))
 									'data-type' => 'integer'
 								], 'Account ID'),
 								new Generic('th', [
-									'data-key' => 'clientSignature',
-									'data-formatter' => 'truncate:100px'
+									'data-key' => 'clientSignature'
 								], 'Client signature'),
 								new Generic('th', [
-									'data-key' => 'lookupKey',
-									'data-formatter' => 'truncate:100px'
+									'data-key' => 'lookupKey'
 								], 'Lookup key'),
 								new Generic('th', [
 									'data-key' => 'tokenHash',
-									'data-formatter' => 'truncate:100px'
+									'data-formatter' => 'truncate'
 								], 'Token hash'),
 								new Generic('th', [
 									'data-key' => 'timeExpires',

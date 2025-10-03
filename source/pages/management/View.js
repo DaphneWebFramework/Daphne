@@ -30,15 +30,8 @@ class View extends App.View
             .setFormatter('tableType', View.#tableTypeFormatter)
             .setRenderer('inlineActions', View.#entityMappingTableInlineActionsRenderer);
         // 2
-        const tableNames = [
-            'accountTable',
-            'accountRoleTable',
-            'pendingAccountTable',
-            'passwordResetTable',
-            'persistentLoginTable',
-        ];
-        for (const name of tableNames) {
-            this.set(name, `#${name}`)
+        for (const key of TableConfig.viewKeys()) {
+            this.set(key, `#${key}`)
                 .leuceTable()
                 .setFormatter('truncate', View.#truncateFormatter);
         }

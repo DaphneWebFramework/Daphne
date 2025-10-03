@@ -1,6 +1,7 @@
 {
   "css": "index",
   "js": [
+    "TableConfig",
     "Model",
     "View",
     "Controller",

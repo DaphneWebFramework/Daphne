@@ -50,18 +50,11 @@ class Controller extends App.Controller
             fnList: this.#bindModelMethod('listEntityMappings'),
         });
         // 2
-        const tables = {
-            accountTable: 'account',
-            accountRoleTable: 'accountrole',
-            pendingAccountTable: 'pendingaccount',
-            passwordResetTable: 'passwordreset',
-            persistentLoginTable: 'persistentlogin',
-        };
         const fnList = this.#bindModelMethod('listRecords');
         const fnAdd = this.#bindModelMethod('addRecord');
         const fnEdit = this.#bindModelMethod('editRecord');
         const fnDelete = this.#bindModelMethod('deleteRecord');
-        for (const [viewKey, tableName] of Object.entries(tables)) {
+        for (const [viewKey, tableName] of TableConfig.entries()) {
             this.#tableControllers[viewKey] = new Leuce.UI.TableController({
                 $table: this.view.get(viewKey),
                 tableName,
