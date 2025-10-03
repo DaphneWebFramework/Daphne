@@ -222,10 +222,12 @@ $page = (new Page(__DIR__))
 									'data-type' => 'integer'
 								], 'Account ID'),
 								new Generic('th', [
-									'data-key' => 'clientSignature'
+									'data-key' => 'clientSignature',
+									'data-formatter' => 'truncate:140px'
 								], 'Client signature'),
 								new Generic('th', [
-									'data-key' => 'lookupKey'
+									'data-key' => 'lookupKey',
+									'data-formatter' => 'truncate'
 								], 'Lookup key'),
 								new Generic('th', [
 									'data-key' => 'tokenHash',
