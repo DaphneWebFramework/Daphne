@@ -45,7 +45,8 @@ class Controller extends App.Controller
             accountTableInstallStep: 'account',
             accountRoleTableInstallStep: 'accountrole',
             pendingAccountTableInstallStep: 'pendingaccount',
-            passwordResetTableInstallStep: 'passwordreset'
+            passwordResetTableInstallStep: 'passwordreset',
+            persistentLoginTableInstallStep: 'persistentlogin',
         };
         for (const [viewKey, tableName] of Object.entries(tables)) {
             if (!await this.#runStep(

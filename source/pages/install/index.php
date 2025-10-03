@@ -49,6 +49,7 @@ $page = (new Page(__DIR__))
 		new InstallStep('install-step-table-accountrole'),
 		new InstallStep('install-step-table-pendingaccount'),
 		new InstallStep('install-step-table-passwordreset'),
+		new InstallStep('install-step-table-persistentlogin'),
 		new InstallStep('install-step-admin-account'),
 		new Generic('div', [
 			'id' => 'install-summary',

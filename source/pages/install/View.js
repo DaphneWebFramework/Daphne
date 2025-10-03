@@ -24,6 +24,8 @@ class View extends App.View
             new InstallStep('install-step-table-pendingaccount'));
         this.set('passwordResetTableInstallStep',
             new InstallStep('install-step-table-passwordreset'));
+        this.set('persistentLoginTableInstallStep',
+            new InstallStep('install-step-table-persistentlogin'));
         this.set('adminAccountInstallStep',
             new InstallStep('install-step-admin-account'));
         this.set('installSummary', '#install-summary');
