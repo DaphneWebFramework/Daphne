@@ -506,7 +506,7 @@ class UI
      *   secondaryButtonLabel?: string|null,
      *   secondaryButtonVariant?: string|null,
      *   beforeShow?: (() => void)|null,
-     *   beforeConfirm?: (() => boolean|Promise<boolean>)|null
+     *   canConfirm?: (() => boolean|Promise<boolean>)|null
      * }} options
      * @returns {Promise<boolean>}
      */
@@ -519,7 +519,7 @@ class UI
         secondaryButtonLabel = null,
         secondaryButtonVariant = null,
         beforeShow = null,
-        beforeConfirm = null
+        canConfirm = null
     } = {}) {
         const dataKey = 'leuce.messagebox';
         let $modal = $('#' + MessageBox.elementId());
@@ -541,7 +541,7 @@ class UI
             secondaryButtonLabel,
             secondaryButtonVariant,
             beforeShow,
-            beforeConfirm
+            canConfirm
         );
     }
 }
@@ -740,17 +740,15 @@ class Modal
     #modal;
 
     /** @type {(() => boolean|Promise<boolean>)|null} */
-    #beforeConfirm;
+    #canConfirm;
 
     /** @type {(() => boolean|Promise<boolean>)|null} */
-    #beforeCancel;
+    #canCancel;
 
     /** @type {Deferred<boolean>|null} */
     #isConfirmed;
 
-    /**
-     * @type {(event: JQuery.Event) => void}
-     */
+    /** @type {(event: JQuery.Event) => void} */
     #boundOnHide;
 
     /**
@@ -768,8 +766,8 @@ class Modal
             console.warn('Leuce: Modal confirm button not found.');
         }
         this.#modal = new bootstrap.Modal(this.#$root[0]);
-        this.#beforeConfirm = null; // per-call state
-        this.#beforeCancel = null; // per-call state
+        this.#canConfirm = null; // per-call state
+        this.#canCancel = null; // per-call state
         this.#isConfirmed = null; // per-call state
         this.#boundOnHide = this.#onHide.bind(this);
         this.#bindEvents();
@@ -784,14 +782,14 @@ class Modal
     }
 
     /**
-     * @param {(() => boolean|Promise<boolean>)|null} beforeConfirm
-     * @param {(() => boolean|Promise<boolean>)|null} beforeCancel
+     * @param {(() => boolean|Promise<boolean>)|null} canConfirm
+     * @param {(() => boolean|Promise<boolean>)|null} canCancel
      * @returns {Promise<boolean>}
      */
-    show(beforeConfirm = null, beforeCancel = null)
+    show(canConfirm = null, canCancel = null)
     {
-        this.#beforeConfirm = beforeConfirm;
-        this.#beforeCancel = beforeCancel;
+        this.#canConfirm = canConfirm;
+        this.#canCancel = canCancel;
         this.#isConfirmed?.resolve(false); // settle previous result, if any
         this.#isConfirmed = new Deferred();
         this.#resetDraggable();
@@ -880,14 +878,14 @@ class Modal
         // block the hide, then run the hook. If it approves, we detach this
         // handler to avoid an infinite loop, hide the modal, and then re‑attach
         // the handler.
-        if (typeof this.#beforeCancel === 'function') {
+        if (typeof this.#canCancel === 'function') {
             // Important: preventDefault() must be called before awaiting the
             // hook. When #onHide() reaches an `await`, it yields to the event
             // loop. Bootstrap then sees default is not prevented and proceeds
             // to hide the modal. By the time we resume the handler and call
             // preventDefault(), it's too late.
             event.preventDefault();
-            if (true === await this.#beforeCancel()) {
+            if (true === await this.#canCancel()) {
                 this.#$root.off('hide.bs.modal', this.#boundOnHide);
                 this.hide();
                 this.#$root.on('hide.bs.modal', this.#boundOnHide);
@@ -901,8 +899,8 @@ class Modal
      */
     #onHidden(event)
     {
-        this.#beforeConfirm = null;
-        this.#beforeCancel = null;
+        this.#canConfirm = null;
+        this.#canCancel = null;
         // When the modal closes, resolve as false by default. If the promise
         // was already settled earlier (i.e. via confirm button), the Deferred
         // object ignores this extra call.
@@ -916,8 +914,8 @@ class Modal
      */
     async #onClickConfirmButton(event)
     {
-        if (typeof this.#beforeConfirm === 'function') {
-            if (true !== await this.#beforeConfirm()) {
+        if (typeof this.#canConfirm === 'function') {
+            if (true !== await this.#canConfirm()) {
                 return;
             }
         }
@@ -950,7 +948,7 @@ class MessageBox extends Modal
      * @param {string|null} secondaryButtonLabel
      * @param {string|null} secondaryButtonVariant
      * @param {(() => void)|null} beforeShow
-     * @param {(() => boolean|Promise<boolean>)|null} beforeConfirm
+     * @param {(() => boolean|Promise<boolean>)|null} canConfirm
      * @returns {Promise<boolean>}
      */
     show(
@@ -962,7 +960,7 @@ class MessageBox extends Modal
         secondaryButtonLabel,
         secondaryButtonVariant,
         beforeShow,
-        beforeConfirm
+        canConfirm
     ) {
         // 1. Normalize parameters
         title = (typeof title === 'string')
@@ -981,8 +979,8 @@ class MessageBox extends Modal
             ? secondaryButtonVariant : 'secondary';
         beforeShow = (typeof beforeShow === 'function')
             ? beforeShow : null;
-        beforeConfirm = (typeof beforeConfirm === 'function')
-            ? beforeConfirm : null;
+        canConfirm = (typeof canConfirm === 'function')
+            ? canConfirm : null;
         // 2. Get root
         const root = this.root();
         // 3. Title
@@ -1025,7 +1023,7 @@ class MessageBox extends Modal
             beforeShow();
         }
         // 9. Show
-        return super.show(beforeConfirm);
+        return super.show(canConfirm);
     }
 
     /**
@@ -1238,7 +1236,7 @@ class TableEditor
                 this.#resetNullableInputGroups();
                 this.#clearForm();
             },
-            beforeConfirm: () => this.#validateForm()
+            canConfirm: () => this.#validateForm()
         }).then(confirmed => {
             if (confirmed) {
                 this.#actionHandler?.('add', this.#extractFormData(false));
@@ -1262,7 +1260,7 @@ class TableEditor
                 this.#resetNullableInputGroups();
                 this.#populateForm($tr);
             },
-            beforeConfirm: () => this.#validateForm()
+            canConfirm: () => this.#validateForm()
         }).then(confirmed => {
             if (confirmed) {
                 this.#actionHandler?.('edit', this.#extractFormData(true));
