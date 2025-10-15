@@ -782,12 +782,16 @@ class Modal
     }
 
     /**
-     * @param {(() => boolean|Promise<boolean>)|null} canConfirm
-     * @param {(() => boolean|Promise<boolean>)|null} canCancel
+     * @param {{
+     *   canConfirm?: () => boolean|Promise<boolean>,
+     *   canCancel?: () => boolean|Promise<boolean>
+     * }} [options]
      * @returns {Promise<boolean>}
      */
-    show(canConfirm = null, canCancel = null)
-    {
+    show({
+        canConfirm = null,
+        canCancel = null
+    } = {}) {
         this.#canConfirm = canConfirm;
         this.#canCancel = canCancel;
         this.#isConfirmed?.resolve(false); // settle previous result, if any
@@ -1023,7 +1027,7 @@ class MessageBox extends Modal
             beforeShow();
         }
         // 9. Show
-        return super.show(canConfirm);
+        return super.show({ canConfirm });
     }
 
     /**
