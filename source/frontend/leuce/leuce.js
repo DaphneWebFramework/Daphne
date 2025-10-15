@@ -742,8 +742,16 @@ class Modal
     /** @type {(() => boolean|Promise<boolean>)|null} */
     #beforeConfirm;
 
+    /** @type {(() => boolean|Promise<boolean>)|null} */
+    #beforeCancel;
+
     /** @type {Deferred<boolean>|null} */
     #isConfirmed;
+
+    /**
+     * @type {(event: JQuery.Event) => void}
+     */
+    #boundOnHide;
 
     /**
      * @param {*} selector
@@ -761,7 +769,9 @@ class Modal
         }
         this.#modal = new bootstrap.Modal(this.#$root[0]);
         this.#beforeConfirm = null; // per-call state
+        this.#beforeCancel = null; // per-call state
         this.#isConfirmed = null; // per-call state
+        this.#boundOnHide = this.#onHide.bind(this);
         this.#bindEvents();
     }
 
@@ -775,11 +785,13 @@ class Modal
 
     /**
      * @param {(() => boolean|Promise<boolean>)|null} beforeConfirm
+     * @param {(() => boolean|Promise<boolean>)|null} beforeCancel
      * @returns {Promise<boolean>}
      */
-    show(beforeConfirm = null)
+    show(beforeConfirm = null, beforeCancel = null)
     {
         this.#beforeConfirm = beforeConfirm;
+        this.#beforeCancel = beforeCancel;
         this.#isConfirmed?.resolve(false); // settle previous result, if any
         this.#isConfirmed = new Deferred();
         this.#resetDraggable();
@@ -811,11 +823,27 @@ class Modal
     {
         this.#$root
             .on('shown.bs.modal', this.#onShown.bind(this))
-            .on('hide.bs.modal', this.#onHide.bind(this))
+            .on('hide.bs.modal', this.#boundOnHide)
             .on('hidden.bs.modal', this.#onHidden.bind(this))
             .draggable({ cursor: 'move' }); // via jQuery UI
         this.#$confirmButton
             .on('click', this.#onClickConfirmButton.bind(this));
+    }
+
+    /**
+     * Avoids "aria-hidden + focus retained" warning when modal closes.
+     * Blurs the modal itself or any element inside it that still has focus.
+     *
+     * @returns {void}
+     */
+    #killFocus()
+    {
+        const $focused = this.#$root.is(':focus')
+            ? this.#$root
+            : this.#$root.find(':focus');
+        if ($focused.length) {
+            $focused.trigger('blur');
+        }
     }
 
     /**
@@ -842,17 +870,29 @@ class Modal
      * @param {jQuery.Event} event
      * @returns {void}
      */
-    #onHide(event)
+    async #onHide(event)
     {
-        // Fix: Avoid "aria-hidden + focus retained" warning when modal closes.
-        // Blur the modal itself or any element inside it that still has focus.
-        let $focused;
-        if (this.#$root.is(':focus')) {
-            $focused = this.#$root;
-        } else {
-            $focused = this.#$root.find(':focus');
+        this.#killFocus();
+
+        // If a cancel hook is set, intercept here. The "hide.bs.modal" event
+        // is the single point that covers all dismissal paths (ESC, backdrop,
+        // button, or programmatic). We call preventDefault() right away to
+        // block the hide, then run the hook. If it approves, we detach this
+        // handler to avoid an infinite loop, hide the modal, and then re‑attach
+        // the handler.
+        if (typeof this.#beforeCancel === 'function') {
+            // Important: preventDefault() must be called before awaiting the
+            // hook. When #onHide() reaches an `await`, it yields to the event
+            // loop. Bootstrap then sees default is not prevented and proceeds
+            // to hide the modal. By the time we resume the handler and call
+            // preventDefault(), it's too late.
+            event.preventDefault();
+            if (true === await this.#beforeCancel()) {
+                this.#$root.off('hide.bs.modal', this.#boundOnHide);
+                this.hide();
+                this.#$root.on('hide.bs.modal', this.#boundOnHide);
+            }
         }
-        $focused.trigger('blur');
     }
 
     /**
@@ -862,6 +902,10 @@ class Modal
     #onHidden(event)
     {
         this.#beforeConfirm = null;
+        this.#beforeCancel = null;
+        // When the modal closes, resolve as false by default. If the promise
+        // was already settled earlier (i.e. via confirm button), the Deferred
+        // object ignores this extra call.
         this.#isConfirmed?.resolve(false);
         this.#isConfirmed = null;
     }
