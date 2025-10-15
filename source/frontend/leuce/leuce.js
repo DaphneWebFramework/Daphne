@@ -600,6 +600,14 @@ class Deferred
             this.#reject(reason);
         }
     }
+
+    /**
+     * @returns {boolean}
+     */
+    isSettled()
+    {
+        return this.#settled;
+    }
 }
 
 class Form
@@ -875,6 +883,15 @@ class Modal
     async #onHide(event)
     {
         this.#killFocus();
+
+        // If the modal was already confirmed, skip checking the cancel hook.
+        // Note that the Deferred is resolved either in #onClickConfirmButton
+        // (true) or, if not confirmed, later in #onHidden (false). Because
+        // "hide.bs.modal" always fires before "hidden.bs.modal", a settled
+        // state at this point can only indicate confirm.
+        if (this.#isConfirmed?.isSettled()) {
+            return;
+        }
 
         // If a cancel hook is set, intercept here. The "hide.bs.modal" event
         // is the single point that covers all dismissal paths (ESC, backdrop,
