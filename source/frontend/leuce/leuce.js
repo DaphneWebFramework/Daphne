@@ -754,10 +754,10 @@ class Modal
     #canCancel;
 
     /** @type {Deferred<boolean>|null} */
-    #isConfirmed;
+    #confirmation;
 
     /** @type {(event: JQuery.Event) => void} */
-    #boundOnHide;
+    #boundHandleHide;
 
     /**
      * @param {*} selector
@@ -776,8 +776,8 @@ class Modal
         this.#modal = new bootstrap.Modal(this.#$root[0]);
         this.#canConfirm = null; // per-call state
         this.#canCancel = null; // per-call state
-        this.#isConfirmed = null; // per-call state
-        this.#boundOnHide = this.#onHide.bind(this);
+        this.#confirmation = null; // per-call state
+        this.#boundHandleHide = this.#handleHide.bind(this);
         this.#bindEvents();
     }
 
@@ -802,11 +802,11 @@ class Modal
     } = {}) {
         this.#canConfirm = canConfirm;
         this.#canCancel = canCancel;
-        this.#isConfirmed?.resolve(false); // settle previous result, if any
-        this.#isConfirmed = new Deferred();
+        this.#confirmation?.resolve(false); // settle previous result, if any
+        this.#confirmation = new Deferred();
         this.#resetDraggable();
         this.#modal.show();
-        return this.#isConfirmed.promise();
+        return this.#confirmation.promise();
     }
 
     /**
@@ -832,12 +832,20 @@ class Modal
     #bindEvents()
     {
         this.#$root
-            .on('shown.bs.modal', this.#onShown.bind(this))
-            .on('hide.bs.modal', this.#boundOnHide)
-            .on('hidden.bs.modal', this.#onHidden.bind(this))
+            .on('shown.bs.modal', this.#handleShown.bind(this))
+            .on('hide.bs.modal', this.#boundHandleHide)
+            .on('hidden.bs.modal', this.#handleHidden.bind(this))
             .draggable({ cursor: 'move' }); // via jQuery UI
         this.#$confirmButton
-            .on('click', this.#onClickConfirmButton.bind(this));
+            .on('click', this.#handleConfirmButtonClick.bind(this));
+    }
+
+    /**
+     * @returns {void}
+     */
+    #resetDraggable()
+    {
+        this.#$root.css({ position: '', left: '', top: '' });
     }
 
     /**
@@ -857,18 +865,10 @@ class Modal
     }
 
     /**
-     * @returns {void}
-     */
-    #resetDraggable()
-    {
-        this.#$root.css({ position: '', left: '', top: '' });
-    }
-
-    /**
      * @param {jQuery.Event} event
      * @returns {void}
      */
-    #onShown(event)
+    #handleShown(event)
     {
         const $autofocus = this.#$root.find('[autofocus]');
         if ($autofocus.length) {
@@ -880,16 +880,16 @@ class Modal
      * @param {jQuery.Event} event
      * @returns {void}
      */
-    async #onHide(event)
+    async #handleHide(event)
     {
         this.#killFocus();
 
         // If the modal was already confirmed, skip checking the cancel hook.
-        // Note that the Deferred is resolved either in #onClickConfirmButton
-        // (true) or, if not confirmed, later in #onHidden (false). Because
+        // Note that the Deferred is resolved either in #handleConfirmButtonClick
+        // (true) or, if not confirmed, later in #handleHidden (false). Because
         // "hide.bs.modal" always fires before "hidden.bs.modal", a settled
         // state at this point can only indicate confirm.
-        if (this.#isConfirmed?.isSettled()) {
+        if (this.#confirmation?.isSettled()) {
             return;
         }
 
@@ -901,15 +901,15 @@ class Modal
         // the handler.
         if (typeof this.#canCancel === 'function') {
             // Important: preventDefault() must be called before awaiting the
-            // hook. When #onHide() reaches an `await`, it yields to the event
+            // hook. When #handleHide() reaches an `await`, it yields to the event
             // loop. Bootstrap then sees default is not prevented and proceeds
             // to hide the modal. By the time we resume the handler and call
             // preventDefault(), it's too late.
             event.preventDefault();
             if (true === await this.#canCancel()) {
-                this.#$root.off('hide.bs.modal', this.#boundOnHide);
+                this.#$root.off('hide.bs.modal', this.#boundHandleHide);
                 this.hide();
-                this.#$root.on('hide.bs.modal', this.#boundOnHide);
+                this.#$root.on('hide.bs.modal', this.#boundHandleHide);
             }
         }
     }
@@ -918,29 +918,29 @@ class Modal
      * @param {jQuery.Event} event
      * @returns {void}
      */
-    #onHidden(event)
+    #handleHidden(event)
     {
         this.#canConfirm = null;
         this.#canCancel = null;
         // When the modal closes, resolve as false by default. If the promise
         // was already settled earlier (i.e. via confirm button), the Deferred
         // object ignores this extra call.
-        this.#isConfirmed?.resolve(false);
-        this.#isConfirmed = null;
+        this.#confirmation?.resolve(false);
+        this.#confirmation = null;
     }
 
     /**
      * @param {jQuery.Event} event
      * @returns {void}
      */
-    async #onClickConfirmButton(event)
+    async #handleConfirmButtonClick(event)
     {
         if (typeof this.#canConfirm === 'function') {
             if (true !== await this.#canConfirm()) {
                 return;
             }
         }
-        this.#isConfirmed?.resolve(true);
+        this.#confirmation?.resolve(true);
         this.hide();
     }
 }
