@@ -615,6 +615,9 @@ class Form
     /** @type {jQuery} */
     #$root;
 
+    /** @type {string|null} */
+    #snapshot;
+
     /**
      * @param {*} selector
      * @throws {Error}
@@ -626,6 +629,7 @@ class Form
             throw new Error(
                 `Leuce: Selector must match a single form element: ${selector}`);
         }
+        this.#snapshot = null;
         this.#bindEvents();
     }
 
@@ -706,6 +710,23 @@ class Form
             return;
         }
         this.#$root.submit();
+    }
+
+    /**
+     * @returns {void}
+     */
+    takeSnapshot()
+    {
+        this.#snapshot = this.serialize();
+    }
+
+    /**
+     * @returns {boolean}
+     */
+    isModified()
+    {
+        return this.#snapshot !== null &&
+               this.#snapshot !== this.serialize();
     }
 
     /**
