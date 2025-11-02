@@ -20,6 +20,8 @@ class View extends App.View
             new InstallStep('install-step-table-account'));
         this.set('accountRoleTableInstallStep',
             new InstallStep('install-step-table-accountrole'));
+        this.set('accountViewTableInstallStep',
+            new InstallStep('install-step-table-accountview'));
         this.set('pendingAccountTableInstallStep',
             new InstallStep('install-step-table-pendingaccount'));
         this.set('passwordResetTableInstallStep',

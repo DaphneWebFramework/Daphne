@@ -47,6 +47,7 @@ $page = (new Page(__DIR__))
 		new InstallStep('install-step-database'),
 		new InstallStep('install-step-table-account'),
 		new InstallStep('install-step-table-accountrole'),
+		new InstallStep('install-step-table-accountview'),
 		new InstallStep('install-step-table-pendingaccount'),
 		new InstallStep('install-step-table-passwordreset'),
 		new InstallStep('install-step-table-persistentlogin'),

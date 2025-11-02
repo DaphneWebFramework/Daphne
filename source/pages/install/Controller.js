@@ -44,6 +44,7 @@ class Controller extends App.Controller
         const tables = {
             accountTableInstallStep: 'account',
             accountRoleTableInstallStep: 'accountrole',
+            accountViewTableInstallStep: 'accountview',
             pendingAccountTableInstallStep: 'pendingaccount',
             passwordResetTableInstallStep: 'passwordreset',
             persistentLoginTableInstallStep: 'persistentlogin',
