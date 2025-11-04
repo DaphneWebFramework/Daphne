@@ -52,8 +52,7 @@ function createGuestNavItems(array &$navItems): void {
 
 function createAccountNavItems(array &$navItems, Page $page): void {
 	$resource = Resource::Instance();
-	$account = $page->LoggedInAccount();
-	$role = $page->LoggedInAccountRole();
+	$accountView = $page->LoggedInAccount();
 	$wideLayout = $page->Property('wideLayout', false);
 	$dropdownItems = [
 		new NavbarDropdownItem([
@@ -61,7 +60,7 @@ function createAccountNavItems(array &$navItems, Page $page): void {
 			':href' => $resource->PageUrl('settings')
 		])
 	];
-	if ($role->value >= Role::Admin->value) {
+	if (Role::Parse($accountView->role)->AtLeast(Role::Admin)) {
 		$dropdownItems[] = new NavbarDropdownDivider();
 		$dropdownItems[] = new NavbarDropdownItem([
 			':label' => "Management",
@@ -74,7 +73,7 @@ function createAccountNavItems(array &$navItems, Page $page): void {
 		':link:id' => 'navbarLogout'
 	]);
 	$navItems[] = new NavbarDropdown([
-		':label' => escapeLabel($account->displayName),
+		':label' => escapeLabel($accountView->displayName),
 		':link:id' => 'navbarDisplayName',
 		':menu:class' => $wideLayout ? 'dropdown-menu-end' : 'dropdown-menu-start'
 	], $dropdownItems);

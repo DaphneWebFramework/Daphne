@@ -35,7 +35,7 @@ $page = (new Page(__DIR__))
 	->SetProperty('wideLayout', true);
 
 $resource = Resource::Instance();
-$account = $page->LoggedInAccount();
+$accountView = $page->LoggedInAccount();
 ?>
 <?php $page->Begin()?>
 	<?=new Generic('main', ['role' => 'main'], [
@@ -59,7 +59,7 @@ $account = $page->LoggedInAccount();
 								new FormText([
 									':label' => "Display name",
 									':input:name' => 'displayName',
-									':input:value' => $account->displayName,
+									':input:value' => $accountView->displayName,
 									':input:required' => true,
 									'class' => '-mb-3 flex-grow-1'
 								]),
