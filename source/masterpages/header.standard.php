@@ -52,7 +52,7 @@ function createGuestNavItems(array &$navItems): void {
 
 function createAccountNavItems(array &$navItems, Page $page): void {
 	$resource = Resource::Instance();
-	$accountView = $page->LoggedInAccount();
+	$accountView = $page->SessionAccount();
 	$wideLayout = $page->Property('wideLayout', false);
 	$dropdownItems = [
 		new NavbarDropdownItem([
@@ -81,7 +81,7 @@ function createAccountNavItems(array &$navItems, Page $page): void {
 
 function createNavItems(Page $page): array {
 	$navItems = [];
-	if ($page->LoggedInAccount() === null) {
+	if ($page->SessionAccount() === null) {
 		createGuestNavItems($navItems);
 	} else {
 		createAccountNavItems($navItems, $page);

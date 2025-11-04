@@ -35,7 +35,7 @@ $page = (new Page(__DIR__))
 	->SetProperty('wideLayout', true);
 
 $resource = Resource::Instance();
-$accountView = $page->LoggedInAccount();
+$accountView = $page->SessionAccount();
 ?>
 <?php $page->Begin()?>
 	<?=new Generic('main', ['role' => 'main'], [

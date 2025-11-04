@@ -35,7 +35,7 @@ $resource = Resource::Instance();
 <?php $page->Begin()?>
 	<?=new Generic('main', ['role' => 'main', 'class' => 'container mt-5'], [
 		new Generic('div', ['class' => 'd-flex justify-content-center'], [
-			$page->LoggedInAccount() === null
+			$page->SessionAccount() === null
 			? // Not logged in:
 			new Generic('div', ['class' => 'card'], [
 				new Generic('h5', ['class' => 'card-header'],
