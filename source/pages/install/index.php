@@ -28,10 +28,10 @@ $resource = Resource::Instance();
 
 $installKey = Request::Instance()->QueryParams()->Get('key');
 if (!\is_string($installKey) || $installKey === '') {
-	(new Response)->Redirect($resource->ErrorPageUrl(StatusCode::BadRequest));
+	Response::Redirect($resource->ErrorPageUrl(StatusCode::BadRequest));
 }
 if ($installKey !== Config::Instance()->Option('InstallKey')) {
-	(new Response)->Redirect($resource->ErrorPageUrl(StatusCode::Forbidden));
+	Response::Redirect($resource->ErrorPageUrl(StatusCode::Forbidden));
 }
 
 $page = (new Page(__DIR__))
