@@ -72,7 +72,15 @@ $accountView = $page->SessionAccount();
 					]),
 					new Generic('section', null, [
 						new Generic('h5', null, "Change password"),
-						new Form(['id' => 'passwordChangeForm'], [
+						new Generic('div', [
+							'class' => 'alert alert-light',
+							'role' => 'alert',
+							'hidden' => $accountView->isLocal
+						], [
+							new Generic('i', ['class' => 'bi bi-info-circle me-2']),
+							"Password changes are disabled because this account does not have a local password."
+						]),
+						new Form(['id' => 'passwordChangeForm', 'disabled' => !$accountView->isLocal], [
 							new FormEmailInput([
 								'class' => 'd-none',
 								'value' => '',

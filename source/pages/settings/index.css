@@ -44,6 +44,11 @@
 .tab-pane h5 {
   margin-bottom: 1rem;
 }
+.tab-pane form[disabled] {
+  opacity: 0.5;
+  pointer-events: none;
+  user-select: none;
+}
 .tab-pane a {
   text-decoration: none;
 }
