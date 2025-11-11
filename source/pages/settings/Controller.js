@@ -40,8 +40,9 @@ class Controller extends App.Controller
             this.view.get('displayNameChangeButton').leuceButton().setLoading(false);
             if (response.isSuccess()) {
                 this.view.setNavbarDisplayName(this.view.displayNameInput().val());
+                Leuce.UI.notifySuccess("Display name changed successfully.");
             } else {
-                Leuce.UI.notifyError(response.body.message, 3000);
+                Leuce.UI.notifyError(response.body.message);
             }
         });
     }
@@ -56,8 +57,10 @@ class Controller extends App.Controller
         this.view.get('passwordChangeButton').leuceButton().setLoading(true);
         this.model.changePassword(this.view.passwordChangeFormData()).then(response => {
             this.view.get('passwordChangeButton').leuceButton().setLoading(false);
-            if (!response.isSuccess()) {
-                Leuce.UI.notifyError(response.body.message, 3000);
+            if (response.isSuccess()) {
+                Leuce.UI.notifySuccess("Password changed successfully.");
+            } else {
+                Leuce.UI.notifyError(response.body.message);
             }
         });
     }
@@ -95,7 +98,7 @@ class Controller extends App.Controller
                     Controller.reloadPage();
                 } else {
                     button.setLoading(false);
-                    Leuce.UI.notifyError(response.body.message, 3000);
+                    Leuce.UI.notifyError(response.body.message);
                 }
             });
         });
