@@ -46,7 +46,7 @@ $accountView = $page->SessionAccount();
 					new Generic('i', ['class' => 'bi bi-person-circle']),
 					new Generic('span', ['class' => 'label'], "Account")
 				]),
-				new PillTab([':key' => 'preferences'], [
+				new PillTab([':key' => 'preferences', 'disabled' => true], [
 					new Generic('i', ['class' => 'bi bi-sliders']),
 					new Generic('span', ['class' => 'label'], "Preferences")
 				])
@@ -140,7 +140,7 @@ $accountView = $page->SessionAccount();
 				]),
 				new TabPane([':key' => 'preferences'], [
 					new Generic('h3', null, "Preferences"),
-					// todo: Theme, notification preferences, etc.
+					// Preference sections go here.
 				])
 			])
 		])
