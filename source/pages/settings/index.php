@@ -15,6 +15,7 @@ require '../../autoload.php';
 use \Charis\Button;
 use \Charis\Form;
 use \Charis\FormComposites\FormCheck;
+use \Charis\FormComposites\FormEmail;
 use \Charis\FormComposites\FormPassword;
 use \Charis\FormComposites\FormText;
 use \Charis\FormControls\FormEmailInput;
@@ -54,6 +55,11 @@ $accountView = $page->SessionAccount();
 				new TabPane([':key' => 'account', ':active' => true], [
 					new Generic('h3', null, "Account"),
 					new Generic('section', null, [
+						new FormEmail([
+							':label' => "Email address",
+							':input:value' => $accountView->email,
+							':input:readonly' => true
+						]),
 						new Form(['id' => 'displayNameChangeForm'], [
 							new Generic('div', ['class' => 'd-flex align-items-end gap-2 mb-3'], [
 								new FormText([

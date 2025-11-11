@@ -49,6 +49,10 @@
   pointer-events: none;
   user-select: none;
 }
+.tab-pane .form-control[readonly] {
+  background-color: var(--bs-secondary-bg);
+  cursor: default;
+}
 .tab-pane a {
   text-decoration: none;
 }
