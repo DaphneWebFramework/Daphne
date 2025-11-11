@@ -695,6 +695,11 @@ class Form
 
     /**
      * @returns {void}
+     *
+     * @note This method does not clear hidden inputs, since those often carry
+     *       structural state (e.g. CSRF tokens) that must persist across resets.
+     *       To clear a hidden field explicitly, use a `findInput('<name>')`
+     *       and `val('')` combination.
      */
     clear()
     {
