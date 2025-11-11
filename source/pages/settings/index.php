@@ -111,9 +111,13 @@ $accountView = $page->SessionAccount();
 					]),
 					new Generic('section', null, [
 						new Generic('h5', null, "Delete account"),
-						new Generic('p', null,
+						new Generic('div', [
+							'class' => 'alert alert-danger',
+							'role' => 'alert'
+						], [
+							new Generic('i', ['class' => 'bi bi-exclamation-triangle me-2']),
 							"Deleting your account will permanently erase all your data. This action cannot be undone."
-						),
+						]),
 						new Form(['id' => 'accountDeleteForm'], [
 							new FormCheck([
 								':label' => "I understand my account cannot be recovered after deletion.",

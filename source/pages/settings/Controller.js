@@ -80,14 +80,24 @@ class Controller extends App.Controller
     #onSubmitAccountDeleteForm(event)
     {
         event.preventDefault();
-        this.view.get('accountDeleteButton').leuceButton().setLoading(true);
-        this.model.deleteAccount().then(response => {
-            if (response.isSuccess()) {
-                Controller.reloadPage();
-            } else {
-                this.view.get('accountDeleteButton').leuceButton().setLoading(false);
-                Leuce.UI.notifyError(response.body.message, 3000);
-            }
+        Leuce.UI.messageBox({
+            title: "Confirm account deletion",
+            message: "Deleting your account will permanently erase all your data. This action cannot be undone.",
+            primaryButtonLabel: 'Delete account',
+            primaryButtonVariant: 'danger',
+            secondaryButtonLabel: 'Cancel'
+        }).then(confirmed => {
+            if (!confirmed) return;
+            const button = this.view.get('accountDeleteButton').leuceButton();
+            button.setLoading(true);
+            this.model.deleteAccount().then(response => {
+                if (response.isSuccess()) {
+                    Controller.reloadPage();
+                } else {
+                    button.setLoading(false);
+                    Leuce.UI.notifyError(response.body.message, 3000);
+                }
+            });
         });
     }
 }
