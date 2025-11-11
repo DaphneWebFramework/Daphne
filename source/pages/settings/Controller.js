@@ -19,25 +19,26 @@ class Controller extends App.Controller
     {
         super(model, view);
         this.view.get('displayNameChangeForm')
-            .on('submit', this.#onSubmitDisplayNameChangeForm.bind(this));
+            .on('submit', this.#handleDisplayNameChangeFormSubmit.bind(this));
         this.view.get('passwordChangeForm')
-            .on('submit', this.#onSubmitPasswordChangeForm.bind(this));
+            .on('submit', this.#handlePasswordChangeFormSubmit.bind(this));
         this.view.get('accountDeleteCheckbox')
-            .on('change', this.#onChangeAccountDeleteCheckbox.bind(this));
+            .on('change', this.#handleAccountDeleteCheckboxChange.bind(this));
         this.view.get('accountDeleteForm')
-            .on('submit', this.#onSubmitAccountDeleteForm.bind(this));
+            .on('submit', this.#handleAccountDeleteFormSubmit.bind(this));
     }
 
     /**
      * @param {jQuery.Event} event
      * @returns {void}
      */
-    #onSubmitDisplayNameChangeForm(event)
+    #handleDisplayNameChangeFormSubmit(event)
     {
         event.preventDefault();
-        this.view.get('displayNameChangeButton').leuceButton().setLoading(true);
+        const button = this.view.get('displayNameChangeButton').leuceButton();
+        button.setLoading(true);
         this.model.changeDisplayName(this.view.displayNameChangeFormData()).then(response => {
-            this.view.get('displayNameChangeButton').leuceButton().setLoading(false);
+            button.setLoading(false);
             if (response.isSuccess()) {
                 this.view.setNavbarDisplayName(this.view.displayNameInput().val());
                 Leuce.UI.notifySuccess("Display name changed successfully.");
@@ -51,12 +52,13 @@ class Controller extends App.Controller
      * @param {jQuery.Event} event
      * @returns {void}
      */
-    #onSubmitPasswordChangeForm(event)
+    #handlePasswordChangeFormSubmit(event)
     {
         event.preventDefault();
-        this.view.get('passwordChangeButton').leuceButton().setLoading(true);
+        const button = this.view.get('passwordChangeButton').leuceButton();
+        button.setLoading(true);
         this.model.changePassword(this.view.passwordChangeFormData()).then(response => {
-            this.view.get('passwordChangeButton').leuceButton().setLoading(false);
+            button.setLoading(false);
             if (response.isSuccess()) {
                 Leuce.UI.notifySuccess("Password changed successfully.");
             } else {
@@ -69,7 +71,7 @@ class Controller extends App.Controller
      * @param {jQuery.Event} event
      * @returns {void}
      */
-    #onChangeAccountDeleteCheckbox(event)
+    #handleAccountDeleteCheckboxChange(event)
     {
         const checkbox = this.view.get('accountDeleteCheckbox');
         const button = this.view.get('accountDeleteButton');
@@ -80,7 +82,7 @@ class Controller extends App.Controller
      * @param {jQuery.Event} event
      * @returns {void}
      */
-    #onSubmitAccountDeleteForm(event)
+    #handleAccountDeleteFormSubmit(event)
     {
         event.preventDefault();
         Leuce.UI.messageBox({

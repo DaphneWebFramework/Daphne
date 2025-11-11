@@ -12,33 +12,41 @@
 class Model extends App.Model
 {
     /**
-     * @param {string} data
-     * @returns {Promise<Leuce.HTTP.Response>}
+     * @param {string} payload
+     *   "displayName={string}"
+     * @returns {Promise<Leuce.HTTP.Response<
+     *   void | {message: string}
+     * >>}
      */
-    changeDisplayName(data)
+    changeDisplayName(payload)
     {
         return this.post()
             .handler('account')
             .action('change-display-name')
-            .body(data)
+            .body(payload)
             .send();
     }
 
     /**
-     * @param {string} data
-     * @returns {Promise<Leuce.HTTP.Response>}
+     * @param {string} payload
+     *   "currentPassword={string}&newPassword={string}"
+     * @returns {Promise<Leuce.HTTP.Response<
+     *   void | {message: string}
+     * >>}
      */
-    changePassword(data)
+    changePassword(payload)
     {
         return this.post()
             .handler('account')
             .action('change-password')
-            .body(data)
+            .body(payload)
             .send();
     }
 
     /**
-     * @returns {Promise<Leuce.HTTP.Response>}
+     * @returns {Promise<Leuce.HTTP.Response<
+     *   void | {message: string}
+     * >>}
      */
     deleteAccount() {
         return this.post()
