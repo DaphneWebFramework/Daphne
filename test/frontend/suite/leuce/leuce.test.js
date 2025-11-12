@@ -42,8 +42,8 @@ QUnit.module('Leuce', function()
                 };
                 const response = Leuce.HTTP.Response.fromJqXHR(jqXHR);
                 assert.strictEqual(response.statusCode, 200);
-                assert.deepEqual(response.headers['content-length'], '728');
-                assert.deepEqual(response.headers['content-type'], 'application/json');
+                assert.strictEqual(response.headers['content-length'], '728');
+                assert.strictEqual(response.headers['content-type'], 'application/json');
                 assert.strictEqual(response.body.length, 2);
                 assert.strictEqual(response.body[0].ID, 1);
                 assert.strictEqual(response.body[0].Name, "90'lar");
@@ -51,15 +51,15 @@ QUnit.module('Leuce', function()
                 assert.strictEqual(response.body[1].Name, "Arabesk/Fantezi");
             });
 
-            QUnit.test('fromJqXHR() falls back to responseText', function(assert)
-            {
-                const jqXHR = {
-                    status: 0,
-                    getAllResponseHeaders: () => '',
-                    responseText: 'Hello, world!'
-                };
+            QUnit.test('fromJqXHR() returns offline message on status 0',
+            function(assert) {
+                const jqXHR = { status: 0 };
                 const response = Leuce.HTTP.Response.fromJqXHR(jqXHR);
-                assert.strictEqual(response.body, 'Hello, world!');
+                assert.strictEqual(response.statusCode, 0);
+                assert.deepEqual(response.headers, {});
+                assert.deepEqual(response.body, {
+                    message: "You're offline. Please check your connection and try again."
+                });
             });
 
             QUnit.test('isSuccess() returns correct result', function(assert)

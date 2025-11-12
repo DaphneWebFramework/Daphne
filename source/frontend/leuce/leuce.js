@@ -53,13 +53,19 @@ class Response
     {
         const response = new Response();
         response.statusCode = jqXHR.status;
-        jqXHR.getAllResponseHeaders().split(/[\r\n]+/).forEach(function(line) {
-            const parts = line.split(': ');
-            if (parts.length === 2) {
-                response.headers[parts[0]] = parts[1];
-            }
-        });
-        response.body = jqXHR.responseJSON ?? jqXHR.responseText;
+        if (response.statusCode === 0) {
+            response.body = {
+                message: "You're offline. Please check your connection and try again."
+            };
+        } else {
+            jqXHR.getAllResponseHeaders().split(/[\r\n]+/).forEach(function(line) {
+                const parts = line.split(': ');
+                if (parts.length === 2) {
+                    response.headers[parts[0]] = parts[1];
+                }
+            });
+            response.body = jqXHR.responseJSON ?? jqXHR.responseText;
+        }
         return response;
     }
 
