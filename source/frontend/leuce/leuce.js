@@ -2961,6 +2961,14 @@ class Utility
     {
         return Math.random().toString(36).slice(2, 10);
     }
+
+    /**
+     * @returns {boolean}
+     */
+    static isTouchDevice()
+    {
+        return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    }
 }
 
 //#endregion Utility
@@ -3020,6 +3028,102 @@ $.fn.leuceTable = function() {
         $table.data(dataKey, instance);
     }
     return instance;
+};
+
+/**
+ * Swipe Detection (jQuery Special Event)
+ *
+ * Provides a unified 'swipe' event for touch and mouse input. Handlers receive
+ * one of: 'left', 'right', 'up', or 'down'. Usage:
+ *
+ *   $element.on('swipe', function(event, direction) { ... });
+ *
+ * Implementation notes:
+ *
+ * Native `addEventListener`/`removeEventListener` are used instead of jQuery's
+ * `on`/`off` because jQuery does not provide the `{ passive: true }` option.
+ * Passive listeners are important on "touchstart" and "mousedown" since they
+ * let the browser handle scrolling smoothly; without them, browsers may issue
+ * warnings about potential scroll‑blocking.
+ *
+ * Gesture recognition is endpoint‑based: start and end positions are compared
+ * to determine distance and velocity. A valid swipe requires at least 50px of
+ * travel and 0.3 px/ms speed (300 px/s). The dominant axis selects horizontal
+ * vs. vertical; the sign of the delta determines direction.
+ *
+ * Ghost click prevention is handled by a capture‑phase click listener. After
+ * a swipe interaction, browsers may emit a synthetic click event; this is
+ * intercepted when a swipe has just been detected. The `stopPropagation` method
+ * prevents the click from reaching other handlers, and `preventDefault` is
+ * used to block default browser actions such as navigation on a swiped link.
+ */
+$.event.special.swipe = {
+    setup: function() {
+        const DISTANCE_THRESHOLD = 50;  // px
+        const VELOCITY_THRESHOLD = 0.3; // px/ms
+        let startX = 0, startY = 0, startTime = 0;
+        this.handleStart = e => {
+            const point = e.changedTouches ? e.changedTouches[0] : e;
+            startX = point.screenX;
+            startY = point.screenY;
+            startTime = Date.now();
+        };
+        this.handleEnd = e => {
+            const point = e.changedTouches ? e.changedTouches[0] : e;
+            const dx = point.screenX - startX;
+            const dy = point.screenY - startY;
+            const adx = Math.abs(dx);
+            const ady = Math.abs(dy);
+            const dt = Date.now() - startTime;
+            const vx = adx / dt;
+            const vy = ady / dt;
+            let direction = null;
+            if (adx > ady) {
+                if (adx > DISTANCE_THRESHOLD && vx > VELOCITY_THRESHOLD) {
+                    direction = dx > 0 ? 'right' : 'left';
+                }
+            } else {
+                if (ady > DISTANCE_THRESHOLD && vy > VELOCITY_THRESHOLD) {
+                    direction = dy > 0 ? 'down' : 'up';
+                }
+            }
+            if (direction !== null) {
+                this.isSwiped = true;
+                $(this).trigger('swipe', [direction]);
+            } else {
+                this.isSwiped = false;
+            }
+        };
+        this.handleClick = e => {
+            if (this.isSwiped) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.isSwiped = false;
+            }
+        };
+        if (Leuce.Utility.isTouchDevice()) {
+            this.addEventListener('touchstart', this.handleStart, { passive: true });
+            this.addEventListener('touchend', this.handleEnd);
+        } else {
+            this.addEventListener('mousedown', this.handleStart, { passive: true });
+            this.addEventListener('mouseup', this.handleEnd);
+        }
+        this.addEventListener('click', this.handleClick, true);
+    },
+    teardown: function() {
+        if (Leuce.Utility.isTouchDevice()) {
+            this.removeEventListener('touchstart', this.handleStart);
+            this.removeEventListener('touchend', this.handleEnd);
+        } else {
+            this.removeEventListener('mousedown', this.handleStart);
+            this.removeEventListener('mouseup', this.handleEnd);
+        }
+        this.removeEventListener('click', this.handleClick, true);
+        delete this.handleStart;
+        delete this.handleEnd;
+        delete this.handleClick;
+        delete this.isSwiped;
+    }
 };
 
 })(jQuery);
