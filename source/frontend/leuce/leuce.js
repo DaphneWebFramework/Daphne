@@ -2690,7 +2690,7 @@ class TableController
                         this.#page
                     );
                 }
-           } else {
+            } else {
                 Leuce.UI.notifyError(response.body.message);
             }
         });

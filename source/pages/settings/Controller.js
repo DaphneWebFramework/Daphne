@@ -18,6 +18,11 @@ class Controller extends App.Controller
     constructor(model, view)
     {
         super(model, view);
+        this.#bindEvents();
+    }
+
+    #bindEvents()
+    {
         this.view.get('displayNameChangeForm')
             .on('submit', this.#handleDisplayNameChangeFormSubmit.bind(this));
         this.view.get('passwordChangeForm')
@@ -27,6 +32,8 @@ class Controller extends App.Controller
         this.view.get('accountDeleteForm')
             .on('submit', this.#handleAccountDeleteFormSubmit.bind(this));
     }
+
+    //#region Event Handlers
 
     /**
      * @param {jQuery.Event} event
@@ -105,4 +112,6 @@ class Controller extends App.Controller
             });
         });
     }
+
+    //#endregion Event Handlers
 }
