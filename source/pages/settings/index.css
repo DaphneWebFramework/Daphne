@@ -53,9 +53,9 @@
   background-color: var(--bs-secondary-bg);
   cursor: default;
 }
-.tab-pane a {
+.tab-pane a:not(.btn) {
   text-decoration: none;
 }
-.tab-pane a:hover {
+.tab-pane a:not(.btn):hover {
   text-decoration: underline;
 }
