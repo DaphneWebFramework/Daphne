@@ -18,7 +18,6 @@ use \Charis\FormComposites\FormCheck;
 use \Charis\FormComposites\FormEmail;
 use \Charis\FormComposites\FormPassword;
 use \Charis\FormComposites\FormText;
-use \Charis\FormControls\FormEmailInput;
 use \Charis\Generic;
 use \Charis\PillTab;
 use \Charis\TabPane;
@@ -89,11 +88,6 @@ $tabKey = Request::Instance()->QueryParams()->GetOrDefault('tab', 'account');
 							"Password changes are disabled because this account does not have a local password."
 						]),
 						new Form(['id' => 'passwordChangeForm', 'disabled' => !$accountView->isLocal], [
-							new FormEmailInput([
-								'class' => 'd-none',
-								'value' => '',
-								'autocomplete' => 'username'
-							]),
 							new FormPassword([
 								':label' => "Current password",
 								':input:name' => 'currentPassword',
