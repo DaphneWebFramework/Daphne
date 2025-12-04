@@ -38,7 +38,7 @@
   border-bottom: thin solid var(--bs-border-color);
   margin-bottom: 1rem;
 }
-.tab-pane section {
+.tab-pane section:not(:last-child) {
   margin-bottom: 1.5rem;
 }
 .tab-pane h5 {
