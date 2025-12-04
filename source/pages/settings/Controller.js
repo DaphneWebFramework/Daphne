@@ -23,6 +23,8 @@ class Controller extends App.Controller
 
     #bindEvents()
     {
+        this.view.get('tabButtons')
+            .on('shown.bs.tab', this.#handleTabShown.bind(this));
         this.view.get('displayNameChangeForm')
             .on('submit', this.#handleDisplayNameChangeFormSubmit.bind(this));
         this.view.get('passwordChangeForm')
@@ -34,6 +36,18 @@ class Controller extends App.Controller
     }
 
     //#region Event Handlers
+
+    /**
+     * @param {jQuery.Event} event
+     * @returns {void}
+     */
+    #handleTabShown(event)
+    {
+        const tabKey = event.target.id.replace('tab-', '');
+        const url = new URL(window.location);
+        url.searchParams.set('tab', tabKey);
+        window.history.replaceState({}, '', url);
+    }
 
     /**
      * @param {jQuery.Event} event

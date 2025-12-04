@@ -15,6 +15,7 @@ class View extends App.View
     {
         super();
         this.set('navbarDisplayName', '#navbarDisplayName');
+        this.set('tabButtons', '[data-bs-toggle="pill"]');
         this.set('displayNameChangeForm', '#displayNameChangeForm');
         this.set('displayNameChangeButton', '#displayNameChangeForm button[type=submit]').leuceButton();
         this.set('passwordChangeForm', '#passwordChangeForm');

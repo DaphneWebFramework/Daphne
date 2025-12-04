@@ -25,6 +25,7 @@ use \Charis\TabPane;
 use \Charis\TabPanes;
 use \Charis\VerticalPillTabNavigation;
 use \Charis\VerticalPillTabs;
+use \Harmonia\Http\Request;
 use \Peneus\Resource;
 use \Peneus\Systems\PageSystem\Page;
 
@@ -37,22 +38,23 @@ $page = (new Page(__DIR__))
 
 $resource = Resource::Instance();
 $accountView = $page->SessionAccount();
+$tabKey = Request::Instance()->QueryParams()->GetOrDefault('tab', 'account');
 ?>
 <?php $page->Begin()?>
 	<?=new Generic('main', ['role' => 'main'], [
 		new VerticalPillTabNavigation(['class' => '-align-items-start'], [
 			new VerticalPillTabs(['class' => '-me-3 bg-light'], [
-				new PillTab([':key' => 'account', ':active' => true], [
+				new PillTab([':key' => 'account', ':active' => $tabKey === 'account'], [
 					new Generic('i', ['class' => 'bi bi-person-circle']),
 					new Generic('span', ['class' => 'label'], "Account")
 				]),
-				new PillTab([':key' => 'preferences', 'disabled' => true], [
+				new PillTab([':key' => 'preferences', ':active' => $tabKey === 'preferences', 'disabled' => true], [
 					new Generic('i', ['class' => 'bi bi-sliders']),
 					new Generic('span', ['class' => 'label'], "Preferences")
 				])
 			]),
 			new TabPanes([], [
-				new TabPane([':key' => 'account', ':active' => true], [
+				new TabPane([':key' => 'account', ':active' => $tabKey === 'account'], [
 					new Generic('h3', null, "Account"),
 					new Generic('section', null, [
 						new FormEmail([
@@ -138,7 +140,7 @@ $accountView = $page->SessionAccount();
 						])
 					])
 				]),
-				new TabPane([':key' => 'preferences'], [
+				new TabPane([':key' => 'preferences', ':active' => $tabKey === 'preferences'], [
 					new Generic('h3', null, "Preferences"),
 					// Preference sections go here.
 				])
