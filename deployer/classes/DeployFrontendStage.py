@@ -103,7 +103,7 @@ class DeployFrontendStage(Stage):
     ) -> None:
         # If the asset path has an explicit suffix (".js", ".min.js", ".css", or
         # ".min.css"), simply copy it as-is without transformation. This respects
-        # the author's intent — either they provided only a minified file, or
+        # the author's intent - either they provided only a minified file, or
         # deliberately chose not to apply minification.
         if assetPath.suffix == f'.{assetType}':
             context.copier.copyFile(

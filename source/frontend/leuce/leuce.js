@@ -929,7 +929,7 @@ class Modal
         // is the single point that covers all dismissal paths (ESC, backdrop,
         // button, or programmatic). We call preventDefault() right away to
         // block the hide, then run the hook. If it approves, we detach this
-        // handler to avoid an infinite loop, hide the modal, and then re‑attach
+        // handler to avoid an infinite loop, hide the modal, and then re-attach
         // the handler.
         if (typeof this.#canCancel === 'function') {
             // Important: preventDefault() must be called before awaiting the
@@ -3044,14 +3044,14 @@ $.fn.leuceTable = function() {
  * `on`/`off` because jQuery does not provide the `{ passive: true }` option.
  * Passive listeners are important on "touchstart" and "mousedown" since they
  * let the browser handle scrolling smoothly; without them, browsers may issue
- * warnings about potential scroll‑blocking.
+ * warnings about potential scroll-blocking.
  *
- * Gesture recognition is endpoint‑based: start and end positions are compared
+ * Gesture recognition is endpoint-based: start and end positions are compared
  * to determine distance and velocity. A valid swipe requires at least 50px of
  * travel and 0.3 px/ms speed (300 px/s). The dominant axis selects horizontal
  * vs. vertical; the sign of the delta determines direction.
  *
- * Ghost click prevention is handled by a capture‑phase click listener. After
+ * Ghost click prevention is handled by a capture-phase click listener. After
  * a swipe interaction, browsers may emit a synthetic click event; this is
  * intercepted when a swipe has just been detected. The `stopPropagation` method
  * prevents the click from reaching other handlers, and `preventDefault` is
