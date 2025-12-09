@@ -3059,22 +3059,47 @@ $.fn.leuceTable = function() {
  */
 $.event.special.swipe = {
     setup: function() {
+        const TIME_THRESHOLD = 500; // ms
         const DISTANCE_THRESHOLD = 50;  // px
         const VELOCITY_THRESHOLD = 0.3; // px/ms
-        let startX = 0, startY = 0, startTime = 0;
-        this.handleStart = e => {
+        let startTime = 0;
+        let startPoint = null;
+        let isSwiped = false;
+
+        const pointFromEvent = e => {
             const point = e.changedTouches ? e.changedTouches[0] : e;
-            startX = point.screenX;
-            startY = point.screenY;
-            startTime = Date.now();
+            return {
+                x: point.clientX,
+                y: point.clientY
+            };
         };
+
+        const resetState = () => {
+            startTime = 0;
+            startPoint = null;
+            isSwiped = false;
+        };
+
+        this.handleStart = e => {
+            startTime = Date.now();
+            startPoint = pointFromEvent(e);
+            isSwiped = false;
+        };
+
         this.handleEnd = e => {
-            const point = e.changedTouches ? e.changedTouches[0] : e;
-            const dx = point.screenX - startX;
-            const dy = point.screenY - startY;
+            if (startTime === 0 || startPoint === null) {
+                return;
+            }
+            const dt = Date.now() - startTime;
+            if (dt === 0 || dt > TIME_THRESHOLD) {
+                resetState();
+                return;
+            }
+            const endPoint = pointFromEvent(e);
+            const dx = endPoint.x - startPoint.x;
+            const dy = endPoint.y - startPoint.y;
             const adx = Math.abs(dx);
             const ady = Math.abs(dy);
-            const dt = Date.now() - startTime;
             const vx = adx / dt;
             const vy = ady / dt;
             let direction = null;
@@ -3088,41 +3113,54 @@ $.event.special.swipe = {
                 }
             }
             if (direction !== null) {
-                this.isSwiped = true;
+                isSwiped = true;
                 $(this).trigger('swipe', [direction]);
             } else {
-                this.isSwiped = false;
+                isSwiped = false;
             }
+            startTime = 0;
+            startPoint = null;
         };
+
+        this.handleCancel = e => {
+            resetState();
+        }
+
         this.handleClick = e => {
-            if (this.isSwiped) {
+            if (isSwiped) {
                 e.preventDefault();
                 e.stopPropagation();
-                this.isSwiped = false;
+                isSwiped = false;
             }
         };
+
         if (Leuce.Utility.isTouchDevice()) {
             this.addEventListener('touchstart', this.handleStart, { passive: true });
             this.addEventListener('touchend', this.handleEnd);
+            this.addEventListener('touchcancel', this.handleCancel);
         } else {
             this.addEventListener('mousedown', this.handleStart, { passive: true });
             this.addEventListener('mouseup', this.handleEnd);
+            this.addEventListener('mouseleave', this.handleCancel);
         }
         this.addEventListener('click', this.handleClick, true);
     },
+
     teardown: function() {
         if (Leuce.Utility.isTouchDevice()) {
             this.removeEventListener('touchstart', this.handleStart);
             this.removeEventListener('touchend', this.handleEnd);
+            this.removeEventListener('touchcancel', this.handleCancel);
         } else {
             this.removeEventListener('mousedown', this.handleStart);
             this.removeEventListener('mouseup', this.handleEnd);
+            this.removeEventListener('mouseleave', this.handleCancel);
         }
         this.removeEventListener('click', this.handleClick, true);
         delete this.handleStart;
         delete this.handleEnd;
+        delete this.handleCancel;
         delete this.handleClick;
-        delete this.isSwiped;
     }
 };
 
