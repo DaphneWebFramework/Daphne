@@ -3080,7 +3080,31 @@ $.event.special.swipe = {
             isSwiped = false;
         };
 
+        const isEditable = target => {
+            if (target.disabled) {
+                return false;
+            }
+            switch (target.tagName) {
+            case 'INPUT':
+                return [
+                    'color', 'date', 'datetime-local', 'email', 'month',
+                    'number', 'password', 'range', 'search', 'tel', 'text',
+                    'time', 'url', 'week'
+                ].includes(target.type || 'text');
+            case 'SELECT':
+            case 'TEXTAREA':
+                return true;
+            }
+            if (target.isContentEditable) {
+                return true;
+            }
+            return false;
+        };
+
         this.handleStart = e => {
+            if (isEditable(e.target)) {
+                return;
+            }
             startTime = Date.now();
             startPoint = pointFromEvent(e);
             isSwiped = false;
