@@ -11,15 +11,43 @@
  */
 
 use \Harmonia\Config;
-use \Harmonia\Core\CPath;
 use \Harmonia\Resource;
+
+// General purpose function to join paths
+function joinPath(string ...$segments): string {
+    $slashes = \DIRECTORY_SEPARATOR === '/' ? '/' : '/\\';
+    $filtered = [];
+    foreach ($segments as $index => $segment) {
+        if (($index === 0 && $segment !== '') ||
+            \trim($segment, $slashes) !== ''
+        ) {
+            $filtered[] = $segment;
+        }
+    }
+    if (empty($filtered)) {
+        return '';
+    }
+    $joined = '';
+    $lastIndex = \count($filtered) - 1;
+    foreach ($filtered as $index => $segment) {
+        if ($index > 0) {
+            $segment = \ltrim($segment, $slashes);
+        }
+        if ($index < $lastIndex) {
+            $lastChar = $segment[-1];
+            if ($lastChar !== '/' && $lastChar !== \DIRECTORY_SEPARATOR) {
+                $segment .= \DIRECTORY_SEPARATOR;
+            }
+        }
+        $joined .= $segment;
+    }
+    return $joined;
+}
 
 // Register autoloader for loading classes from the backend directory
 \spl_autoload_register(function(string $className): void {
-    $classPath = \rtrim(__DIR__, '/\\')
-        . '/backend/'
-        . \str_replace('\\', '/', $className)
-        . '.php';
+    $className = \str_replace('\\', '/', $className);
+    $classPath = joinPath(__DIR__, 'backend', "{$className}.php");
     if (!\is_file($classPath)) {
         return;
     }
@@ -27,7 +55,7 @@ use \Harmonia\Resource;
 });
 
 // Load configuration options from the application root directory
-Config::Instance()->Load(CPath::Join(__DIR__, 'config.php'));
+Config::Instance()->Load(joinPath(__DIR__, 'config.php'));
 
 // Initialize resource with the application root directory
 Resource::Instance()->Initialize(__DIR__);

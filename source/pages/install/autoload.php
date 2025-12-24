@@ -10,34 +10,8 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-// General purpose function to join paths
-function joinPath(string ...$segments): string {
-    $slashes = \DIRECTORY_SEPARATOR === '/' ? '/' : '/\\';
-    $filtered = [];
-    foreach ($segments as $segment) {
-        if (\trim($segment, $slashes) !== '') {
-            $filtered[] = $segment;
-        }
-    }
-    if (empty($filtered)) {
-        return '';
-    }
-    $joined = '';
-    $lastIndex = \count($filtered) - 1;
-    foreach ($filtered as $index => $segment) {
-        if ($index > 0) {
-            $segment = \ltrim($segment, $slashes);
-        }
-        if ($index < $lastIndex) {
-            $lastChar = $segment[-1];
-            if ($lastChar !== '/' && $lastChar !== \DIRECTORY_SEPARATOR) {
-                $segment .= \DIRECTORY_SEPARATOR;
-            }
-        }
-        $joined .= $segment;
-    }
-    return $joined;
-}
+// Include the main autoload file for standard wiring
+require __DIR__ . '/../../autoload.php';
 
 // Register autoloader for loading classes from the local directory
 \spl_autoload_register(function (string $className): void {
@@ -45,12 +19,9 @@ function joinPath(string ...$segments): string {
         return;
     }
     $className = \str_replace('\\', '/', $className);
-    $classPath = joinPath(__DIR__, $className . '.php');
+    $classPath = joinPath(__DIR__, "{$className}.php");
     if (!\is_file($classPath)) {
         return;
     }
     require $classPath;
 });
-
-// Include the main autoload file for standard wiring
-require joinPath(__DIR__, '..', '..', 'autoload.php');
