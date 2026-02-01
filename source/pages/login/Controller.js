@@ -76,7 +76,7 @@ class Controller extends App.Controller
     {
         event.preventDefault();
         this.view.get('logoutButton').leuceButton().setLoading(true);
-        this.model.logout().then(response => {
+        this.model.logOut().then(response => {
             if (response.isSuccess()) {
                 Controller.reloadPage();
             } else {

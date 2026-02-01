@@ -246,11 +246,11 @@ QUnit.module('Leuce', function()
                 builder
                     .post()
                     .handler('account')
-                    .action('login')
+                    .action('log-in')
                     .jsonBody({ username: 'admin', password: '1234' })
                     .send();
                 assert.strictEqual(capturedRequest.method, 'POST');
-                assert.strictEqual(capturedRequest.url, 'api/account/login');
+                assert.strictEqual(capturedRequest.url, 'api/account/log-in');
                 assert.strictEqual(capturedRequest.headers['Content-Type'], 'application/json');
                 assert.strictEqual(capturedRequest.body, JSON.stringify({ username: 'admin', password: '1234' }));
                 assert.strictEqual(capturedRequest.isMultipart, false);

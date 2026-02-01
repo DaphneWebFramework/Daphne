@@ -35,15 +35,15 @@ Options -Indexes
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
-  # e.g., `api/account/login` → `api.php?handler=account&action=login`
+  # e.g., `api/account/log-in` -> `api.php?handler=account&action=log-in`
   RewriteRule ^api/([^/]+)/([^/]+)/?$ api.php?handler=$1&action=$2 [QSA,L]
 
-  # e.g., `pages/error/403` → `pages/error/?statusCode=403`
+  # e.g., `pages/error/403` -> `pages/error/?statusCode=403`
   RewriteRule ^pages/error/([0-9]+)/?$ pages/error/?statusCode=$1 [L]
 
-  # e.g., `pages/activate-account/abc123...` → `pages/activate-account/?code=abc123...`
+  # e.g., `pages/activate-account/abc123...` -> `pages/activate-account/?code=abc123...`
   RewriteRule ^pages/activate-account/([a-f0-9]{64})/?$ pages/activate-account/?code=$1 [L]
 
-  # e.g., `pages/reset-password/abc123...` → `pages/reset-password/?code=abc123...`
+  # e.g., `pages/reset-password/abc123...` -> `pages/reset-password/?code=abc123...`
   RewriteRule ^pages/reset-password/([a-f0-9]{64})/?$ pages/reset-password/?code=$1 [L]
 </IfModule>

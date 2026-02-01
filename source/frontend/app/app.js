@@ -17,11 +17,11 @@ class Model extends Leuce.MVC.Model
     /**
      * @returns {Promise<Leuce.HTTP.Response>}
      */
-    logout()
+    logOut()
     {
         return this.post()
             .handler('account')
-            .action('logout')
+            .action('log-out')
             .send();
     }
 }
@@ -74,7 +74,7 @@ class Controller extends Leuce.MVC.Controller
     {
         event.preventDefault();
         this.view.setLoading(true);
-        this.model.logout().then(response => {
+        this.model.logOut().then(response => {
             this.view.setLoading(false);
             if (response.isSuccess()) {
                 Controller.reloadPage();

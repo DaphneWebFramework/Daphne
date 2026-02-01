@@ -40,7 +40,7 @@ class Model extends App.Model
     {
         return this.post()
             .handler('account')
-            .action('login')
+            .action('log-in')
             .body(data)
             .send();
     }

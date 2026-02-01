@@ -28,7 +28,7 @@ QUnit.module('App', function()
             document.head.removeChild(meta);
         });
 
-        QUnit.test('logout() sends a POST request to "account/logout"', function(assert)
+        QUnit.test('logOut() sends a POST request to "account/log-out"', function(assert)
         {
             let capturedRequest = null;
             const fakeClient = {
@@ -38,9 +38,9 @@ QUnit.module('App', function()
                 }
             };
             const model = new App.Model(fakeClient);
-            model.logout();
+            model.logOut();
             assert.strictEqual(capturedRequest.method, 'POST');
-            assert.strictEqual(capturedRequest.url, 'api/account/logout');
+            assert.strictEqual(capturedRequest.url, 'api/account/log-out');
         });
     }); // Model
 
@@ -85,7 +85,7 @@ QUnit.module('App', function()
             Leuce.UI.notifyError = originalNotifyError;
         });
 
-        QUnit.test('logout click triggers logout and reloads on success', function(assert)
+        QUnit.test('logout click triggers logOut() and reloads on success', function(assert)
         {
             $('#qunit-fixture').html('<a id="navbarLogout"></a>');
             assert.expect(3);
@@ -94,7 +94,7 @@ QUnit.module('App', function()
             const controller = new App.Controller(model, view);
             const done = assert.async();
             let called = false;
-            model.logout = function() {
+            model.logOut = function() {
                 called = true;
                 const response = {
                     isSuccess: () => true
@@ -121,7 +121,7 @@ QUnit.module('App', function()
             const controller = new App.Controller(model, view);
             const done = assert.async();
             let called = false;
-            model.logout = function() {
+            model.logOut = function() {
                 called = true;
                 const response = {
                     isSuccess: () => false,
