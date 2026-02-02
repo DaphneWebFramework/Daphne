@@ -2614,10 +2614,10 @@ class TableController
     #fnList;
 
     /** @type {((tableName: string, data: object) => Promise<Leuce.HTTP.Response>)|null} */
-    #fnAdd;
+    #fnCreate;
 
     /** @type {((tableName: string, data: object) => Promise<Leuce.HTTP.Response>)|null} */
-    #fnEdit;
+    #fnUpdate;
 
     /** @type {((tableName: string, id: number) => Promise<Leuce.HTTP.Response>)|null} */
     #fnDelete;
@@ -2647,18 +2647,18 @@ class TableController
      *   $table: jQuery,
      *   tableName?: string,
      *   fnList: (params: object) => Promise<Leuce.HTTP.Response>
-     *   fnAdd?: (tableName: string, data: object) => Promise<Leuce.HTTP.Response>,
-     *   fnEdit?: (tableName: string, data: object) => Promise<Leuce.HTTP.Response>
+     *   fnCreate?: (tableName: string, data: object) => Promise<Leuce.HTTP.Response>,
+     *   fnUpdate?: (tableName: string, data: object) => Promise<Leuce.HTTP.Response>
      *   fnDelete?: (tableName: string, id: number) => Promise<Leuce.HTTP.Response>
      * }} options
      */
-    constructor({ $table, tableName, fnList, fnAdd, fnEdit, fnDelete })
+    constructor({ $table, tableName, fnList, fnCreate, fnUpdate, fnDelete })
     {
         this.#$table = $table;
         this.#tableName = tableName ?? null;
         this.#fnList = fnList;
-        this.#fnAdd = fnAdd ?? null;
-        this.#fnEdit = fnEdit ?? null;
+        this.#fnCreate = fnCreate ?? null;
+        this.#fnUpdate = fnUpdate ?? null;
         this.#fnDelete = fnDelete ?? null;
         this.#search = null;
         this.#sort = null;
@@ -2781,14 +2781,14 @@ class TableController
      */
     #handleAdd(rowData)
     {
-        if (this.#fnAdd === null || this.#tableName === null) {
-            console.warn('Leuce: Cannot perform add because '
-                       + '`fnAdd` or `tableName` is not set.');
+        if (this.#fnCreate === null || this.#tableName === null) {
+            console.warn('Leuce: Cannot add record because '
+                       + '`fnCreate` or `tableName` is not set.');
             return;
         }
         const table = this.#$table.leuceTable();
         table.setLoading(true);
-        this.#fnAdd(this.#tableName, rowData).then(response => {
+        this.#fnCreate(this.#tableName, rowData).then(response => {
             table.setLoading(false);
             if (response.isSuccess()) {
                 this.load();
@@ -2804,14 +2804,14 @@ class TableController
      */
     #handleEdit(rowData)
     {
-        if (this.#fnEdit === null || this.#tableName === null) {
-            console.warn('Leuce: Cannot perform edit because '
-                       + '`fnEdit` or `tableName` is not set.');
+        if (this.#fnUpdate === null || this.#tableName === null) {
+            console.warn('Leuce: Cannot edit record because '
+                       + '`fnUpdate` or `tableName` is not set.');
             return;
         }
         const table = this.#$table.leuceTable();
         table.setLoading(true);
-        this.#fnEdit(this.#tableName, rowData).then(response => {
+        this.#fnUpdate(this.#tableName, rowData).then(response => {
             table.setLoading(false);
             if (response.isSuccess()) {
                 this.load();
@@ -2828,7 +2828,7 @@ class TableController
     #handleDelete(id)
     {
         if (this.#fnDelete === null || this.#tableName === null) {
-            console.warn('Leuce: Cannot perform delete because '
+            console.warn('Leuce: Cannot delete record because '
                        + '`fnDelete` or `tableName` is not set.');
             return;
         }

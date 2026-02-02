@@ -75,11 +75,11 @@ class Model extends App.Model
      * @param {Object} data
      * @returns {Promise<Leuce.HTTP.Response>}
      */
-    addRecord(tableName, data)
+    createRecord(tableName, data)
     {
         return this.post()
             .handler('management')
-            .action('add-record')
+            .action('create-record')
             .query({ table: tableName })
             .jsonBody(data)
             .send();
@@ -90,11 +90,11 @@ class Model extends App.Model
      * @param {Object} data
      * @returns {Promise<Leuce.HTTP.Response>}
      */
-    editRecord(tableName, data)
+    updateRecord(tableName, data)
     {
         return this.post()
             .handler('management')
-            .action('edit-record')
+            .action('update-record')
             .query({ table: tableName })
             .jsonBody(data)
             .send();

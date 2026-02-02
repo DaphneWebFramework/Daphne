@@ -53,17 +53,17 @@ class Controller extends App.Controller
             fnList: this.#bindModelMethod('listEntityMappings'),
         });
         // 2
-        const fnList = this.#bindModelMethod('listRecords');
-        const fnAdd = this.#bindModelMethod('addRecord');
-        const fnEdit = this.#bindModelMethod('editRecord');
+        const fnList   = this.#bindModelMethod('listRecords');
+        const fnCreate = this.#bindModelMethod('createRecord');
+        const fnUpdate = this.#bindModelMethod('updateRecord');
         const fnDelete = this.#bindModelMethod('deleteRecord');
         for (const [viewKey, tableName] of TableConfig.entries()) {
             this.#tableControllers[viewKey] = new Leuce.UI.TableController({
                 $table: this.view.get(viewKey),
                 tableName,
                 fnList,
-                fnAdd,
-                fnEdit,
+                fnCreate,
+                fnUpdate,
                 fnDelete
             });
         }
@@ -87,7 +87,7 @@ class Controller extends App.Controller
         // 1
         const methodFor = {
             create: this.model.createTable,
-            drop: this.model.dropTable
+            drop  : this.model.dropTable
         };
         const $button = $(event.currentTarget);
         const action = $button.data('action');
