@@ -54,8 +54,7 @@ class Controller extends Leuce.MVC.Controller
     constructor(model, view)
     {
         super(model, view);
-        this.view.get('logout')
-            ?.on('click', this.#onClickLogout.bind(this));
+        this.view.get('logout')?.on('click', this.#handleLogoutClick.bind(this));
     }
 
     /**
@@ -70,7 +69,7 @@ class Controller extends Leuce.MVC.Controller
      * @param {jQuery.Event} event
      * @returns {void}
      */
-    #onClickLogout(event)
+    #handleLogoutClick(event)
     {
         event.preventDefault();
         this.view.setLoading(true);

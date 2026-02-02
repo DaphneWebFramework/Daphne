@@ -20,12 +20,12 @@ class Controller extends App.Controller
         super(model, view);
         if (this.view.has('form')) {
             this.view.get('googleSignInButton')
-                .on('gsi:signedin', this.#onGoogleSignedIn.bind(this));
+                .on('gsi:signedin', this.#handleGoogleSignedIn.bind(this));
             this.view.get('form')
-                .on('submit', this.#onSubmitForm.bind(this));
+                .on('submit', this.#handleFormSubmit.bind(this));
         } else {
             this.view.get('logoutButton')
-                .on('click', this.#onClickLogoutButton.bind(this));
+                .on('click', this.#handleLogoutButtonClick.bind(this));
         }
     }
 
@@ -34,7 +34,7 @@ class Controller extends App.Controller
      * @param {Object} response
      * @returns {void}
      */
-    #onGoogleSignedIn(event, response)
+    #handleGoogleSignedIn(event, response)
     {
         this.view.get('loginButton').prop('disabled', true);
         this.model.signInWithGoogle(
@@ -54,7 +54,7 @@ class Controller extends App.Controller
      * @param {jQuery.Event} event
      * @returns {void}
      */
-    #onSubmitForm(event)
+    #handleFormSubmit(event)
     {
         event.preventDefault();
         this.view.get('loginButton').leuceButton().setLoading(true);
@@ -72,7 +72,7 @@ class Controller extends App.Controller
      * @param {jQuery.Event} event
      * @returns {void}
      */
-    #onClickLogoutButton(event)
+    #handleLogoutButtonClick(event)
     {
         event.preventDefault();
         this.view.get('logoutButton').leuceButton().setLoading(true);

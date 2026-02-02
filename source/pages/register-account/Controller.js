@@ -19,9 +19,9 @@ class Controller extends App.Controller
     {
         super(model, view);
         this.view.get('googleSignInButton')
-            .on('gsi:signedin', this.#onGoogleSignedIn.bind(this));
+            .on('gsi:signedin', this.#handleGoogleSignedIn.bind(this));
         this.view.get('form')
-            .on('submit', this.#onSubmitForm.bind(this));
+            .on('submit', this.#handleFormSubmit.bind(this));
     }
 
     /**
@@ -29,7 +29,7 @@ class Controller extends App.Controller
      * @param {Object} response
      * @returns {void}
      */
-    #onGoogleSignedIn(event, response)
+    #handleGoogleSignedIn(event, response)
     {
         this.view.get('submitButton').prop('disabled', true);
         this.model.signInWithGoogle(
@@ -49,7 +49,7 @@ class Controller extends App.Controller
      * @param {jQuery.Event} event
      * @returns {void}
      */
-    #onSubmitForm(event)
+    #handleFormSubmit(event)
     {
         event.preventDefault();
         this.view.get('submitButton').leuceButton().setLoading(true);

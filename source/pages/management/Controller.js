@@ -25,8 +25,11 @@ class Controller extends App.Controller
         this.#tableControllers = {};
         this.#createTableControllers();
         // 2
-        this.view.get('entityMappingTable').on('click', '[data-action]',
-            this.#onClickEntityMappingTableInlineAction.bind(this));
+        this.view.get('entityMappingTable').on(
+            'click',
+            '[data-action]',
+            this.#handleEntityMappingTableInlineAction.bind(this)
+        );
     }
 
     /**
@@ -79,7 +82,7 @@ class Controller extends App.Controller
      * @param {jQuery.Event} event
      * @returns {void}
      */
-    #onClickEntityMappingTableInlineAction(event)
+    #handleEntityMappingTableInlineAction(event)
     {
         // 1
         const methodFor = {

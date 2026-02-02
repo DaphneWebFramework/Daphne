@@ -84,13 +84,13 @@ class Button
         // 1
         google.accounts.id.initialize({
             client_id: this.#clientId,
-            callback: response => this.#onSignIn(response)
+            callback: response => this.#handleSignedIn(response)
         });
         // 2
         this.#render();
         // 3
         if (this.#options.width === 'responsive') {
-            $(window).on('resize', () => this.#onResize());
+            $(window).on('resize', () => this.#handleWindowResize());
         }
     }
 
@@ -111,9 +111,18 @@ class Button
     }
 
     /**
+     * @param {Object} response
      * @returns {void}
      */
-    #onResize()
+    #handleSignedIn(response)
+    {
+        this.#$button.trigger('gsi:signedin', [response]);
+    }
+
+    /**
+     * @returns {void}
+     */
+    #handleWindowResize()
     {
         // 1
         const width = this.#$button.width();
@@ -129,15 +138,6 @@ class Button
             this.#resizeTimer = null;
             this.#render();
         }, 100);
-    }
-
-    /**
-     * @param {Object} response
-     * @returns {void}
-     */
-    #onSignIn(response)
-    {
-        this.#$button.trigger('gsi:signedin', [response]);
     }
 } // class Button
 
