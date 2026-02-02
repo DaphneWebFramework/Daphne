@@ -1423,6 +1423,9 @@ class TableEditor
                     // Format datetime values to use 'T' separator required by
                     // "datetime-local" inputs.
                     $input.val(value.replace(' ', 'T'));
+                } else {
+                    // If value is null, clear any leftovers from datetime input.
+                    $input.val('');
                 }
                 break;
             default:
