@@ -102,7 +102,7 @@ QUnit.module('Leuce', function()
                 $.ajaxSettings.xhr = originalXhr;
             });
 
-            QUnit.test('send() calls callback with Response', function(assert)
+            QUnit.test('send() calls response callback', function(assert)
             {
                 assert.expect(3);
                 const client = new Leuce.HTTP.Client();
@@ -124,7 +124,7 @@ QUnit.module('Leuce', function()
                 });
             });
 
-            QUnit.test('send() resolves with Response when used as Promise', function(assert)
+            QUnit.test('send() resolves response promise', function(assert)
             {
                 assert.expect(3);
                 const done = assert.async();
@@ -148,7 +148,7 @@ QUnit.module('Leuce', function()
                 });
             });
 
-            QUnit.test('send() triggers onProgress callback', function(assert)
+            QUnit.test('send() calls progress callback', function(assert)
             {
                 assert.expect(1);
                 const done = assert.async();

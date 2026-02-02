@@ -83,15 +83,15 @@ class Client
 {
     /**
      * @param {Request} request
-     * @param {(function(Response))=} onResponse
-     * @param {(function(number))=} onProgress
+     * @param {(function(Response))=} responseCallback
+     * @param {(function(number))=} progressCallback
      * @returns {Promise<Response>|undefined}
      */
-    send(request, onResponse = null, onProgress = null)
+    send(request, responseCallback = null, progressCallback = null)
     {
-        const settings = this.#buildSettings(request, onProgress);
-        if (typeof onResponse === 'function') {
-            this.#sendWithCallback(settings, onResponse);
+        const settings = this.#buildSettings(request, progressCallback);
+        if (typeof responseCallback === 'function') {
+            this.#sendWithCallback(settings, responseCallback);
         } else {
             return this.#sendWithPromise(settings);
         }
@@ -99,10 +99,10 @@ class Client
 
     /**
      * @param {Request} request
-     * @param {(function(number))=} onProgress
+     * @param {(function(number))=} progressCallback
      * @returns {object}
      */
-    #buildSettings(request, onProgress = null)
+    #buildSettings(request, progressCallback = null)
     {
         const settings = {
             method: request.method,
@@ -114,13 +114,13 @@ class Client
             settings.contentType = false;
             settings.processData = false;
         }
-        if (typeof onProgress === 'function') {
+        if (typeof progressCallback === 'function') {
             settings.xhr = function() {
                 const xhr = $.ajaxSettings.xhr();
                 if (xhr.upload) {
                     xhr.upload.addEventListener('progress', function(e) {
                         if (e.lengthComputable) {
-                            onProgress((e.loaded / e.total) * 100);
+                            progressCallback((e.loaded / e.total) * 100);
                         }
                     });
                 }
@@ -132,12 +132,12 @@ class Client
 
     /**
      * @param {object} settings
-     * @param {function(Response)} callback
+     * @param {function(Response)} responseCallback
      */
-    #sendWithCallback(settings, callback)
+    #sendWithCallback(settings, responseCallback)
     {
         settings.complete = function(jqXHR) {
-            callback(Response.fromJqXHR(jqXHR));
+            responseCallback(Response.fromJqXHR(jqXHR));
         };
         $.ajax(settings);
     }
@@ -280,12 +280,12 @@ class RequestBuilder
     }
 
     /**
-     * @param {(function(Response))=} onResponse
-     * @param {(function(number))=} onProgress
+     * @param {(function(Response))=} responseCallback
+     * @param {(function(number))=} progressCallback
      * @returns {Promise<Response>|undefined}
      * @throws {Error}
      */
-    send(onResponse = null, onProgress = null)
+    send(responseCallback = null, progressCallback = null)
     {
         let apiUrl = Utility.metaContent('app:api-url');
         if (apiUrl === null) {
@@ -304,7 +304,7 @@ class RequestBuilder
             this.#request.url += '?'
                 + new URLSearchParams(this.#queryParams).toString();
         }
-        return this.#client.send(this.#request, onResponse, onProgress);
+        return this.#client.send(this.#request, responseCallback, progressCallback);
     }
 }
 
@@ -754,14 +754,14 @@ class Form
      */
     #bindEvents()
     {
-        this.#$root.on('submit', this.#onSubmit.bind(this));
+        this.#$root.on('submit', this.#handleSubmit.bind(this));
     }
 
     /**
      * @param {jQuery.Event} event
      * @returns {void}
      */
-    #onSubmit(event)
+    #handleSubmit(event)
     {
         event.preventDefault();
         this.#$root.trigger('leuce:form:submit', [this.data()]);
@@ -2415,23 +2415,18 @@ class Table
     {
         // Sortable headers
         if (!this.#$thead.is('[data-nosort]')) {
-            const boundOnClickHeader = this.#onClickHeader.bind(this);
+            const boundHandleHeaderClick = this.#handleHeaderClick.bind(this);
             for (const column of this.#columns) {
                 if (column.key !== null && !column.$th.is('[data-nosort]')) {
-                    column.$th.on('click', boundOnClickHeader);
+                    column.$th.on('click', boundHandleHeaderClick);
                 }
             }
         }
         // Inline actions
         if (this.#editor !== null) {
-            this.#$tbody.on('click', '[data-action="edit"]', event => {
-                const $tr = $(event.currentTarget).closest('tr');
-                this.#editor.showEdit($tr);
-            });
-            this.#$tbody.on('click', '[data-action="delete"]', event => {
-                const $tr = $(event.currentTarget).closest('tr');
-                this.#editor.showDelete($tr);
-            });
+            this.#$tbody
+                .on('click', '[data-action="edit"]', this.#handleEditClick.bind(this))
+                .on('click', '[data-action="delete"]', this.#handleDeleteClick.bind(this));
         }
     }
 
@@ -2439,7 +2434,7 @@ class Table
      * @param {jQuery.Event} event
      * @returns {void}
      */
-    #onClickHeader(event)
+    #handleHeaderClick(event)
     {
         const $th = $(event.currentTarget);
         const clickedKey = $th.data('key');
@@ -2474,6 +2469,26 @@ class Table
                 ? null
                 : { key: clickedKey, direction: newDirection }
         );
+    }
+
+    /**
+     * @param {jQuery.Event} event
+     * @returns {void}
+     */
+    #handleEditClick(event)
+    {
+        const $tr = $(event.currentTarget).closest('tr');
+        this.#editor.showEdit($tr);
+    }
+
+    /**
+     * @param {jQuery.Event} event
+     * @returns {void}
+     */
+    #handleDeleteClick(event)
+    {
+        const $tr = $(event.currentTarget).closest('tr');
+        this.#editor.showDelete($tr);
     }
 
     /**
@@ -2647,7 +2662,7 @@ class TableController
         this.#page = 1;
         this.#pageSize = Table.defaultPageSize();
         this.#totalPages = 0;
-        this.#$table.leuceTable().setActionHandler(this.#onAction.bind(this));
+        this.#$table.leuceTable().setActionHandler(this.#handleAction.bind(this));
     }
 
     /**
@@ -2700,21 +2715,21 @@ class TableController
      * @param {string} action
      * @param {*} [payload=null]
      */
-    #onAction(action, payload = null)
+    #handleAction(action, payload = null)
     {
         switch (action) {
-        case 'reload':       this.#onReload(); break;
-        case 'search':       this.#onSearch(payload); break;
-        case 'sort':         this.#onSort(payload); break;
-        case 'add':          this.#onAdd(payload); break;
-        case 'edit':         this.#onEdit(payload); break;
-        case 'delete':       this.#onDelete(payload); break;
-        case 'pageSize':     this.#onPageSize(payload); break;
-        case 'firstPage':    this.#onFirstPage(); break;
-        case 'previousPage': this.#onPreviousPage(); break;
-        case 'currentPage':  this.#onCurrentPage(payload); break;
-        case 'nextPage':     this.#onNextPage(); break;
-        case 'lastPage':     this.#onLastPage(); break;
+        case 'reload':       this.#handleReload(); break;
+        case 'search':       this.#handleSearch(payload); break;
+        case 'sort':         this.#handleSort(payload); break;
+        case 'add':          this.#handleAdd(payload); break;
+        case 'edit':         this.#handleEdit(payload); break;
+        case 'delete':       this.#handleDelete(payload); break;
+        case 'pageSize':     this.#handlePageSize(payload); break;
+        case 'firstPage':    this.#handleFirstPage(); break;
+        case 'previousPage': this.#handlePreviousPage(); break;
+        case 'currentPage':  this.#handleCurrentPage(payload); break;
+        case 'nextPage':     this.#handleNextPage(); break;
+        case 'lastPage':     this.#handleLastPage(); break;
         default:
             console.warn('Leuce: Unknown table action:', action);
             break;
@@ -2724,7 +2739,7 @@ class TableController
     /**
      * @returns {void}
      */
-    #onReload()
+    #handleReload()
     {
         this.load();
     }
@@ -2733,7 +2748,7 @@ class TableController
      * @param {string} search
      * @returns {void}
      */
-    #onSearch(search)
+    #handleSearch(search)
     {
         if (search === '') {
             search = null;
@@ -2750,7 +2765,7 @@ class TableController
      * @param {{key: string, direction: string}|null} sort
      * @returns {void}
      */
-    #onSort(sort)
+    #handleSort(sort)
     {
         this.#sort = sort;
         this.#page = 1;
@@ -2761,7 +2776,7 @@ class TableController
      * @param {object} rowData
      * @returns {void}
      */
-    #onAdd(rowData)
+    #handleAdd(rowData)
     {
         if (this.#fnAdd === null || this.#tableName === null) {
             console.warn('Leuce: Cannot perform add because '
@@ -2784,7 +2799,7 @@ class TableController
      * @param {object} rowData
      * @returns {void}
      */
-    #onEdit(rowData)
+    #handleEdit(rowData)
     {
         if (this.#fnEdit === null || this.#tableName === null) {
             console.warn('Leuce: Cannot perform edit because '
@@ -2807,7 +2822,7 @@ class TableController
      * @param {number} id
      * @returns {void}
      */
-    #onDelete(id)
+    #handleDelete(id)
     {
         if (this.#fnDelete === null || this.#tableName === null) {
             console.warn('Leuce: Cannot perform delete because '
@@ -2838,7 +2853,7 @@ class TableController
      * @param {number} pageSize
      * @returns {void}
      */
-    #onPageSize(pageSize)
+    #handlePageSize(pageSize)
     {
         if (pageSize === this.#pageSize) {
             return;
@@ -2851,7 +2866,7 @@ class TableController
     /**
      * @returns {void}
      */
-    #onFirstPage()
+    #handleFirstPage()
     {
         if (this.#page === 1) {
             return;
@@ -2863,7 +2878,7 @@ class TableController
     /**
      * @returns {void}
      */
-    #onPreviousPage()
+    #handlePreviousPage()
     {
         if (this.#page === 1) {
             return;
@@ -2876,7 +2891,7 @@ class TableController
      * @param {number} page
      * @returns {void}
      */
-    #onCurrentPage(page)
+    #handleCurrentPage(page)
     {
         if (page === this.#page) {
             return;
@@ -2888,7 +2903,7 @@ class TableController
     /**
      * @returns {void}
      */
-    #onNextPage()
+    #handleNextPage()
     {
         if (this.#page === this.#totalPages) {
             return;
@@ -2900,7 +2915,7 @@ class TableController
     /**
      * @returns {void}
      */
-    #onLastPage()
+    #handleLastPage()
     {
         if (this.#page === this.#totalPages) {
             return;
