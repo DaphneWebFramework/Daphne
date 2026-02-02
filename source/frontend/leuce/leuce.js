@@ -532,7 +532,7 @@ class UI
         let instance;
         if ($modal.length === 0) {
             instance = new MessageBox();
-            $modal = instance.root();
+            $modal = instance.node();
             $modal.data(dataKey, instance);
             $(document.body).append($modal);
         } else {
@@ -619,7 +619,7 @@ class Deferred
 class Form
 {
     /** @type {jQuery} */
-    #$root;
+    #$node;
 
     /** @type {string|null} */
     #snapshot;
@@ -630,8 +630,8 @@ class Form
      */
     constructor(selector)
     {
-        this.#$root = $(selector);
-        if (this.#$root.length !== 1 || !this.#$root.is('form')) {
+        this.#$node = $(selector);
+        if (this.#$node.length !== 1 || !this.#$node.is('form')) {
             throw new Error(
                 `Leuce: Selector must match a single form element: ${selector}`);
         }
@@ -642,9 +642,9 @@ class Form
     /**
      * @returns {jQuery}
      */
-    root()
+    node()
     {
-        return this.#$root;
+        return this.#$node;
     }
 
     /**
@@ -652,7 +652,7 @@ class Form
      */
     validate()
     {
-        const form = this.#$root[0];
+        const form = this.#$node[0];
         if (!form.checkValidity()) {
             form.reportValidity();
             return false;
@@ -665,7 +665,7 @@ class Form
      */
     serialize()
     {
-        return this.#$root.serialize();
+        return this.#$node.serialize();
     }
 
     /**
@@ -674,7 +674,7 @@ class Form
     data()
     {
         const data = {};
-        jQuery.map(this.#$root.serializeArray(), function(item) {
+        jQuery.map(this.#$node.serializeArray(), function(item) {
             if (item.name.endsWith('[]')) {
                 const name = item.name.slice(0, -2);
                 if (!Array.isArray(data[name])) {
@@ -709,7 +709,7 @@ class Form
      */
     clear()
     {
-        this.#$root[0].reset();
+        this.#$node[0].reset();
     }
 
     /**
@@ -720,7 +720,7 @@ class Form
         if (!this.validate()) {
             return;
         }
-        this.#$root.submit();
+        this.#$node.submit();
     }
 
     /**
@@ -746,7 +746,7 @@ class Form
      */
     findInput(name)
     {
-        return this.#$root.find(`[name="${name}"]`);
+        return this.#$node.find(`[name="${name}"]`);
     }
 
     /**
@@ -754,7 +754,7 @@ class Form
      */
     #bindEvents()
     {
-        this.#$root.on('submit', this.#handleSubmit.bind(this));
+        this.#$node.on('submit', this.#handleSubmit.bind(this));
     }
 
     /**
@@ -764,14 +764,14 @@ class Form
     #handleSubmit(event)
     {
         event.preventDefault();
-        this.#$root.trigger('leuce:form:submit', [this.data()]);
+        this.#$node.trigger('leuce:form:submit', [this.data()]);
     }
 }
 
 class Modal
 {
     /** @type {jQuery} */
-    #$root;
+    #$node;
 
     /** @type {jQuery} */
     #$confirmButton;
@@ -797,15 +797,15 @@ class Modal
      */
     constructor(selector)
     {
-        this.#$root = $(selector);
-        if (this.#$root.length === 0) {
+        this.#$node = $(selector);
+        if (this.#$node.length === 0) {
             throw new Error(`Leuce: Modal element not found: ${selector}`);
         }
-        this.#$confirmButton = this.#$root.find('[data-leuce-modal-confirm-button]');
+        this.#$confirmButton = this.#$node.find('[data-leuce-modal-confirm-button]');
         if (this.#$confirmButton.length === 0) {
             console.warn('Leuce: Modal confirm button not found.');
         }
-        this.#modal = new bootstrap.Modal(this.#$root[0]);
+        this.#modal = new bootstrap.Modal(this.#$node[0]);
         this.#canConfirm = null; // per-call state
         this.#canCancel = null; // per-call state
         this.#confirmation = null; // per-call state
@@ -816,9 +816,9 @@ class Modal
     /**
      * @returns {jQuery}
      */
-    root()
+    node()
     {
-        return this.#$root;
+        return this.#$node;
     }
 
     /**
@@ -863,7 +863,7 @@ class Modal
      */
     #bindEvents()
     {
-        this.#$root
+        this.#$node
             .on('shown.bs.modal', this.#handleShown.bind(this))
             .on('hide.bs.modal', this.#boundHandleHide)
             .on('hidden.bs.modal', this.#handleHidden.bind(this))
@@ -877,7 +877,7 @@ class Modal
      */
     #resetDraggable()
     {
-        this.#$root.css({ position: '', left: '', top: '' });
+        this.#$node.css({ position: '', left: '', top: '' });
     }
 
     /**
@@ -888,9 +888,9 @@ class Modal
      */
     #killFocus()
     {
-        const $focused = this.#$root.is(':focus')
-            ? this.#$root
-            : this.#$root.find(':focus');
+        const $focused = this.#$node.is(':focus')
+            ? this.#$node
+            : this.#$node.find(':focus');
         if ($focused.length) {
             $focused.trigger('blur');
         }
@@ -902,7 +902,7 @@ class Modal
      */
     #handleShown(event)
     {
-        const $autofocus = this.#$root.find('[autofocus]');
+        const $autofocus = this.#$node.find('[autofocus]');
         if ($autofocus.length) {
             $autofocus.first().trigger('focus');
         }
@@ -939,9 +939,9 @@ class Modal
             // preventDefault(), it's too late.
             event.preventDefault();
             if (true === await this.#canCancel()) {
-                this.#$root.off('hide.bs.modal', this.#boundHandleHide);
+                this.#$node.off('hide.bs.modal', this.#boundHandleHide);
                 this.hide();
-                this.#$root.on('hide.bs.modal', this.#boundHandleHide);
+                this.#$node.on('hide.bs.modal', this.#boundHandleHide);
             }
         }
     }
@@ -981,7 +981,7 @@ class MessageBox extends Modal
 {
     constructor()
     {
-        super(MessageBox.#createRoot());
+        super(MessageBox.#createNode());
     }
 
     /**
@@ -1015,7 +1015,7 @@ class MessageBox extends Modal
         beforeShow,
         canConfirm
     ) {
-        // 1. Normalize parameters
+        // 1
         title = (typeof title === 'string')
             ? title : null;
         message = (typeof message === 'string' || message instanceof jQuery)
@@ -1034,33 +1034,33 @@ class MessageBox extends Modal
             ? beforeShow : null;
         canConfirm = (typeof canConfirm === 'function')
             ? canConfirm : null;
-        // 2. Get root
-        const root = this.root();
-        // 3. Title
-        const $title = root.find('.modal-title');
+        // 2
+        const $node = this.node();
+        // 3
+        const $title = $node.find('.modal-title');
         $title.text(title ?? "Message");
-        // 4. Message
-        const $body = root.find('.modal-body');
+        // 4
+        const $body = $node.find('.modal-body');
         $body.empty();
         if (typeof message === 'string') {
             $body.html(message);
         } else { // instanceof jQuery
             $body.append(message);
         }
-        // 5. Theme
+        // 5
         if (theme !== null) {
-            root.attr('data-bs-theme', theme);
+            $node.attr('data-bs-theme', theme);
         } else {
-            root.removeAttr('data-bs-theme');
+            $node.removeAttr('data-bs-theme');
         }
-        // 6. Primary button
-        const $primaryButton = root
+        // 6
+        const $primaryButton = $node
             .find('[data-leuce-modal-confirm-button]');
         $primaryButton
             .text(primaryButtonLabel)
             .attr('class', `btn btn-${primaryButtonVariant}`);
-        // 7. Secondary button
-        const $secondaryButton = root
+        // 7
+        const $secondaryButton = $node
             .find('.modal-footer button')
             .not('[data-leuce-modal-confirm-button]');
         if (secondaryButtonLabel === null) {
@@ -1071,18 +1071,18 @@ class MessageBox extends Modal
                 .text(secondaryButtonLabel)
                 .attr('class', `btn btn-${secondaryButtonVariant}`);
         }
-        // 8. Before show
+        // 8
         if (beforeShow !== null) {
             beforeShow();
         }
-        // 9. Show
+        // 9
         return super.show({ canConfirm });
     }
 
     /**
      * @returns {jQuery}
      */
-    static #createRoot()
+    static #createNode()
     {
         const modalTitleId = `modal-title-${Utility.uniqueId()}`;
         return $('<div>', {
@@ -1714,7 +1714,7 @@ class TableEditor
 class TableToolbar
 {
     /** @type {jQuery} */
-    #$root;
+    #$node;
 
     /** @type {TableEditor|null} */
     #editor;
@@ -1728,7 +1728,7 @@ class TableToolbar
      */
     constructor(editor, noSearch)
     {
-        this.#$root = TableToolbar.#createRoot(editor !== null, noSearch);
+        this.#$node = TableToolbar.#createNode(editor !== null, noSearch);
         this.#editor = editor;
         this.#actionHandler = null;
         this.#bindEvents(noSearch);
@@ -1737,9 +1737,9 @@ class TableToolbar
     /**
      * @returns {jQuery}
      */
-    root()
+    node()
     {
-        return this.#$root;
+        return this.#$node;
     }
 
     /**
@@ -1759,24 +1759,24 @@ class TableToolbar
     {
         // Search box
         if (!noSearch) {
-            this.#$root.find('[data-action="search-input"]').on('keydown', (event) => {
+            this.#$node.find('[data-action="search-input"]').on('keydown', (event) => {
                 if (event.key === 'Enter') {
                     this.#actionHandler?.('search', $(event.currentTarget).val().trim());
                 }
             });
-            this.#$root.find('[data-action="search"]').on('click', () => {
-                const $input = this.#$root.find('[data-action="search-input"]');
+            this.#$node.find('[data-action="search"]').on('click', () => {
+                const $input = this.#$node.find('[data-action="search-input"]');
                 this.#actionHandler?.('search', $input.val().trim());
             });
         }
         // Add button
         if (this.#editor !== null) {
-            this.#$root.find('[data-action="add"]').on('click', () => {
+            this.#$node.find('[data-action="add"]').on('click', () => {
                 this.#editor.showAdd();
             });
         }
         // Reload button
-        this.#$root.find('[data-action="reload"]').on('click', () => {
+        this.#$node.find('[data-action="reload"]').on('click', () => {
             this.#actionHandler?.('reload');
         });
     }
@@ -1786,7 +1786,7 @@ class TableToolbar
      * @param {boolean} noSearch
      * @returns {jQuery}
      */
-    static #createRoot(hasAddButton, noSearch)
+    static #createNode(hasAddButton, noSearch)
     {
         return $('<div>', {
             class: 'leuce-table-controls'
@@ -1864,14 +1864,14 @@ class TablePaginator
     static #defaultPageSize = 5;
 
     /** @type {jQuery} */
-    #$root;
+    #$node;
 
     /** @type {(action: string, payload?: *) => void}|null */
     #actionHandler;
 
     constructor()
     {
-        this.#$root = TablePaginator.#createRoot();
+        this.#$node = TablePaginator.#createNode();
         this.#actionHandler = null;
         this.#bindEvents();
     }
@@ -1887,9 +1887,9 @@ class TablePaginator
     /**
      * @returns {jQuery}
      */
-    root()
+    node()
     {
-        return this.#$root;
+        return this.#$node;
     }
 
     /**
@@ -1910,7 +1910,7 @@ class TablePaginator
     update(totalRecords, pageSize, currentPage)
     {
         const totalPages = Math.ceil(totalRecords / pageSize);
-        const $select = this.#$root.find('[data-action="currentPage"]');
+        const $select = this.#$node.find('[data-action="currentPage"]');
         $select.empty();
         for (let i = 1; i <= totalPages; ++i) {
             const $option = $('<option>').val(i).text(i);
@@ -1922,11 +1922,11 @@ class TablePaginator
         const hasNoPages = totalPages === 0;
         const atFirstPage = currentPage === 1;
         const atLastPage = currentPage === totalPages || hasNoPages;
-        this.#$root.find('[data-action="firstPage"]').prop('disabled', atFirstPage);
-        this.#$root.find('[data-action="previousPage"]').prop('disabled', atFirstPage);
-        this.#$root.find('[data-action="currentPage"]').prop('disabled', hasNoPages);
-        this.#$root.find('[data-action="nextPage"]').prop('disabled', atLastPage);
-        this.#$root.find('[data-action="lastPage"]').prop('disabled', atLastPage);
+        this.#$node.find('[data-action="firstPage"]').prop('disabled', atFirstPage);
+        this.#$node.find('[data-action="previousPage"]').prop('disabled', atFirstPage);
+        this.#$node.find('[data-action="currentPage"]').prop('disabled', hasNoPages);
+        this.#$node.find('[data-action="nextPage"]').prop('disabled', atLastPage);
+        this.#$node.find('[data-action="lastPage"]').prop('disabled', atLastPage);
         return totalPages;
     }
 
@@ -1935,22 +1935,22 @@ class TablePaginator
      */
     #bindEvents()
     {
-        this.#$root.find('[data-action="pageSize"]').on('change', (event) => {
+        this.#$node.find('[data-action="pageSize"]').on('change', (event) => {
             this.#actionHandler?.('pageSize', parseInt(event.target.value, 10));
         });
-        this.#$root.find('[data-action="firstPage"]').on('click', () => {
+        this.#$node.find('[data-action="firstPage"]').on('click', () => {
             this.#actionHandler?.('firstPage');
         });
-        this.#$root.find('[data-action="previousPage"]').on('click', () => {
+        this.#$node.find('[data-action="previousPage"]').on('click', () => {
             this.#actionHandler?.('previousPage');
         });
-        this.#$root.find('[data-action="currentPage"]').on('change', (event) => {
+        this.#$node.find('[data-action="currentPage"]').on('change', (event) => {
             this.#actionHandler?.('currentPage', parseInt(event.target.value, 10));
         });
-        this.#$root.find('[data-action="nextPage"]').on('click', () => {
+        this.#$node.find('[data-action="nextPage"]').on('click', () => {
             this.#actionHandler?.('nextPage');
         });
-        this.#$root.find('[data-action="lastPage"]').on('click', () => {
+        this.#$node.find('[data-action="lastPage"]').on('click', () => {
             this.#actionHandler?.('lastPage');
         });
     }
@@ -1958,7 +1958,7 @@ class TablePaginator
     /**
      * @returns {jQuery}
      */
-    static #createRoot()
+    static #createNode()
     {
         return $('<div>', {
             class: 'leuce-table-controls'
@@ -2138,13 +2138,13 @@ class Table
         }
         // 8
         this.#toolbar = new TableToolbar(this.#editor, $table.is('[data-nosearch]'));
-        this.#$wrapper.prepend(this.#toolbar.root().addClass('mb-3'));
+        this.#$wrapper.prepend(this.#toolbar.node().addClass('mb-3'));
         // 9
         if ($table.is('[data-nopaginate]')) {
             this.#paginator = null;
         } else {
             this.#paginator = new TablePaginator();
-            this.#$wrapper.append(this.#paginator.root().addClass('mt-3'));
+            this.#$wrapper.append(this.#paginator.node().addClass('mt-3'));
         }
         // 10
         this.#$overlay = Table.#createOverlay();
