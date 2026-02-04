@@ -2987,6 +2987,22 @@ class Utility
     {
         return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     }
+
+    /**
+     * @param {Function} fn
+     * @param {number} [delay=100]
+     * @returns {Function}
+     */
+    static debounce(fn, delay = 100) {
+        let timer;
+        return function(...args) {
+            clearTimeout(timer);
+            timer = setTimeout(
+                () => fn.apply(this, args),
+                delay
+            );
+        };
+    }
 }
 
 //#endregion Utility

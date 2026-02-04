@@ -1535,6 +1535,49 @@ QUnit.module('Leuce', function()
                 assert.notStrictEqual(id1, id2);
             });
         }); // uniqueId
+
+        QUnit.module('debounce', function()
+        {
+            QUnit.test('Executes once after the delay',
+            function(assert) {
+                const done = assert.async();
+                let count = 0;
+                const debounced = Leuce.Utility.debounce(() => {
+                    ++count;
+                }, 50);
+                debounced();
+                debounced();
+                debounced();
+                assert.strictEqual(count, 0);
+                // Wait longer than the 50ms
+                setTimeout(() => {
+                    assert.strictEqual(count, 1);
+                    done();
+                }, 100);
+            });
+
+            QUnit.test('Maintains "this" context',
+            function(assert) {
+                const done = assert.async();
+                const context = { name: 'Hello' };
+                const debounced = Leuce.Utility.debounce(function() {
+                    assert.strictEqual(this.name, 'Hello');
+                    done();
+                }, 10).bind(context);
+                debounced();
+            });
+
+            QUnit.test('Passes arguments correctly',
+            function(assert) {
+                const done = assert.async();
+                const debounced = Leuce.Utility.debounce((a, b) => {
+                    assert.strictEqual(a, 10);
+                    assert.strictEqual(b, 20);
+                    done();
+                }, 10);
+                debounced(10, 20);
+            });
+        }); // debounce
     }); // Utility
 }); // Leuce
 
