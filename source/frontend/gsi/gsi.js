@@ -53,9 +53,6 @@ class Button
     #clientId;
 
     /** @type {number|null} */
-    #resizeTimer;
-
-    /** @type {number|null} */
     #lastWidth;
 
     /**
@@ -68,7 +65,6 @@ class Button
         this.#$button = $button;
         this.#options = options;
         this.#clientId = Leuce.Utility.metaContent('app:google-oauth2-client-id');
-        this.#resizeTimer = null;
         this.#lastWidth = null;
         // 2
         Script.load()
@@ -90,7 +86,9 @@ class Button
         this.#render();
         // 3
         if (this.#options.width === 'responsive') {
-            $(window).on('resize', () => this.#handleWindowResize());
+            $(window).on('resize', Leuce.Utility.debounce(() =>
+                this.#handleWindowResize()
+            ));
         }
     }
 
@@ -124,20 +122,12 @@ class Button
      */
     #handleWindowResize()
     {
-        // 1
         const width = this.#$button.width();
         if (width === this.#lastWidth) {
             return;
         }
         this.#lastWidth = width;
-        // 2
-        if (this.#resizeTimer !== null) {
-            clearTimeout(this.#resizeTimer);
-        }
-        this.#resizeTimer = setTimeout(() => {
-            this.#resizeTimer = null;
-            this.#render();
-        }, 100);
+        this.#render();
     }
 } // class Button
 
