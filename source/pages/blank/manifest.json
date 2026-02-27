@@ -1,0 +1,11 @@
+{
+  "css": [
+    "index"
+  ],
+  "js": [
+    "Model",
+    "View",
+    "Controller",
+    "index"
+  ]
+}
