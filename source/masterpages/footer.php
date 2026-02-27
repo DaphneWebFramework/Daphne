@@ -10,7 +10,6 @@
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
 
-use \Charis\Container;
 use \Charis\Generic;
 use \Harmonia\Config;
 use \Peneus\Systems\PageSystem\Page;
@@ -19,15 +18,8 @@ if (!isset($this) || !$this instanceof Page) {
 	exit;
 }
 ?>
-	<?=new Generic('footer', null, [
-		new Container([
-			'class' => $this->Property('wideLayout', false)
-				? 'container-fluid'
-				: 'container'
-		], [
-			new Generic('hr', ['class' => 'mb-2'], [], true),
-			new Generic('span', ['class' => 'small text-muted'],
-				'&copy; ' . \date('Y') . ' ' . Config::Instance()->Option('AppName')
-			)
+	<?=new Generic('footer', ['class' => 'bg-light', 'style' => 'padding: 2rem 0;'], [
+		new Generic('div', ['class' => 'text-center text-muted'], [
+			'&copy; ' . \date('Y') . ' ' . Config::Instance()->Option('AppName')
 		])
 	])?>
