@@ -19,7 +19,7 @@ if (!isset($this) || !$this instanceof Page) {
 }
 ?>
 	<?=new Generic('footer', ['class' => 'bg-light', 'style' => 'padding: 2rem 0;'], [
-		new Generic('div', ['class' => 'text-center text-muted'], [
+		new Generic('div', ['class' => 'text-center text-muted small'], [
 			'&copy; ' . \date('Y') . ' ' . Config::Instance()->Option('AppName')
 		])
 	])?>
