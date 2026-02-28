@@ -17,10 +17,10 @@
   Header unset X-Powered-By
   Header set Content-Security-Policy "\
     default-src 'self';\
-    script-src 'self' https://accounts.google.com/gsi/client;\
+    script-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/client;\
     style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style;\
     img-src 'self' data:;\
-    font-src 'self';\
+    font-src 'self' data:;\
     connect-src 'self' https://accounts.google.com/gsi/;\
     object-src 'none';\
     frame-src https://accounts.google.com/gsi/;\

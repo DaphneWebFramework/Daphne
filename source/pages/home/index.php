@@ -33,6 +33,37 @@ function renderCard(string $imageUrl, string $title, string $description): Gener
 }
 ?>
 <?php $page->Begin()?>
+	<style>
+		:root {
+		--page-min-width: 320px;
+		--page-max-width: 1200px;
+		--page-min-scale: 1;
+		--page-max-scale: 1.5;
+		--page-scale: 1;
+		}
+	</style>
+	<script>
+		function updatePageScale() {
+			function interpolate(xt, x0, y0, x1, y1) {
+				if (x0 === x1) return y0;
+				return y0 + (xt - x0) / (x1 - x0) * (y1 - y0);
+			}
+			function clamp(value, min, max) {
+				return Math.min(Math.max(value, min), max);
+			}
+			const root = document.documentElement;
+			const style = getComputedStyle(root);
+			const x0 = parseFloat(style.getPropertyValue('--page-min-width'));
+			const x1 = parseFloat(style.getPropertyValue('--page-max-width'));
+			const y0 = parseFloat(style.getPropertyValue('--page-min-scale'));
+			const y1 = parseFloat(style.getPropertyValue('--page-max-scale'));
+			let scale = interpolate(window.innerWidth, x0, y0, x1, y1);
+			scale = clamp(scale, y0, y1);
+			root.style.setProperty('--page-scale', scale.toFixed(3));
+		}
+		updatePageScale();
+		window.addEventListener('resize', updatePageScale);
+	</script>
 	<?=new Generic('main', ['role' => 'main'], [
 		// Section: Hero
 		new Generic('section', ['class' => 'hero section'], [

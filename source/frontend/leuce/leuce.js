@@ -2993,7 +2993,8 @@ class Utility
      * @param {number} [delay=100]
      * @returns {Function}
      */
-    static debounce(fn, delay = 100) {
+    static debounce(fn, delay = 100)
+    {
         let timer;
         return function(...args) {
             clearTimeout(timer);

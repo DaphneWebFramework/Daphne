@@ -10,25 +10,10 @@
  */
 
 :root {
-  --page-min-width: 320px;
-  --page-max-width: 1200px;
-  --min-scale: 1;
-  --max-scale: 1.5;
-  --width-delta: calc(var(--page-max-width) - var(--page-min-width));
-  --scale-delta: calc(var(--max-scale) - var(--min-scale));
-  --width-progress: clamp(
-    0px,
-    100vw - var(--page-min-width),
-    var(--width-delta)
-  );
-  --page-scale: calc(
-    var(--min-scale)
-  + var(--width-progress) / var(--width-delta) * var(--scale-delta)
-  );
-  --page-s1: calc(0.5rem * var(--page-scale));
-  --page-s2: calc(1.0rem * var(--page-scale));
-  --page-s3: calc(1.5rem * var(--page-scale));
-  --page-s4: calc(2.0rem * var(--page-scale));
+--page-s1: calc(0.5rem * var(--page-scale));
+--page-s2: calc(1.0rem * var(--page-scale));
+--page-s3: calc(1.5rem * var(--page-scale));
+--page-s4: calc(2.0rem * var(--page-scale));
 }
 
 /**
@@ -66,7 +51,7 @@ img, video {
 .cards {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--page-s4);
+  gap: var(--page-s3);
 }
 @media (min-width: 576px) {
   .cards {
