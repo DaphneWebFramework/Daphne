@@ -20,7 +20,7 @@ $page = (new Page(__DIR__))
 	->SetMasterPage('standard')
 	->SetProperty('wideLayout', true);
 
-function renderCard(string $imageUrl, string $title, string $description): Generic {
+function renderFeature(string $imageUrl, string $title, string $description): Generic {
 	return new Generic('div', ['class' => 'item'], [
 		new Generic('div', ['class' => 'visual'], [
 			new Generic('img', ['src' => $imageUrl, 'alt' => $title], null, true)
@@ -59,33 +59,33 @@ function renderCard(string $imageUrl, string $title, string $description): Gener
 				])
 			]),
 			new Generic('div', ['class' => 'inner'], [
-				new Generic('div', ['class' => 'cards'], [
-					renderCard(
+				new Generic('div', ['class' => 'grid'], [
+					renderFeature(
 						'assets/feature.png',
 						"Etiam semper",
 						"Aenean accumsan sodales accumsan. Pellentesque vitae risus placerat, convallis orci non, rhoncus velit."
 					),
-					renderCard(
+					renderFeature(
 						'assets/feature.png',
 						"Aliquam mattis",
 						"Curabitur sodales tempus turpis, tempus laoreet nisl efficitur a. Curabitur in venenatis nisi."
 					),
-					renderCard(
+					renderFeature(
 						'assets/feature.png',
 						"Maecenas non neque",
 						"Etiam dignissim commodo interdum. Vivamus lacus libero, placerat eget massa nec, luctus vehicula turpis."
 					),
-					renderCard(
+					renderFeature(
 						'assets/feature.png',
 						"Ut rhoncus vehicula",
 						"Nunc finibus eget risus a fringilla. Nullam ullamcorper mi mi, et auctor lacus tincidunt vitae."
 					),
-					renderCard(
+					renderFeature(
 						'assets/feature.png',
 						"Fusce gravida tristique",
 						"Suspendisse quam augue, lacinia at blandit ac, lacinia fermentum dolor. Sed eget nisl ut nisi suscipit suscipit."
 					),
-					renderCard(
+					renderFeature(
 						'assets/feature.png',
 						"Gravida tristique",
 						"Hac habitasse platea dictumst. Cras ultricies, nisi ut venenatis tincidunt, ipsum nibh aliquam dolor."
