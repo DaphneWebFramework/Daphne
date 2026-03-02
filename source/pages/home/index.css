@@ -67,8 +67,8 @@ h1 + p {
 h2 + p {
   font-size: calc(1.25rem * var(--page-scale));
 }
-h3 + p {
-  font-size: calc(1.00rem * var(--page-scale));
+p {
+  font-size: calc(1rem * var(--page-scale));
 }
 img, video {
   width: 100%;    /* fill container width */
