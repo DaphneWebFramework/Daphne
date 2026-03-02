@@ -11,4 +11,5 @@ backend/TestToolkit/
 frontend/.gitkeep
 frontend/bootstrap-5.3.7/css/bootstrap.css.map
 frontend/bootstrap-5.3.7/js/bootstrap.bundle.js.map
+pages/blank/
 pages/install/
