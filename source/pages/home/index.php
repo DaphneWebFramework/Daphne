@@ -98,6 +98,51 @@ function renderFeature(string $imageUrl, string $title, string $description): Ge
 				])
 			])
 		]),
+		// Section: Pricing
+		new Generic('section', ['class' => 'pricing section'], [
+			new Generic('header', null, [
+				new Generic('div', ['class' => 'inner'], [
+					new Generic('h2', null, "Pricium"),
+					new Generic('p', null, "Libero erat, fringilla id dui eget, dapibus laoreet sapien.")
+				])
+			]),
+			new Generic('div', ['class' => 'inner'], [
+				new Generic('div', ['class' => 'grid'], [
+					// Plan: Primus
+					new Generic('div', ['class' => 'item'], [
+						new Generic('h3', null, "Primus"),
+						new Generic('p', null, [
+							new Generic('span', ['class' => 'price-total'], "$0")
+						]),
+						new Generic('ul', ['class' => 'features-list'], [
+							new Generic('li', null, "Aenean accumsan sodales"),
+							new Generic('li', null, "Pellentesque vitae risus"),
+						]),
+						new Generic('a', [
+							'class' => 'btn btn-outline-secondary',
+							'href' => '#'
+						], "Incipere")
+					]),
+					// Plan: Maximus
+					new Generic('div', ['class' => 'item border-primary-subtle bg-primary', 'style' => '--bs-bg-opacity: 0.025;'], [
+						new Generic('h3', null, "Maximus"),
+						new Generic('p', null, [
+							new Generic('span', ['class' => 'price-total'], "$19"),
+							new Generic('span', ['class' => 'price-interval'], "mensis")
+						]),
+						new Generic('ul', ['class' => 'features-list'], [
+							new Generic('li', null, "Curabitur sodales tempus"),
+							new Generic('li', null, "Maecenas non neque"),
+							new Generic('li', null, "Fusce gravida tristique"),
+						]),
+						new Generic('a', [
+							'class' => 'btn btn-primary',
+							'href' => '#'
+						], "Evolvere")
+					]),
+				])
+			])
+		]),
 		// Section: Call to Action
 		new Generic('section', ['class' => 'cta section bg-dark'], [
 			new Generic('div', ['class' => 'inner'], [

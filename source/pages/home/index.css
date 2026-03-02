@@ -170,6 +170,54 @@ img, video {
 }
 
 /**
+ * Section: Pricing
+ */
+.pricing .grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--page-s3);
+}
+@media (min-width: 576px) {
+  .pricing .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.pricing .grid .item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--page-s2);
+  padding: var(--page-s3);
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius-xxl);
+  text-align: center;
+}
+.pricing .grid .item .price-total {
+  font-size: var(--page-s3);
+  font-weight: 700;
+}
+.pricing .grid .item .price-interval {
+  color: var(--bs-secondary-color);
+}
+.pricing .grid .item .price-interval:empty {
+  display: none;
+}
+.pricing .grid .item .price-interval::before {
+  content: " / ";
+}
+.pricing .grid .item ul {
+  list-style: none;
+  padding-left: 0;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1; /* keeps buttons aligned when lists heights are not equal */
+}
+.pricing .grid .item ul li {
+  font-size: calc(0.875rem * var(--page-scale));
+  color: var(--bs-secondary-color);
+}
+
+/**
  * Section: Call to Action
  */
 .cta .inner {
