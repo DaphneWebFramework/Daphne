@@ -12,7 +12,6 @@
 
 require '../../autoload.php';
 
-use \Charis\Button;
 use \Charis\Generic;
 use \Peneus\Systems\PageSystem\Page;
 
@@ -41,8 +40,14 @@ function renderFeature(string $imageUrl, string $title, string $description): Ge
 					new Generic('h1', null, "Lorem ipsum dolor sit amet"),
 					new Generic('p', null, "Quisque tincidunt eros risus, in accumsan eros dictum in"),
 					new Generic('div', ['class' => 'actions'], [
-						new Button(['class' => 'btn-primary'], "Nunc finibus"),
-						new Button(['class' => 'btn-outline-primary'], "Donec quam")
+						new Generic('a', [
+							'class' => 'btn btn-primary',
+							'href' => '#'
+						], "Nunc finibus"),
+						new Generic('a', [
+							'class' => 'btn btn-outline-primary',
+							'href' => '#'
+						], "Donec quam")
 					])
 				]),
 				new Generic('div', ['class' => 'visual'], [
@@ -101,7 +106,10 @@ function renderFeature(string $imageUrl, string $title, string $description): Ge
 					new Generic('p', null, "Nullam euismod, nisi eu ultrices tincidunt")
 				]),
 				new Generic('div', ['class' => 'actions'], [
-					new Button(['class' => 'btn-light'], "Orci varius")
+					new Generic('a', [
+						'class' => 'btn btn-light',
+						'href' => '#'
+					], "Orci varius")
 				])
 			])
 		]),

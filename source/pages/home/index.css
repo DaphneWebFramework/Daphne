@@ -49,13 +49,27 @@ html {
 body {
   min-width: var(--page-min-width);
 }
-h1, h2, h3, p { margin-bottom: 0; }
-h1 { font-size: calc(2.37rem * var(--page-scale)); }
-h2 { font-size: calc(1.78rem * var(--page-scale)); }
-h3 { font-size: calc(1.33rem * var(--page-scale)); }
-h1 + p { font-size: calc(1.56rem * var(--page-scale)); }
-h2 + p { font-size: calc(1.25rem * var(--page-scale)); }
-h3 + p { font-size: calc(1.00rem * var(--page-scale)); }
+h1, h2, h3, p {
+  margin-bottom: 0;
+}
+h1 {
+  font-size: calc(2.37rem * var(--page-scale));
+}
+h2 {
+  font-size: calc(1.78rem * var(--page-scale));
+}
+h3 {
+  font-size: calc(1.33rem * var(--page-scale));
+}
+h1 + p {
+  font-size: calc(1.56rem * var(--page-scale));
+}
+h2 + p {
+  font-size: calc(1.25rem * var(--page-scale));
+}
+h3 + p {
+  font-size: calc(1.00rem * var(--page-scale));
+}
 img, video {
   width: 100%;    /* fill container width */
   height: auto;   /* preserve intrinsic aspect ratio */
@@ -143,16 +157,13 @@ img, video {
   gap: var(--page-s2);
 }
 .features .grid .item .visual {
-  border-radius: 0.375rem;
+  border-radius: var(--bs-border-radius);
   overflow: hidden;
 }
 .features .grid .item .text {
   display: flex;
   flex-direction: column;
   gap: var(--page-s1);
-}
-.features .grid .item .text h3 {
-  font-weight: 400;
 }
 .features .grid .item .text p {
   color: var(--bs-secondary-color);
