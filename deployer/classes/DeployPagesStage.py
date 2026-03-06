@@ -187,7 +187,8 @@ class DeployPagesStage(Stage):
         def transformAssetBlock(assetPaths, targetFilename):
             assetPaths = Utility.ensureList(assetPaths or [])
             remote, local = classifyAssets(assetPaths)
-            transformed = ([targetFilename] if local else []) + remote
+            # Place remote URLs first, followed by the local bundle.
+            transformed = remote + ([targetFilename] if local else [])
             if not transformed:
                 return None
             return transformed[0] if len(transformed) == 1 else transformed
