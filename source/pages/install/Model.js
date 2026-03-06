@@ -13,7 +13,9 @@ class Model extends App.Model
 {
     /**
      * @param {string} installKey
-     * @returns {Promise<Leuce.HTTP.Response>}
+     * @returns {Promise<Leuce.HTTP.Response<
+     *   {result: boolean} | {message: string}
+     * >>}
      */
     checkDatabase(installKey)
     {
@@ -26,7 +28,9 @@ class Model extends App.Model
 
     /**
      * @param {string} installKey
-     * @returns {Promise<Leuce.HTTP.Response>}
+     * @returns {Promise<Leuce.HTTP.Response<
+     *   void | {message: string}
+     * >>}
      */
     createDatabase(installKey)
     {
@@ -40,7 +44,9 @@ class Model extends App.Model
     /**
      * @param {string} installKey
      * @param {string} tableName
-     * @returns {Promise<Leuce.HTTP.Response>}
+     * @returns {Promise<Leuce.HTTP.Response<
+     *   {result: boolean} | {message: string}
+     * >>}
      */
     checkTable(installKey, tableName)
     {
@@ -54,7 +60,9 @@ class Model extends App.Model
     /**
      * @param {string} installKey
      * @param {string} tableName
-     * @returns {Promise<Leuce.HTTP.Response>}
+     * @returns {Promise<Leuce.HTTP.Response<
+     *   void | {message: string}
+     * >>}
      */
     createTable(installKey, tableName)
     {
@@ -67,7 +75,9 @@ class Model extends App.Model
 
     /**
      * @param {string} installKey
-     * @returns {Promise<Leuce.HTTP.Response>}
+     * @returns {Promise<Leuce.HTTP.Response<
+     *   {result: boolean} | {message: string}
+     * >>}
      */
     checkAdminAccount(installKey)
     {
@@ -80,7 +90,9 @@ class Model extends App.Model
 
     /**
      * @param {string} installKey
-     * @returns {Promise<Leuce.HTTP.Response>}
+     * @returns {Promise<Leuce.HTTP.Response<
+     *   void | {message: string}
+     * >>}
      */
     createAdminAccount(installKey)
     {

@@ -8,9 +8,3 @@
  * You should have received a copy of the license along with this work. If not,
  * see <http://creativecommons.org/licenses/by/4.0/>.
  */
-
-@media (min-width: 576px) {
-  #install-summary {
-    max-width: 410px;
-  }
-}

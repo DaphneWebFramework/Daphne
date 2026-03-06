@@ -27,20 +27,15 @@ class InstallHandler extends Handler
 {
     protected function createAction(string $actionName): ?Action
     {
-        return match ($actionName) {
-            'check-database' => (new CheckDatabaseAction)
-                ->AddGuard(new InstallKeyGuard()),
-            'create-database' => (new CreateDatabaseAction)
-                ->AddGuard(new InstallKeyGuard()),
-            'check-table' => (new CheckTableAction)
-                ->AddGuard(new InstallKeyGuard()),
-            'create-table' => (new CreateTableAction)
-                ->AddGuard(new InstallKeyGuard()),
-            'check-admin-account' => (new CheckAdminAccountAction)
-                ->AddGuard(new InstallKeyGuard()),
-            'create-admin-account' => (new CreateAdminAccountAction)
-                ->AddGuard(new InstallKeyGuard()),
+        $action = match ($actionName) {
+            'check-database' => new CheckDatabaseAction(),
+            'create-database' => new CreateDatabaseAction(),
+            'check-table' => new CheckTableAction(),
+            'create-table' => new CreateTableAction(),
+            'check-admin-account' => new CheckAdminAccountAction(),
+            'create-admin-account' => new CreateAdminAccountAction(),
             default => null,
         };
+        return $action?->AddGuard(new InstallKeyGuard());
     }
 }

@@ -12,9 +12,7 @@
 
 require 'autoload.php';
 
-use \Charis\Button;
 use \Charis\Generic;
-use \Charis\Spinner;
 use \classes\api\actions\CreateAdminAccountAction;
 use \classes\ui\InstallStep;
 use \Harmonia\Config;
@@ -24,14 +22,15 @@ use \Harmonia\Http\StatusCode;
 use \Peneus\Resource;
 use \Peneus\Systems\PageSystem\Page;
 
-$resource = Resource::Instance();
-
-$installKey = Request::Instance()->QueryParams()->Get('key');
-if (!\is_string($installKey) || $installKey === '') {
-	Response::Redirect($resource->ErrorPageUrl(StatusCode::BadRequest));
-}
-if ($installKey !== Config::Instance()->Option('InstallKey')) {
-	Response::Redirect($resource->ErrorPageUrl(StatusCode::Forbidden));
+function installKey(): string {
+	$key = Request::Instance()->QueryParams()->Get('key');
+	if (!\is_string($key) || $key === '') {
+		Response::Redirect(Resource::Instance()->ErrorPageUrl(StatusCode::BadRequest));
+	}
+	if ($key !== Config::Instance()->Option('InstallKey')) {
+		Response::Redirect(Resource::Instance()->ErrorPageUrl(StatusCode::Forbidden));
+	}
+	return $key;
 }
 
 $page = (new Page(__DIR__))
@@ -39,7 +38,7 @@ $page = (new Page(__DIR__))
 	->SetMasterPage('basic')
 	->AddLibrary('bootstrap-icons')
 	->SetMeta('app:api-url', 'api')
-	->SetMeta('app:install-key', $installKey);
+	->SetMeta('app:install-key', installKey());
 ?>
 <?php $page->Begin()?>
 	<?=new Generic('main', ['role' => 'main', 'class' => 'container my-5'], [
@@ -54,38 +53,43 @@ $page = (new Page(__DIR__))
 		new InstallStep('install-step-admin-account'),
 		new Generic('div', [
 			'id' => 'install-summary',
-			'class' => 'alert alert-success d-none',
+			'class' => 'alert alert-success mb-0 d-none',
 			'role' => 'alert'
 		], [
 			new Generic('h5', null, 'Installation Complete'),
 			new Generic('p', null,
-				"The application's database structure is complete. Missing " .
-				"components have been created if necessary."
+				"The application's database structure is now fully set up. " .
+				"Any missing components have been created as needed."
 			),
 			new Generic('p', null,
-				"If no administrator account was present, a default one has " .
-				"been created with the following credentials:"
+				"If no administrator account existed, a default one has been " .
+				"created with the following credentials:"
 			),
 			new Generic('p', null, [
 				new Generic('strong', null, 'Email: '),
 				CreateAdminAccountAction::ADMIN_EMAIL,
 				'<br>',
 				new Generic('strong', null, 'Password: '),
-				new Generic('em', null, 'Your install key'),
+				new Generic('em', null, 'Your installation key'),
 			]),
-			new Generic('p', ['class' => 'mb-0'], [
-				'You can change your email address later from the ',
+			new Generic('p', null, [
+				"You can update the administrator account's email address on the ",
 				new Generic('a', [
-					'href' => $resource->PageUrl('management'),
+					'href' => Resource::Instance()->PageUrl('management'),
 					'class' => 'alert-link'
-				], 'management'),
-				' page, and change your display name and password from the ',
+				], "management"),
+				" page, and change its display name and password on the ",
 				new Generic('a', [
-					'href' => $resource->PageUrl('settings'),
-					'class' => 'alert-link'],
-				'settings'),
-				' page.'
+					'href' => Resource::Instance()->PageUrl('settings'),
+					'class' => 'alert-link'
+				], "settings"),
+				" page."
 			]),
+			new Generic('p', null,
+				"In addition to the standard framework tables created here, " .
+				"any custom application tables can be managed from the Entity " .
+				"Mappings panel on the management page."
+			),
 		])
 	])?>
 <?php $page->End()?>
