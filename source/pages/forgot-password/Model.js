@@ -12,15 +12,18 @@
 class Model extends App.Model
 {
     /**
-     * @param {string} data
-     * @returns {Promise<Leuce.HTTP.Response>}
+     * @param {string} payload
+     *   "csrfToken={string}&email={string}"
+     * @returns {Promise<Leuce.HTTP.Response<
+     *   {message: string}
+     * >>}
      */
-    sendPasswordReset(data)
+    sendPasswordReset(payload)
     {
         return this.post()
             .handler('account')
             .action('send-password-reset')
-            .body(data)
+            .body(payload)
             .send();
     }
 }

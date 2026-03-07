@@ -29,8 +29,6 @@ $page = (new Page(__DIR__))
 	->SetMeta('app:google-oauth2-client-id',
 		Config::Instance()->OptionOrDefault('Google.OAuth2.ClientID', ''))
 	->AddLibrary('gsi');
-
-$resource = Resource::Instance();
 ?>
 <?php $page->Begin()?>
 	<?=new Generic('main', ['role' => 'main', 'class' => 'container mt-5'], [
@@ -71,7 +69,7 @@ $resource = Resource::Instance();
 						]),
 						new Generic('div', ['class' => 'd-flex justify-content-between align-items-center'], [
 							new Generic('a', [
-								'href' => $resource->PageUrl('forgot-password')
+								'href' => Resource::Instance()->PageUrl('forgot-password')
 							], "Forgot your password?"),
 							new Button([
 								'type' => 'submit'
@@ -83,7 +81,7 @@ $resource = Resource::Instance();
 					"Don't have an account?",
 					' ',
 					new Generic('a', [
-						'href' => $resource->PageUrl('register-account')
+						'href' => Resource::Instance()->PageUrl('register-account')
 					], "Register")
 				])
 			])
@@ -98,7 +96,7 @@ $resource = Resource::Instance();
 					),
 					new Generic('div', ['class' => 'd-flex justify-content-between align-items-center'], [
 						new Generic('a', [
-							'href' => $resource->PageUrl('home')
+							'href' => Resource::Instance()->PageUrl('home')
 						], "Home page"),
 						new Button([
 							'id' => 'logoutButton',

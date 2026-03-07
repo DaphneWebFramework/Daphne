@@ -19,13 +19,19 @@ class Controller extends App.Controller
     {
         super(model, view);
         if (this.view.has('form')) {
-            this.view.get('googleSignInButton')
-                .on('gsi:signedin', this.#handleGoogleSignedIn.bind(this));
-            this.view.get('form')
-                .on('submit', this.#handleFormSubmit.bind(this));
+            this.view.get('googleSignInButton').on(
+                'gsi:signedin',
+                this.#handleGoogleSignedIn.bind(this)
+            );
+            this.view.get('form').on(
+                'submit',
+                this.#handleFormSubmit.bind(this)
+            );
         } else {
-            this.view.get('logoutButton')
-                .on('click', this.#handleLogoutButtonClick.bind(this));
+            this.view.get('logoutButton').on(
+                'click',
+                this.#handleLogoutButtonClick.bind(this)
+            );
         }
     }
 

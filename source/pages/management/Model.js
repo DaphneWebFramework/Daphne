@@ -12,7 +12,15 @@
 class Model extends App.Model
 {
     /**
-     * @returns {Promise<Leuce.HTTP.Response>}
+     * @returns {Promise<Leuce.HTTP.Response<
+     *   {data: Array<{
+     *     entityClass: string,
+     *     tableName: string,
+     *     tableType: "table" | "view",
+     *     tableExists: boolean,
+     *     isSync: boolean | null
+     *   }>} | {message: string}
+     * >>}
      */
     listEntityMappings()
     {
@@ -24,7 +32,9 @@ class Model extends App.Model
 
     /**
      * @param {string} entityClass
-     * @returns {Promise<Leuce.HTTP.Response>}
+     * @returns {Promise<Leuce.HTTP.Response<
+     *   void | {message: string}
+     * >>}
      */
     createTable(entityClass)
     {
@@ -37,7 +47,9 @@ class Model extends App.Model
 
     /**
      * @param {string} entityClass
-     * @returns {Promise<Leuce.HTTP.Response>}
+     * @returns {Promise<Leuce.HTTP.Response<
+     *   void | {message: string}
+     * >>}
      */
     dropTable(entityClass)
     {
@@ -59,7 +71,9 @@ class Model extends App.Model
      *     sortdir: 'asc'|'desc'
      *   }
      * }} params
-     * @returns {Promise<Leuce.HTTP.Response>}
+     * @returns {Promise<Leuce.HTTP.Response<
+     *   {data: object[], total: number} | {message: string}
+     * >>}
      */
     listRecords(params)
     {
@@ -72,38 +86,44 @@ class Model extends App.Model
 
     /**
      * @param {string} tableName
-     * @param {Object} data
-     * @returns {Promise<Leuce.HTTP.Response>}
+     * @param {Object} payload
+     * @returns {Promise<Leuce.HTTP.Response<
+     *   {id: number} | {message: string}
+     * >>}
      */
-    createRecord(tableName, data)
+    createRecord(tableName, payload)
     {
         return this.post()
             .handler('management')
             .action('create-record')
             .query({ table: tableName })
-            .jsonBody(data)
+            .jsonBody(payload)
             .send();
     }
 
     /**
      * @param {string} tableName
-     * @param {Object} data
-     * @returns {Promise<Leuce.HTTP.Response>}
+     * @param {Object} payload
+     * @returns {Promise<Leuce.HTTP.Response<
+     *   void | {message: string}
+     * >>}
      */
-    updateRecord(tableName, data)
+    updateRecord(tableName, payload)
     {
         return this.post()
             .handler('management')
             .action('update-record')
             .query({ table: tableName })
-            .jsonBody(data)
+            .jsonBody(payload)
             .send();
     }
 
     /**
      * @param {string} tableName
      * @param {number} id
-     * @returns {Promise<Leuce.HTTP.Response>}
+     * @returns {Promise<Leuce.HTTP.Response<
+     *   void | {message: string}
+     * >>}
      */
     deleteRecord(tableName, id)
     {

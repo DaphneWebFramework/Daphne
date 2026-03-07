@@ -15,10 +15,6 @@ require '../../autoload.php';
 use \Charis\Generic;
 use \Peneus\Systems\PageSystem\Page;
 
-$page = (new Page(__DIR__))
-	->SetMasterPage('standard')
-	->SetProperty('wideLayout', true);
-
 function renderFeature(string $imageUrl, string $title, string $description): Generic {
 	return new Generic('div', ['class' => 'item'], [
 		new Generic('div', ['class' => 'visual'], [
@@ -30,6 +26,10 @@ function renderFeature(string $imageUrl, string $title, string $description): Ge
 		])
 	]);
 }
+
+$page = (new Page(__DIR__))
+	->SetMasterPage('standard')
+	->SetProperty('wideLayout', true);
 ?>
 <?php $page->Begin()?>
 	<?=new Generic('main', ['role' => 'main'], [

@@ -26,6 +26,9 @@ class View extends App.View
         return this.get('form').serialize();
     }
 
+    /**
+     * @returns {void}
+     */
     hideSpinner()
     {
         this.get('spinner').hide().attr('aria-hidden', 'true');

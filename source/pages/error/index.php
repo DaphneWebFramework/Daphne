@@ -17,16 +17,9 @@ use \Harmonia\Http\Request;
 use \Harmonia\Http\StatusCode;
 use \Peneus\Systems\PageSystem\Page;
 
-$page = (new Page(__DIR__))
-	->SetTitle("Error")
-	->SetMasterPage('basic');
-
-$statusCode = StatusCode::tryFrom(
-	(int)Request::Instance()->QueryParams()->Get('statusCode')
-) ?? StatusCode::BadRequest;
-
-if ($statusCode->value !== \http_response_code()) {
-	\http_response_code($statusCode->value);
+function statusCode(): StatusCode {
+	$code = (int)Request::Instance()->QueryParams()->Get('statusCode');
+	return StatusCode::tryFrom($code) ?? StatusCode::BadRequest;
 }
 
 function mixedCaseToWords(string $mixedCase): string {
@@ -39,6 +32,13 @@ function mixedCaseToWords(string $mixedCase): string {
 	);
 	return $words === false ? $mixedCase : \implode(' ', $words);
 }
+
+$statusCode = statusCode();
+\http_response_code($statusCode->value);
+
+$page = (new Page(__DIR__))
+	->SetTitle("Error")
+	->SetMasterPage('basic');
 ?>
 <?php $page->Begin()?>
 	<?=new Generic('main', ['role' => 'main'], [

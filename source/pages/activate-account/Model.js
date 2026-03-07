@@ -12,15 +12,18 @@
 class Model extends App.Model
 {
     /**
-     * @param {string} data
-     * @returns {Promise<Leuce.HTTP.Response>}
+     * @param {string} payload
+     *   "csrfToken={string}&activationCode={string}"
+     * @returns {Promise<Leuce.HTTP.Response<
+     *   {redirectUrl: string} | {message: string}
+     * >>}
      */
-    activateAccount(data)
+    activateAccount(payload)
     {
         return this.post()
             .handler('account')
             .action('activate')
-            .body(data)
+            .body(payload)
             .send();
     }
 }

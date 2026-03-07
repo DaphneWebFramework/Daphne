@@ -117,9 +117,8 @@ class Controller extends App.Controller
                 primaryButtonLabel: "Yes",
                 secondaryButtonLabel: "No",
             }).then(confirmed => {
-                if (confirmed) {
-                    performAction.call(this);
-                }
+                if (!confirmed) return;
+                performAction.call(this);
             });
         } else {
             performAction.call(this);

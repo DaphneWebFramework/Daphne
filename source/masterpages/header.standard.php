@@ -39,32 +39,28 @@ function escapeLabel(string $label): string {
 }
 
 function createGuestNavItems(array &$navItems): void {
-	$resource = Resource::Instance();
 	$navItems[] = new NavbarItem([
 		':label' => "Register",
-		':href' => $resource->PageUrl('register-account')
+		':href' => Resource::Instance()->PageUrl('register-account')
 	]);
 	$navItems[] = new NavbarItem([
 		':label' => "Log in",
-		':href' => $resource->LoginPageUrl()
+		':href' => Resource::Instance()->LoginPageUrl()
 	]);
 }
 
 function createAccountNavItems(array &$navItems, Page $page): void {
-	$resource = Resource::Instance();
-	$accountView = $page->SessionAccount();
-	$wideLayout = $page->Property('wideLayout', false);
 	$dropdownItems = [
 		new NavbarDropdownItem([
 			':label' => "Settings",
-			':href' => $resource->PageUrl('settings')
+			':href' => Resource::Instance()->PageUrl('settings')
 		])
 	];
-	if (Role::Parse($accountView->role)->AtLeast(Role::Admin)) {
+	if (Role::Parse($page->SessionAccount()->role)->AtLeast(Role::Admin)) {
 		$dropdownItems[] = new NavbarDropdownDivider();
 		$dropdownItems[] = new NavbarDropdownItem([
 			':label' => "Management",
-			':href' => $resource->PageUrl('management')
+			':href' => Resource::Instance()->PageUrl('management')
 		]);
 	}
 	$dropdownItems[] = new NavbarDropdownDivider();
@@ -73,9 +69,10 @@ function createAccountNavItems(array &$navItems, Page $page): void {
 		':link:id' => 'navbarLogout'
 	]);
 	$navItems[] = new NavbarDropdown([
-		':label' => escapeLabel($accountView->displayName),
+		':label' => escapeLabel($page->SessionAccount()->displayName),
 		':link:id' => 'navbarDisplayName',
-		':menu:class' => $wideLayout ? 'dropdown-menu-end' : 'dropdown-menu-start'
+		':menu:class' => $page->Property('wideLayout', false)
+			? 'dropdown-menu-end' : 'dropdown-menu-start'
 	], $dropdownItems);
 }
 

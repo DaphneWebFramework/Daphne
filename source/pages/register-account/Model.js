@@ -15,11 +15,7 @@ class Model extends App.Model
      * @param {string} csrfToken
      * @param {string} credential
      * @returns {Promise<Leuce.HTTP.Response<
-     *   {
-     *     redirectUrl: string
-     *   } | {
-     *     message: string
-     *   }
+     *   {redirectUrl: string} | {message: string}
      * >>}
      */
     signInWithGoogle(csrfToken, credential)
@@ -33,15 +29,18 @@ class Model extends App.Model
     }
 
     /**
-     * @param {string} data
-     * @returns {Promise<Leuce.HTTP.Response>}
+     * @param {string} payload
+     *   "csrfToken={string}&email={string}&password={string}&displayName={string}"
+     * @returns {Promise<Leuce.HTTP.Response<
+     *   {message: string}
+     * >>}
      */
-    registerAccount(data)
+    registerAccount(payload)
     {
         return this.post()
             .handler('account')
             .action('register')
-            .body(data)
+            .body(payload)
             .send();
     }
 }

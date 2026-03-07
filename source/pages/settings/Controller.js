@@ -18,21 +18,26 @@ class Controller extends App.Controller
     constructor(model, view)
     {
         super(model, view);
-        this.#bindEvents();
-    }
-
-    #bindEvents()
-    {
-        this.view.get('tabButtons')
-            .on('shown.bs.tab', this.#handleTabShown.bind(this));
-        this.view.get('displayNameChangeForm')
-            .on('submit', this.#handleDisplayNameChangeFormSubmit.bind(this));
-        this.view.get('passwordChangeForm')
-            .on('submit', this.#handlePasswordChangeFormSubmit.bind(this));
-        this.view.get('accountDeleteCheckbox')
-            .on('change', this.#handleAccountDeleteCheckboxChange.bind(this));
-        this.view.get('accountDeleteForm')
-            .on('submit', this.#handleAccountDeleteFormSubmit.bind(this));
+        this.view.get('tabButtons').on(
+            'shown.bs.tab',
+            this.#handleTabShown.bind(this)
+        );
+        this.view.get('displayNameChangeForm').on(
+            'submit',
+            this.#handleDisplayNameChangeFormSubmit.bind(this)
+        );
+        this.view.get('passwordChangeForm').on(
+            'submit',
+            this.#handlePasswordChangeFormSubmit.bind(this)
+        );
+        this.view.get('accountDeleteCheckbox').on(
+            'change',
+            this.#handleAccountDeleteCheckboxChange.bind(this)
+        );
+        this.view.get('accountDeleteForm').on(
+            'submit',
+            this.#handleAccountDeleteFormSubmit.bind(this)
+        );
     }
 
     //#region Event Handlers

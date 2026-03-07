@@ -15,7 +15,6 @@ require '../../autoload.php';
 use \Charis\Button;
 use \Charis\Form;
 use \Charis\FormComposites\FormPasswordFL;
-use \Charis\FormControls\FormEmailInput;
 use \Charis\FormControls\FormHiddenInput;
 use \Charis\Generic;
 use \Harmonia\Http\Request;
@@ -25,17 +24,17 @@ use \Harmonia\Services\SecurityService;
 use \Peneus\Resource;
 use \Peneus\Systems\PageSystem\Page;
 
-$page = (new Page(__DIR__))
-	->SetTitle("Reset Password")
-	->SetMasterPage('basic');
-
-function getCode(): string {
+function code(): string {
 	$code = Request::Instance()->QueryParams()->GetOrDefault('code', '');
 	if (1 !== \preg_match(SecurityService::TOKEN_DEFAULT_PATTERN, $code)) {
 		Response::Redirect(Resource::Instance()->ErrorPageUrl(StatusCode::BadRequest));
 	}
 	return $code;
 }
+
+$page = (new Page(__DIR__))
+	->SetTitle("Reset Password")
+	->SetMasterPage('basic');
 ?>
 <?php $page->Begin()?>
 	<?=new Generic('main', ['role' => 'main', 'class' => 'container mt-5'], [
@@ -52,12 +51,7 @@ function getCode(): string {
 						]),
 						new FormHiddenInput([
 							'name' => 'resetCode',
-							'value' => getCode()
-						]),
-						new FormEmailInput([
-							'class' => 'd-none',
-							'value' => '',
-							'autocomplete' => 'username'
+							'value' => code()
 						]),
 						new FormPasswordFL([
 							':label' => "New password",

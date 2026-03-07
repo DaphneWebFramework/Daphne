@@ -23,17 +23,17 @@ use \Harmonia\Services\SecurityService;
 use \Peneus\Resource;
 use \Peneus\Systems\PageSystem\Page;
 
-$page = (new Page(__DIR__))
-	->SetTitle("Activate Account")
-	->SetMasterPage('basic');
-
-function getCode(): string {
+function code(): string {
 	$code = Request::Instance()->QueryParams()->GetOrDefault('code', '');
 	if (1 !== \preg_match(SecurityService::TOKEN_DEFAULT_PATTERN, $code)) {
 		Response::Redirect(Resource::Instance()->ErrorPageUrl(StatusCode::BadRequest));
 	}
 	return $code;
 }
+
+$page = (new Page(__DIR__))
+	->SetTitle("Activate Account")
+	->SetMasterPage('basic');
 ?>
 <?php $page->Begin()?>
 	<?=new Generic('main', ['role' => 'main', 'class' => 'container mt-5'], [
@@ -57,7 +57,7 @@ function getCode(): string {
 						]),
 						new FormHiddenInput([
 							'name' => 'activationCode',
-							'value' => getCode()
+							'value' => code()
 						])
 					])
 				])

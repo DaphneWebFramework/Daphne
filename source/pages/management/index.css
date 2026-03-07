@@ -26,8 +26,8 @@
 }
 .tab-content {
   padding: 1.5rem;
-  flex-grow: 1; /* Allows tab-content to grow and fill available space */
-  min-width: 0; /* Prevents issue where tab-content refuses to shrink */
+  flex-grow: 1; /* allows tab-content to grow and fill available space */
+  min-width: 0; /* prevents issue where tab-content refuses to shrink */
 }
 .tab-pane h3 {
   padding-bottom: 0.5rem;

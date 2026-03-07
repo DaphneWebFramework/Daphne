@@ -28,37 +28,41 @@ use \Harmonia\Http\Request;
 use \Peneus\Resource;
 use \Peneus\Systems\PageSystem\Page;
 
+function isTabActive(string $key): bool {
+    static $activeKey = null;
+    if ($activeKey === null) {
+        $activeKey = Request::Instance()->QueryParams()->GetOrDefault('tab', 'account');
+    }
+    return $activeKey === $key;
+}
+
 $page = (new Page(__DIR__))
 	->SetTitle("Settings")
 	->SetMasterPage('standard')
 	->RequireLogin()
 	->AddLibrary('bootstrap-icons')
 	->SetProperty('wideLayout', true);
-
-$resource = Resource::Instance();
-$accountView = $page->SessionAccount();
-$tabKey = Request::Instance()->QueryParams()->GetOrDefault('tab', 'account');
 ?>
 <?php $page->Begin()?>
 	<?=new Generic('main', ['role' => 'main'], [
 		new VerticalPillTabNavigation(['class' => '-align-items-start'], [
 			new VerticalPillTabs(['class' => '-me-3 bg-light'], [
-				new PillTab([':key' => 'account', ':active' => $tabKey === 'account'], [
+				new PillTab([':key' => 'account', ':active' => isTabActive('account')], [
 					new Generic('i', ['class' => 'bi bi-person-circle']),
 					new Generic('span', ['class' => 'label'], "Account")
 				]),
-				new PillTab([':key' => 'preferences', ':active' => $tabKey === 'preferences', 'disabled' => true], [
+				new PillTab([':key' => 'preferences', ':active' => isTabActive('preferences'), 'disabled' => true], [
 					new Generic('i', ['class' => 'bi bi-sliders']),
 					new Generic('span', ['class' => 'label'], "Preferences")
 				])
 			]),
 			new TabPanes([], [
-				new TabPane([':key' => 'account', ':active' => $tabKey === 'account'], [
+				new TabPane([':key' => 'account', ':active' => isTabActive('account')], [
 					new Generic('h3', null, "Account"),
 					new Generic('section', null, [
 						new FormEmail([
 							':label' => "Email address",
-							':input:value' => $accountView->email,
+							':input:value' => $page->SessionAccount()->email,
 							':input:readonly' => true
 						]),
 						new Form(['id' => 'displayNameChangeForm'], [
@@ -66,7 +70,7 @@ $tabKey = Request::Instance()->QueryParams()->GetOrDefault('tab', 'account');
 								new FormText([
 									':label' => "Display name",
 									':input:name' => 'displayName',
-									':input:value' => $accountView->displayName,
+									':input:value' => $page->SessionAccount()->displayName,
 									':input:required' => true,
 									'class' => '-mb-3 flex-grow-1'
 								]),
@@ -82,12 +86,12 @@ $tabKey = Request::Instance()->QueryParams()->GetOrDefault('tab', 'account');
 						new Generic('div', [
 							'class' => 'alert alert-light',
 							'role' => 'alert',
-							'hidden' => $accountView->isLocal
+							'hidden' => $page->SessionAccount()->isLocal
 						], [
 							new Generic('i', ['class' => 'bi bi-info-circle me-2']),
 							"Password changes are disabled because this account does not have a local password."
 						]),
-						new Form(['id' => 'passwordChangeForm', 'disabled' => !$accountView->isLocal], [
+						new Form(['id' => 'passwordChangeForm', 'disabled' => !$page->SessionAccount()->isLocal], [
 							new FormPassword([
 								':label' => "Current password",
 								':input:name' => 'currentPassword',
@@ -102,7 +106,7 @@ $tabKey = Request::Instance()->QueryParams()->GetOrDefault('tab', 'account');
 							]),
 							new Generic('div', ['class' => 'd-flex justify-content-between align-items-center'], [
 								new Generic('a', [
-									'href' => $resource->PageUrl('forgot-password')
+									'href' => Resource::Instance()->PageUrl('forgot-password')
 								], "Forgot your password?"),
 								new Button([
 									'type' => 'submit',
@@ -134,7 +138,7 @@ $tabKey = Request::Instance()->QueryParams()->GetOrDefault('tab', 'account');
 						])
 					])
 				]),
-				new TabPane([':key' => 'preferences', ':active' => $tabKey === 'preferences'], [
+				new TabPane([':key' => 'preferences', ':active' => isTabActive('preferences')], [
 					new Generic('h3', null, "Preferences"),
 					// Preference sections go here.
 				])

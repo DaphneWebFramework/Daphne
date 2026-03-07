@@ -18,10 +18,14 @@ class Controller extends App.Controller
     constructor(model, view)
     {
         super(model, view);
-        this.view.get('googleSignInButton')
-            .on('gsi:signedin', this.#handleGoogleSignedIn.bind(this));
-        this.view.get('form')
-            .on('submit', this.#handleFormSubmit.bind(this));
+        this.view.get('googleSignInButton').on(
+            'gsi:signedin',
+            this.#handleGoogleSignedIn.bind(this)
+        );
+        this.view.get('form').on(
+            'submit',
+            this.#handleFormSubmit.bind(this)
+        );
     }
 
     /**

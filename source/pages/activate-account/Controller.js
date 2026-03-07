@@ -18,7 +18,18 @@ class Controller extends App.Controller
     constructor(model, view)
     {
         super(model, view);
-        this.view.get('form').on('submit', this.#handleFormSubmit.bind(this));
+        this.view.get('form').on(
+            'submit',
+            this.#handleFormSubmit.bind(this)
+        );
+    }
+
+    /**
+     * @returns {void}
+     */
+    start()
+    {
+        this.view.get('form').submit();
     }
 
     /**
@@ -36,13 +47,5 @@ class Controller extends App.Controller
                 Leuce.UI.notifyError(response.body.message);
             }
         });
-    }
-
-    /**
-     * @returns {void}
-     */
-    init()
-    {
-        this.view.get('form').submit();
     }
 }
