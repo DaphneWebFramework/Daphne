@@ -38,7 +38,8 @@ $statusCode = statusCode();
 
 $page = (new Page(__DIR__))
 	->SetTitle("Error")
-	->SetMasterPage('basic');
+	->SetMasterPage('basic')
+	->SetCanonicalSuffix((string)$statusCode->value);
 ?>
 <?php $page->Begin()?>
 	<?=new Generic('main', ['role' => 'main'], [
