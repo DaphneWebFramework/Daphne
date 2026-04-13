@@ -30,7 +30,7 @@ class Model extends App.Model
 
     /**
      * @param {string} payload
-     *   "csrfToken={string}&email={string}&password={string}[&keepLoggedIn=on]"
+     *   "csrfToken={string}&email={string}&password={string}[&keepLoggedIn=on]&cf-turnstile-response={string}"
      * @returns {Promise<Leuce.HTTP.Response<
      *   void | {message: string}
      * >>}

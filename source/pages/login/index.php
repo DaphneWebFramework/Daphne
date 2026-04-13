@@ -28,6 +28,8 @@ $page = (new Page(__DIR__))
 	->SetMasterPage('basic')
 	->SetMeta('app:google-oauth2-client-id',
 		Config::Instance()->OptionOrDefault('Google.OAuth2.ClientID', ''))
+	->SetMeta('app:cloudflare-turnstile-site-key',
+		Config::Instance()->Option('Cloudflare.Turnstile.SiteKey'))
 	->AddLibrary('gsi');
 ?>
 <?php $page->Begin()?>
@@ -67,12 +69,14 @@ $page = (new Page(__DIR__))
 							':input:name' => 'keepLoggedIn',
 							'class' => 'mb-3'
 						]),
+						new Generic('div', ['id' => 'turnstile-container']),
 						new Generic('div', ['class' => 'd-flex justify-content-between align-items-center'], [
 							new Generic('a', [
 								'href' => Resource::Instance()->PageUrl('forgot-password')
 							], "Forgot your password?"),
 							new Button([
-								'type' => 'submit'
+								'type' => 'submit',
+								'disabled' => true
 							], "Log in")
 						])
 					])

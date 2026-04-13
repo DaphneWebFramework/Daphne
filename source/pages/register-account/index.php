@@ -28,6 +28,8 @@ $page = (new Page(__DIR__))
 	->SetMasterPage('basic')
 	->SetMeta('app:google-oauth2-client-id',
 		Config::Instance()->OptionOrDefault('Google.OAuth2.ClientID', ''))
+	->SetMeta('app:cloudflare-turnstile-site-key',
+		Config::Instance()->Option('Cloudflare.Turnstile.SiteKey'))
 	->AddLibrary('gsi');
 ?>
 <?php $page->Begin()?>
@@ -65,9 +67,11 @@ $page = (new Page(__DIR__))
 							':input:name' => 'displayName',
 							':input:required' => true
 						]),
+						new Generic('div', ['id' => 'turnstile-container']),
 						new Generic('div', ['class' => 'd-flex justify-content-end'], [
 							new Button([
-								'type' => 'submit'
+								'type' => 'submit',
+								'disabled' => true
 							], "Register")
 						])
 					])

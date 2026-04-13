@@ -35,5 +35,7 @@ return [
     'MailerPassword' => "",
     'SupportEmail' => "",
     'Google.OAuth2.ClientID' => "",
+    'Cloudflare.Turnstile.SiteKey' => "",
+    'Cloudflare.Turnstile.SecretKey' => "",
 //}}OPTIONS
 ];

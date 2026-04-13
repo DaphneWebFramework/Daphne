@@ -17,11 +17,14 @@ use \Charis\Form;
 use \Charis\FormComposites\FormEmailFL;
 use \Charis\FormControls\FormHiddenInput;
 use \Charis\Generic;
+use \Harmonia\Config;
 use \Peneus\Systems\PageSystem\Page;
 
 $page = (new Page(__DIR__))
 	->SetTitle("Forgot Password")
-	->SetMasterPage('basic');
+	->SetMasterPage('basic')
+	->SetMeta('app:cloudflare-turnstile-site-key',
+		Config::Instance()->Option('Cloudflare.Turnstile.SiteKey'));
 ?>
 <?php $page->Begin()?>
 	<?=new Generic('main', ['role' => 'main', 'class' => 'container mt-5'], [
@@ -43,9 +46,11 @@ $page = (new Page(__DIR__))
 							':input:required' => true,
 							':help' => "We'll send a password reset link to this address if it's registered."
 						]),
+						new Generic('div', ['id' => 'turnstile-container']),
 						new Generic('div', ['class' => 'd-flex justify-content-end'], [
 							new Button([
-								'type' => 'submit'
+								'type' => 'submit',
+								'disabled' => true
 							], "Send")
 						])
 					])

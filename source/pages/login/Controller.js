@@ -12,6 +12,11 @@
 class Controller extends App.Controller
 {
     /**
+     * @type {string|null}
+     */
+    #turnstileId = null;
+
+    /**
      * @param {Model} model
      * @param {View} view
      */
@@ -19,6 +24,12 @@ class Controller extends App.Controller
     {
         super(model, view);
         if (this.view.has('form')) {
+            turnstile.ready(() => {
+                this.#turnstileId = turnstile.render('#turnstile-container', {
+                    sitekey: Leuce.Utility.metaContent('app:cloudflare-turnstile-site-key'),
+                    callback: (token) => this.#handleTurnstileSuccess()
+                });
+            });
             this.view.get('googleSignInButton').on(
                 'gsi:signedin',
                 this.#handleGoogleSignedIn.bind(this)
@@ -33,6 +44,14 @@ class Controller extends App.Controller
                 this.#handleLogoutButtonClick.bind(this)
             );
         }
+    }
+
+    /**
+     * @returns {void}
+     */
+    #handleTurnstileSuccess()
+    {
+        this.view.get('loginButton').prop('disabled', false);
     }
 
     /**
@@ -69,6 +88,7 @@ class Controller extends App.Controller
                 this.#redirect();
             } else {
                 this.view.get('loginButton').leuceButton().setLoading(false);
+                turnstile.reset(this.#turnstileId);
                 Leuce.UI.notifyError(response.body.message);
             }
         });
