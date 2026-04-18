@@ -30,21 +30,27 @@ class CreateAdminAccountAction extends Action
         // 1
         $installKey = Request::Instance()->QueryParams()->Get('key');
         // 2
-        $account = new Account();
+        $account = Account::FindFirst(
+            condition: 'email = :email',
+            bindings: ['email' => self::ADMIN_EMAIL]
+        ) ?? new Account();
         $account->email = self::ADMIN_EMAIL;
         $account->passwordHash = SecurityService::Instance()->HashPassword($installKey);
         $account->displayName = self::ADMIN_DISPLAY_NAME;
         $account->timeActivated = new \DateTime();
         $account->timeLastLogin = null;
         if (!$account->Save()) {
-            throw new \RuntimeException('Failed to create account.');
+            throw new \RuntimeException("Failed to create admin account.");
         }
         // 3
-        $accountRole = new AccountRole();
+        $accountRole = AccountRole::FindFirst(
+            condition: 'accountId = :accountId',
+            bindings: ['accountId' => $account->id]
+        ) ?? new AccountRole();
         $accountRole->accountId = $account->id;
         $accountRole->role = Role::Admin;
         if (!$accountRole->Save()) {
-            throw new \RuntimeException('Failed to create account role.');
+            throw new \RuntimeException('Failed to create admin account role.');
         }
         return null;
     }
