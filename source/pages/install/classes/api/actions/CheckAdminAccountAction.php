@@ -25,7 +25,7 @@ class CheckAdminAccountAction extends Action
         // 1
         $accountRole = AccountRole::FindFirst(
             condition: 'role = :role',
-            bindings: ['role' => Role::Admin->value]
+            bindings: ['role' => Role::Admin]
         );
         // 2
         if ($accountRole === null) {

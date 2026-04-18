@@ -42,7 +42,7 @@ class CreateAdminAccountAction extends Action
         // 3
         $accountRole = new AccountRole();
         $accountRole->accountId = $account->id;
-        $accountRole->role = Role::Admin->value;
+        $accountRole->role = Role::Admin;
         if (!$accountRole->Save()) {
             throw new \RuntimeException('Failed to create account role.');
         }

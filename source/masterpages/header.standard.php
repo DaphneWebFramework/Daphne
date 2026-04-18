@@ -56,7 +56,7 @@ function createAccountNavItems(array &$navItems, Page $page): void {
 			':href' => Resource::Instance()->PageUrl('settings')
 		])
 	];
-	if (Role::Parse($page->SessionAccount()->role)->AtLeast(Role::Admin)) {
+	if ($page->SessionAccount()->role->AtLeast(Role::Admin)) {
 		$dropdownItems[] = new NavbarDropdownDivider();
 		$dropdownItems[] = new NavbarDropdownItem([
 			':label' => "Management",
