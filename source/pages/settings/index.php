@@ -29,11 +29,11 @@ use \Peneus\Resource;
 use \Peneus\Systems\PageSystem\Page;
 
 function isTabActive(string $key): bool {
-    static $activeKey = null;
-    if ($activeKey === null) {
-        $activeKey = Request::Instance()->QueryParams()->GetOrDefault('tab', 'account');
-    }
-    return $activeKey === $key;
+	static $activeKey = null;
+	if ($activeKey === null) {
+		$activeKey = Request::Instance()->QueryParams()->GetOrDefault('tab', 'account');
+	}
+	return $activeKey === $key;
 }
 
 $page = (new Page(__DIR__))
