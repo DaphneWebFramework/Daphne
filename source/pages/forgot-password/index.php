@@ -44,7 +44,7 @@ $page = (new Page(__DIR__))
 							':input:name' => 'email',
 							':input:autocomplete' => 'off',
 							':input:required' => true,
-							':help' => "We'll send a password reset link to this address if it's registered."
+							':help' => "We'll send a password reset link if a matching account is found."
 						]),
 						new Generic('div', ['id' => 'turnstile-container']),
 						new Generic('div', ['class' => 'd-flex justify-content-end'], [
