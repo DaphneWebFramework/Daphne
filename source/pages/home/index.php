@@ -15,7 +15,7 @@ require '../../autoload.php';
 use \Charis\Generic;
 use \Peneus\Systems\PageSystem\Page;
 
-function renderFeature(string $imageUrl, string $title, string $description): Generic {
+function featureItem(string $imageUrl, string $title, string $description): Generic {
 	return new Generic('div', ['class' => 'item'], [
 		new Generic('div', ['class' => 'visual'], [
 			new Generic('img', ['src' => $imageUrl, 'alt' => $title], null, true)
@@ -65,32 +65,32 @@ $page = (new Page(__DIR__))
 			]),
 			new Generic('div', ['class' => 'inner'], [
 				new Generic('div', ['class' => 'grid'], [
-					renderFeature(
+					featureItem(
 						'assets/feature.png',
 						"Etiam semper",
 						"Aenean accumsan sodales accumsan. Pellentesque vitae risus placerat, convallis orci non, rhoncus velit."
 					),
-					renderFeature(
+					featureItem(
 						'assets/feature.png',
 						"Aliquam mattis",
 						"Curabitur sodales tempus turpis, tempus laoreet nisl efficitur a. Curabitur in venenatis nisi."
 					),
-					renderFeature(
+					featureItem(
 						'assets/feature.png',
 						"Maecenas non neque",
 						"Etiam dignissim commodo interdum. Vivamus lacus libero, placerat eget massa nec, luctus vehicula turpis."
 					),
-					renderFeature(
+					featureItem(
 						'assets/feature.png',
 						"Ut rhoncus vehicula",
 						"Nunc finibus eget risus a fringilla. Nullam ullamcorper mi mi, et auctor lacus tincidunt vitae."
 					),
-					renderFeature(
+					featureItem(
 						'assets/feature.png',
 						"Fusce gravida tristique",
 						"Suspendisse quam augue, lacinia at blandit ac, lacinia fermentum dolor. Sed eget nisl ut nisi suscipit suscipit."
 					),
-					renderFeature(
+					featureItem(
 						'assets/feature.png',
 						"Gravida tristique",
 						"Hac habitasse platea dictumst. Cras ultricies, nisi ut venenatis tincidunt, ipsum nibh aliquam dolor."

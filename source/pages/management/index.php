@@ -21,6 +21,71 @@ use \Charis\VerticalPillTabs;
 use \Peneus\Model\Role;
 use \Peneus\Systems\PageSystem\Page;
 
+function pillTab(
+	string $key,
+	string $iconClass,
+	string $label,
+	bool $active = false
+): PillTab
+{
+	$attributes = [':key' => $key];
+	if ($active) {
+		$attributes[':active'] = true;
+	}
+	return new PillTab($attributes, [
+		new Generic('i', ['class' => $iconClass]),
+		new Generic('span', ['class' => 'label'], $label)
+	]);
+}
+
+function tabPane(
+	string $key,
+	string $title,
+	string $tableId,
+	array $columns,
+	bool $active = false,
+	array $options = []
+): TabPane
+{
+	$paneAttributes = [':key' => $key];
+	if ($active) {
+		$paneAttributes[':active'] = true;
+	}
+	$tableAttributes = [
+		'id' => $tableId,
+		'class' => 'table table-hover'
+	];
+	if (\in_array('nosearch', $options, true)) {
+		$tableAttributes['data-nosearch'] = true;
+	}
+	if (\in_array('nopaginate', $options, true)) {
+		$tableAttributes['data-nopaginate'] = true;
+	}
+	$theadAttributes = ['class' => 'table-light'];
+	if (\in_array('nosort', $options, true)) {
+		$theadAttributes['data-nosort'] = true;
+	}
+	$trAttributes = ['data-primary-key' => 'id'];
+	if (\in_array('nopk', $options, true)) {
+		$trAttributes = null;
+	}
+	$thElements = \array_map(function(array $column) {
+		$thAttributes = [];
+		foreach ($column[1] as $k => $v) {
+			$thAttributes["data-{$k}"] = $v;
+		}
+		return new Generic('th', $thAttributes, $column[0]);
+	}, $columns);
+	return new TabPane($paneAttributes, [
+		new Generic('h3', null, $title),
+		new Generic('table', $tableAttributes, [
+			new Generic('thead', $theadAttributes, [
+				new Generic('tr', $trAttributes, $thElements)
+			])
+		])
+	]);
+}
+
 $page = (new Page(__DIR__))
 	->SetTitle("Management")
 	->SetMasterPage('standard')
@@ -32,214 +97,56 @@ $page = (new Page(__DIR__))
 	<?=new Generic('main', ['role' => 'main'], [
 		new VerticalPillTabNavigation(['class' => '-align-items-start'], [
 			new VerticalPillTabs(['class' => '-me-3 bg-light'], [
-				new PillTab([':key' => 'entity-mappings', ':active' => true], [
-					new Generic('i', ['class' => 'bi bi-database-fill']),
-					new Generic('span', ['class' => 'label'], "Entity Mappings")
-				]),
-				new PillTab([':key' => 'accounts'], [
-					new Generic('i', ['class' => 'bi bi-people-fill']),
-					new Generic('span', ['class' => 'label'], "Accounts")
-				]),
-				new PillTab([':key' => 'account-roles'], [
-					new Generic('i', ['class' => 'bi bi-person-check-fill']),
-					new Generic('span', ['class' => 'label'], "Account Roles")
-				]),
-				new PillTab([':key' => 'pending-accounts'], [
-					new Generic('i', ['class' => 'bi bi-hourglass-split']),
-					new Generic('span', ['class' => 'label'], "Pending Accounts")
-				]),
-				new PillTab([':key' => 'password-resets'], [
-					new Generic('i', ['class' => 'bi bi-key']),
-					new Generic('span', ['class' => 'label'], "Password Resets")
-				]),
-				new PillTab([':key' => 'persistent-logins'], [
-					new Generic('i', ['class' => 'bi bi-box-arrow-in-right']),
-					new Generic('span', ['class' => 'label'], "Persistent Logins")
-				]),
+				pillTab('entity-mappings', 'bi bi-database-fill', "Entity Mappings", active: true),
+				pillTab('accounts', 'bi bi-people-fill', "Accounts"),
+				pillTab('account-roles', 'bi bi-person-check-fill', "Account Roles"),
+				pillTab('pending-accounts', 'bi bi-hourglass-split', "Pending Accounts"),
+				pillTab('password-resets', 'bi bi-key', "Password Resets"),
+				pillTab('persistent-logins', 'bi bi-box-arrow-in-right', "Persistent Logins"),
 			]),
 			new TabPanes([], [
-				new TabPane([':key' => 'entity-mappings', ':active' => true], [
-					new Generic('h3', null, "Entity Mappings"),
-					new Generic('table', [
-						'id' => 'entityMappingTable',
-						'class' => 'table table-hover',
-						'data-nosearch' => true,
-						'data-nopaginate' => true
-					], [
-						new Generic('thead', [
-							'class' => 'table-light',
-							'data-nosort' => true
-						], [
-							new Generic('tr', null, [
-								new Generic('th', [
-									'data-key' => 'entityClass',
-									'data-formatter' => 'codeFont',
-								], 'Entity class'),
-								new Generic('th', [
-									'data-key' => 'tableName',
-									'data-formatter' => 'codeFont'
-								], 'Table name'),
-								new Generic('th', [
-									'data-key' => 'tableType',
-									'data-formatter' => 'tableType'
-								], 'Table type'),
-								new Generic('th', [
-									'data-key' => 'tableExists',
-									'data-formatter' => 'boolean'
-								], 'Table exists'),
-								new Generic('th', [
-									'data-key' => 'isSync',
-									'data-nullable' => true,
-									'data-formatter' => 'boolean'
-								], 'Is sync'),
-								new Generic('th', [
-									'data-renderer' => 'inlineActions'
-								])
-							])
-						])
-					])
+				tabPane('entity-mappings', "Entity Mappings", 'entityMappingTable', [
+					['Entity class', ['key' => 'entityClass', 'formatter' => 'codeFont']],
+					['Table name', ['key' => 'tableName', 'formatter' => 'codeFont']],
+					['Table type', ['key' => 'tableType', 'formatter' => 'tableType']],
+					['Table exists', ['key' => 'tableExists', 'formatter' => 'boolean']],
+					['Is sync', ['key' => 'isSync', 'nullable' => true, 'formatter' => 'boolean']],
+					['', ['renderer' => 'inlineActions']],
+				], active: true, options: ['nopk', 'nosearch', 'nopaginate', 'nosort']),
+				tabPane('accounts', "Accounts", 'accountTable', [
+					['ID', ['key' => 'id', 'type' => 'integer']],
+					['Email', ['key' => 'email']],
+					['Password hash', ['key' => 'passwordHash', 'formatter' => 'truncate']],
+					['Display name', ['key' => 'displayName']],
+					['Time activated', ['key' => 'timeActivated', 'type' => 'datetime']],
+					['Time last login', ['key' => 'timeLastLogin', 'type' => 'datetime', 'nullable' => true]],
 				]),
-				new TabPane([':key' => 'accounts'], [
-					new Generic('h3', null, "Accounts"),
-					new Generic('table', ['id' => 'accountTable', 'class' => 'table table-hover'], [
-						new Generic('thead', ['class' => 'table-light'], [
-							new Generic('tr', ['data-primary-key' => 'id'], [
-								new Generic('th', [
-									'data-key' => 'id',
-									'data-type' => 'integer'
-								], 'ID'),
-								new Generic('th', [
-									'data-key' => 'email'
-								], 'Email'),
-								new Generic('th', [
-									'data-key' => 'passwordHash',
-									'data-formatter' => 'truncate'
-								], 'Password hash'),
-								new Generic('th', [
-									'data-key' => 'displayName'
-								], 'Display name'),
-								new Generic('th', [
-									'data-key' => 'timeActivated',
-									'data-type' => 'datetime'
-								], 'Time activated'),
-								new Generic('th', [
-									'data-key' => 'timeLastLogin',
-									'data-type' => 'datetime',
-									'data-nullable' => true
-								], 'Time last login')
-							])
-						])
-					])
+				tabPane('account-roles', "Account Roles", 'accountRoleTable', [
+					['ID', ['key' => 'id', 'type' => 'integer']],
+					['Account ID', ['key' => 'accountId', 'type' => 'integer']],
+					['Role', ['key' => 'role', 'type' => 'integer']],
 				]),
-				new TabPane([':key' => 'account-roles'], [
-					new Generic('h3', null, "Account Roles"),
-					new Generic('table', ['id' => 'accountRoleTable', 'class' => 'table table-hover'], [
-						new Generic('thead', ['class' => 'table-light'], [
-							new Generic('tr', ['data-primary-key' => 'id'], [
-								new Generic('th', [
-									'data-key' => 'id',
-									'data-type' => 'integer'
-								], 'ID'),
-								new Generic('th', [
-									'data-key' => 'accountId',
-									'data-type' => 'integer'
-								], 'Account ID'),
-								new Generic('th', [
-									'data-key' => 'role',
-									'data-type' => 'integer'
-								], 'Role')
-							])
-						])
-					])
+				tabPane('pending-accounts', "Pending Accounts", 'pendingAccountTable', [
+					['ID', ['key' => 'id', 'type' => 'integer']],
+					['Email', ['key' => 'email']],
+					['Password hash', ['key' => 'passwordHash', 'formatter' => 'truncate']],
+					['Display name', ['key' => 'displayName']],
+					['Activation code', ['key' => 'activationCode', 'formatter' => 'truncate']],
+					['Time registered', ['key' => 'timeRegistered', 'type' => 'datetime']],
 				]),
-				new TabPane([':key' => 'pending-accounts'], [
-					new Generic('h3', null, "Pending Accounts"),
-					new Generic('table', ['id' => 'pendingAccountTable', 'class' => 'table table-hover'], [
-						new Generic('thead', ['class' => 'table-light'], [
-							new Generic('tr', ['data-primary-key' => 'id'], [
-								new Generic('th', [
-									'data-key' => 'id',
-									'data-type' => 'integer'
-								], 'ID'),
-								new Generic('th', [
-									'data-key' => 'email'
-								], 'Email'),
-								new Generic('th', [
-									'data-key' => 'passwordHash',
-									'data-formatter' => 'truncate'
-								], 'Password hash'),
-								new Generic('th', [
-									'data-key' => 'displayName'
-								], 'Display name'),
-								new Generic('th', [
-									'data-key' => 'activationCode',
-									'data-formatter' => 'truncate'
-								], 'Activation code'),
-								new Generic('th', [
-									'data-key' => 'timeRegistered',
-									'data-type' => 'datetime'
-								], 'Time registered')
-							])
-						])
-					])
+				tabPane('password-resets', "Password Resets", 'passwordResetTable', [
+					['ID', ['key' => 'id', 'type' => 'integer']],
+					['Account ID', ['key' => 'accountId', 'type' => 'integer']],
+					['Reset code', ['key' => 'resetCode', 'formatter' => 'truncate']],
+					['Time requested', ['key' => 'timeRequested', 'type' => 'datetime']],
 				]),
-				new TabPane([':key' => 'password-resets'], [
-					new Generic('h3', null, "Password Resets"),
-					new Generic('table', ['id' => 'passwordResetTable', 'class' => 'table table-hover'], [
-						new Generic('thead', ['class' => 'table-light'], [
-							new Generic('tr', ['data-primary-key' => 'id'], [
-								new Generic('th', [
-									'data-key' => 'id',
-									'data-type' => 'integer'
-								], 'ID'),
-								new Generic('th', [
-									'data-key' => 'accountId',
-									'data-type' => 'integer'
-								], 'Account ID'),
-								new Generic('th', [
-									'data-key' => 'resetCode',
-									'data-formatter' => 'truncate'
-								], 'Reset code'),
-								new Generic('th', [
-									'data-key' => 'timeRequested',
-									'data-type' => 'datetime'
-								], 'Time requested')
-							])
-						])
-					])
-				]),
-				new TabPane([':key' => 'persistent-logins'], [
-					new Generic('h3', null, "Persistent Logins"),
-					new Generic('table', ['id' => 'persistentLoginTable', 'class' => 'table table-hover'], [
-						new Generic('thead', ['class' => 'table-light'], [
-							new Generic('tr', ['data-primary-key' => 'id'], [
-								new Generic('th', [
-									'data-key' => 'id',
-									'data-type' => 'integer'
-								], 'ID'),
-								new Generic('th', [
-									'data-key' => 'accountId',
-									'data-type' => 'integer'
-								], 'Account ID'),
-								new Generic('th', [
-									'data-key' => 'clientSignature',
-									'data-formatter' => 'truncate:140px'
-								], 'Client signature'),
-								new Generic('th', [
-									'data-key' => 'lookupKey',
-									'data-formatter' => 'truncate'
-								], 'Lookup key'),
-								new Generic('th', [
-									'data-key' => 'tokenHash',
-									'data-formatter' => 'truncate'
-								], 'Token hash'),
-								new Generic('th', [
-									'data-key' => 'timeExpires',
-									'data-type' => 'datetime'
-								], 'Time expires')
-							])
-						])
-					])
+				tabPane('persistent-logins', "Persistent Logins", 'persistentLoginTable', [
+					['ID', ['key' => 'id', 'type' => 'integer']],
+					['Account ID', ['key' => 'accountId', 'type' => 'integer']],
+					['Client signature', ['key' => 'clientSignature', 'formatter' => 'truncate:140px']],
+					['Lookup key', ['key' => 'lookupKey', 'formatter' => 'truncate']],
+					['Token hash', ['key' => 'tokenHash', 'formatter' => 'truncate']],
+					['Time expires', ['key' => 'timeExpires', 'type' => 'datetime']],
 				]),
 			])
 		])

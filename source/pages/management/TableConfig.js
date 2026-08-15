@@ -13,11 +13,11 @@ class TableConfig
 {
     /** @type {Object.<string, string>} */
     static #map = {
-        accountTable: 'account',
-        accountRoleTable: 'accountrole',
-        pendingAccountTable: 'pendingaccount',
-        passwordResetTable: 'passwordreset',
-        persistentLoginTable: 'persistentlogin',
+        accountTable         : 'account',
+        accountRoleTable     : 'accountrole',
+        pendingAccountTable  : 'pendingaccount',
+        passwordResetTable   : 'passwordreset',
+        persistentLoginTable : 'persistentlogin',
     };
 
     /**
