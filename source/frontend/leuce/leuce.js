@@ -1217,21 +1217,22 @@ class TableEditor
 {
     /**
      * @type {{
-     *   key: string,
-     *   inColumns: boolean,
-     *   type?: string
+     *   key       : string,
+     *   inColumns : boolean,
+     *   type?     : string
      * }}
      */
     #primaryKey;
 
     /**
      * @type {Array<{
-     *   key: string|null,
-     *   type: string|null,
-     *   nullable: boolean,
-     *   formatter: { name: string, arg?: string }|null
-     *   renderer: string|null,
-     *   $th: jQuery
+     *   key       : string|null,
+     *   type      : string|null,
+     *   multiline : boolean,
+     *   nullable  : boolean,
+     *   formatter : { name: string, arg?: string }|null
+     *   renderer  : string|null,
+     *   $th       : jQuery
      * }>}
      */
     #columns;
@@ -1244,17 +1245,18 @@ class TableEditor
 
     /**
      * @param {{
-     *   key: string,
-     *   inColumns: boolean,
-     *   type?: string
+     *   key       : string,
+     *   inColumns : boolean,
+     *   type?     : string
      * }} primaryKey
      * @param {Array<{
-     *   key: string|null,
-     *   type: string|null,
-     *   nullable: boolean,
-     *   formatter: { name: string, arg?: string }|null,
-     *   renderer: string|null,
-     *   $th: jQuery
+     *   key       : string|null,
+     *   type      : string|null,
+     *   multiline : boolean,
+     *   nullable  : boolean,
+     *   formatter : { name: string, arg?: string }|null,
+     *   renderer  : string|null,
+     *   $th       : jQuery
      * }>} columns
      */
     constructor(primaryKey, columns)
@@ -1463,7 +1465,7 @@ class TableEditor
     #extractFormData(includePrimaryKey)
     {
         const data = {};
-        const $inputs = this.#$form.find('input[name]');
+        const $inputs = this.#$form.find(':input[name]');
         for (const input of $inputs.get()) {
             const $input = $(input);
             const name = $input.attr('name');
@@ -1490,17 +1492,18 @@ class TableEditor
 
     /**
      * @param {{
-     *   key: string,
-     *   inColumns: boolean,
-     *   type?: string
+     *   key       : string,
+     *   inColumns : boolean,
+     *   type?     : string
      * }} primaryKey
      * @param {Array<{
-     *   key: string|null,
-     *   type: string|null,
-     *   nullable: boolean,
-     *   formatter: { name: string, arg?: string }|null,
-     *   renderer: string|null,
-     *   $th: jQuery
+     *   key       : string|null,
+     *   type      : string|null,
+     *   multiline : boolean,
+     *   nullable  : boolean,
+     *   formatter : { name: string, arg?: string }|null,
+     *   renderer  : string|null,
+     *   $th       : jQuery
      * }>} columns
      * @returns {jQuery}
      */
@@ -1513,10 +1516,12 @@ class TableEditor
         if (!primaryKey.inColumns) {
             $form.append(
                 this.#createFormField(
-                    primaryKey.key,
-                    primaryKey.key,
-                    primaryKey.type,
-                    true
+                    primaryKey.key,  // label
+                    primaryKey.key,  // name
+                    primaryKey.type, // type
+                    false,           // multiline
+                    true,            // readonly
+                    false            // nullable
                 )
             );
         }
@@ -1529,6 +1534,7 @@ class TableEditor
                     column.$th.text().trim(),
                     column.key,
                     column.type,
+                    column.multiline,
                     column.key === primaryKey.key,
                     column.nullable
                 )
@@ -1541,11 +1547,12 @@ class TableEditor
      * @param {string} label
      * @param {string} name
      * @param {string|null} type
+     * @param {boolean} multiline
      * @param {boolean} readonly
-     * @param {boolean} [nullable=false]
+     * @param {boolean} nullable
      * @returns {jQuery}
      */
-    static #createFormField(label, name, type, readonly, nullable = false)
+    static #createFormField(label, name, type, multiline, readonly, nullable)
     {
         const inputId = `form-input-${Utility.uniqueId()}`;
         return $('<div>', { class: 'row mb-3' }).append(
@@ -1556,8 +1563,8 @@ class TableEditor
             }),
             $('<div>', { class: 'col-sm-8' }).append(
                 nullable
-                    ? this.#createNullableInputGroup(inputId, name, type)
-                    : this.#createInput(inputId, name, type, readonly)
+                    ? this.#createNullableInputGroup(inputId, name, type, multiline)
+                    : this.#createInput(inputId, name, type, multiline, readonly)
             )
         );
     }
@@ -1566,12 +1573,13 @@ class TableEditor
      * @param {string} inputId
      * @param {string} inputName
      * @param {string|null} inputType
+     * @param {boolean} multiline
      * @returns {jQuery}
      */
-    static #createNullableInputGroup(inputId, inputName, inputType)
+    static #createNullableInputGroup(inputId, inputName, inputType, multiline)
     {
         // 1
-        const $input = this.#createInput(inputId, inputName, inputType);
+        const $input = this.#createInput(inputId, inputName, inputType, multiline, false);
         const $nullifier = this.#createNullifierFor(inputId);
         // 2
         if (inputType === 'boolean') {
@@ -1614,23 +1622,32 @@ class TableEditor
      * @param {string} id
      * @param {string} name
      * @param {string|null} type
-     * @param {boolean} [required=false]
-     * @param {boolean} [readonly=false]
+     * @param {boolean} multiline
+     * @param {boolean} readonly
      * @returns {jQuery}
      */
-    static #createInput(id, name, type, readonly = false)
+    static #createInput(id, name, type, multiline, readonly)
     {
-        const $input = $('<input>', {
-            ...this.#inputAttributesFor(type),
-            id: id,
-            name: name,
-            // The `required` attribute is always set to true. If the field is
-            // nullable, a separate checkbox is used to disable the input, which
-            // bypasses validation. For boolean fields, required is never set,
-            // since `false` is also a valid value.
-            required: type !== 'boolean',
-            readonly: readonly
-        });
+        const $input = (type === null || type === 'string') && multiline
+            ? $('<textarea>', {
+                id: id,
+                name: name,
+                class: 'form-control',
+                rows: 3,
+                required: true,
+                readonly: readonly
+            })
+            : $('<input>', {
+                ...this.#inputAttributesFor(type),
+                id: id,
+                name: name,
+                // The `required` attribute is always set to true. If the field is
+                // nullable, a separate checkbox is used to disable the input, which
+                // bypasses validation. For boolean fields, required is never set,
+                // since `false` is also a valid value.
+                required: type !== 'boolean',
+                readonly: readonly
+            });
         // Store type information using a data-* attribute for later use during
         // form data extraction. Do not use jQuery's .data() here, as its values
         // are lost when the form is detached and reattached to the DOM (i.e.,
@@ -2067,21 +2084,22 @@ class Table
 
     /**
      * @type {{
-     *   key: string,
-     *   inColumns: boolean,
-     *   type?: string
+     *   key       : string,
+     *   inColumns : boolean,
+     *   type?     : string
      * } | null}
      */
     #primaryKey;
 
     /**
      * @type {Array<{
-     *   key: string|null,
-     *   type: string|null,
-     *   nullable: boolean,
-     *   formatter: { name: string, arg?: string }|null
-     *   renderer: string|null,
-     *   $th: jQuery
+     *   key       : string|null,
+     *   type      : string|null,
+     *   multiline : boolean,
+     *   nullable  : boolean,
+     *   formatter : { name: string, arg?: string }|null
+     *   renderer  : string|null,
+     *   $th       : jQuery
      * }>}
      */
     #columns;
@@ -2303,9 +2321,9 @@ class Table
 
     /**
      * @returns {{
-     *   key: string,
-     *   inColumns: boolean,
-     *   type?: string
+     *   key       : string,
+     *   inColumns : boolean,
+     *   type?     : string
      * } | null}
      */
     #resolvePrimaryKey()
@@ -2351,12 +2369,13 @@ class Table
 
     /**
      * @returns {Array<{
-     *   key: string|null,
-     *   type: string|null,
-     *   nullable: boolean,
-     *   formatter: { name: string, arg?: string }|null,
-     *   renderer: string|null,
-     *   $th: jQuery
+     *   key       : string|null,
+     *   type      : string|null,
+     *   multiline : boolean,
+     *   nullable  : boolean,
+     *   formatter : { name: string, arg?: string }|null,
+     *   renderer  : string|null,
+     *   $th       : jQuery
      * }>}
      */
     #parseColumns()
@@ -2366,6 +2385,7 @@ class Table
             const $th = $(th);
             const key = Table.#readDataAttribute($th, 'key');
             const type = Table.#readDataAttribute($th, 'type');
+            const multiline = $th.is('[data-multiline]');
             const nullable = $th.is('[data-nullable]');
             let formatter = Table.#readDataAttribute($th, 'formatter');
             if (formatter !== null) {
@@ -2375,7 +2395,7 @@ class Table
             if (key === null) {
                 renderer = Table.#readDataAttribute($th, 'renderer');
             }
-            columns.push({ key, type, nullable, formatter, renderer, $th });
+            columns.push({ key, type, multiline, nullable, formatter, renderer, $th });
         }
         return columns;
     }
