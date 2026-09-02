@@ -379,6 +379,16 @@ QUnit.module('Leuce', function()
 
         QUnit.module('View', function()
         {
+            QUnit.test('set() rejects and returns null for existing class methods',
+            function(assert) {
+                $('#qunit-fixture').html('<input id="username">');
+                var view = new Leuce.MVC.View();
+                ['set', 'has', 'get', 'hasOwnProperty'].forEach(function(method) {
+                    assert.strictEqual(view.set(method, '#username'), null);
+                    assert.strictEqual(typeof view[method], 'function');
+                });
+            });
+
             QUnit.test('set() stores and returns jQuery for single-matching selector',
             function(assert) {
                 $('#qunit-fixture').html('<input id="username">');
@@ -436,6 +446,35 @@ QUnit.module('Leuce', function()
                 assert.strictEqual(view.set('number', 42), null);
                 assert.strictEqual(view.set('null', null), null);
                 assert.strictEqual(view.set('bool', true), null);
+            });
+
+            QUnit.test('set() rejects and does not create property for non-matching selector',
+            function(assert) {
+                var view = new Leuce.MVC.View();
+                view.set('NonExistent', '#nonexistent');
+                assert.strictEqual(view.NonExistent, undefined);
+            });
+
+            QUnit.test('set() allows direct property access for stored element',
+            function(assert) {
+                $('#qunit-fixture').html('<input id="username">');
+                var view = new Leuce.MVC.View();
+                var obj = { foo: 'bar' };
+                view.set('Username', '#username');
+                view.set('Obj', obj);
+                assert.ok(view.Username instanceof jQuery);
+                assert.strictEqual(view.Username.attr('id'), 'username');
+                assert.strictEqual(view.Obj, obj);
+            });
+
+            QUnit.test('set() overwrites existing stored element with new value',
+            function(assert) {
+                $('#qunit-fixture').html('<input id="username"><input id="new-username">');
+                var view = new Leuce.MVC.View();
+                view.set('Username', '#username');
+                view.set('Username', '#new-username');
+                assert.strictEqual(view.Username.attr('id'), 'new-username');
+                assert.strictEqual(view.get('Username').attr('id'), 'new-username');
             });
 
             QUnit.test('has() returns true for stored element',

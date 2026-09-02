@@ -353,14 +353,6 @@ class Model
 
 class View
 {
-    /** @type {Object.<string, jQuery|object>} */
-    #registry;
-
-    constructor()
-    {
-        this.#registry = {};
-    }
-
     /**
      * @param {string} key
      * @param {string|jQuery|object} value
@@ -368,25 +360,30 @@ class View
      */
     set(key, value)
     {
+        // 1
+        if (typeof this[key] === 'function') {
+            return null;
+        }
+        // 2
         if (typeof value === 'string') {
             const $el = $(value);
             if (!$el.length) {
                 return null;
             }
-            this.#registry[key] = $el;
-            return $el;
+            return this[key] = $el;
         }
+        // 3
         if (value instanceof jQuery) {
             if (!value.length) {
                 return null;
             }
-            this.#registry[key] = value;
-            return value;
+            return this[key] = value;
         }
+        // 4
         if (typeof value === 'object' && value !== null) {
-            this.#registry[key] = value;
-            return value;
+            return this[key] = value;
         }
+        // 5
         return null;
     }
 
@@ -396,7 +393,7 @@ class View
      */
     has(key)
     {
-        return this.#registry.hasOwnProperty(key);
+        return this.hasOwnProperty(key);
     }
 
     /**
@@ -405,10 +402,7 @@ class View
      */
     get(key)
     {
-        if (!this.has(key)) {
-            return null;
-        }
-        return this.#registry[key];
+        return this.has(key) ? this[key] : null;
     }
 }
 
