@@ -30,7 +30,7 @@ class View extends App.View
      */
     displayNameChangeFormData()
     {
-        return this.get('displayNameChangeForm').serialize();
+        return this.displayNameChangeForm.serialize();
     }
 
     /**
@@ -38,7 +38,7 @@ class View extends App.View
      */
     displayNameInput()
     {
-        return this.get('displayNameChangeForm').find('[name=displayName]');
+        return this.displayNameChangeForm.find('[name=displayName]');
     }
 
     /**
@@ -46,7 +46,7 @@ class View extends App.View
      */
     setNavbarDisplayName(displayName)
     {
-        this.get('navbarDisplayName').text(displayName);
+        this.navbarDisplayName.text(displayName);
     }
 
     /**
@@ -54,6 +54,6 @@ class View extends App.View
      */
     passwordChangeFormData()
     {
-        return this.get('passwordChangeForm').serialize();
+        return this.passwordChangeForm.serialize();
     }
 }

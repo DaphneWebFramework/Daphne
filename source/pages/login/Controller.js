@@ -30,16 +30,16 @@ class Controller extends App.Controller
                     callback: (token) => this.#handleTurnstileSuccess()
                 });
             });
-            this.view.get('googleSignInButton').on(
+            this.view.googleSignInButton.on(
                 'gsi:signedin',
                 this.#handleGoogleSignedIn.bind(this)
             );
-            this.view.get('form').on(
+            this.view.form.on(
                 'submit',
                 this.#handleFormSubmit.bind(this)
             );
         } else {
-            this.view.get('logoutButton').on(
+            this.view.logoutButton.on(
                 'click',
                 this.#handleLogoutButtonClick.bind(this)
             );
@@ -51,7 +51,7 @@ class Controller extends App.Controller
      */
     #handleTurnstileSuccess()
     {
-        this.view.get('loginButton').prop('disabled', false);
+        this.view.loginButton.prop('disabled', false);
     }
 
     /**
@@ -61,7 +61,7 @@ class Controller extends App.Controller
      */
     #handleGoogleSignedIn(event, response)
     {
-        this.view.get('loginButton').prop('disabled', true);
+        this.view.loginButton.prop('disabled', true);
         this.model.signInWithGoogle(
             this.view.csrfToken(),
             response.credential
@@ -69,7 +69,7 @@ class Controller extends App.Controller
             if (response.isSuccess()) {
                 this.#redirect();
             } else {
-                this.view.get('loginButton').prop('disabled', false);
+                this.view.loginButton.prop('disabled', false);
                 Leuce.UI.notifyError(response.body.message);
             }
         });
@@ -82,12 +82,12 @@ class Controller extends App.Controller
     #handleFormSubmit(event)
     {
         event.preventDefault();
-        this.view.get('loginButton').leuceButton().setLoading(true);
+        this.view.loginButton.leuceButton().setLoading(true);
         this.model.logIn(this.view.formData()).then(response => {
             if (response.isSuccess()) {
                 this.#redirect();
             } else {
-                this.view.get('loginButton').leuceButton().setLoading(false);
+                this.view.loginButton.leuceButton().setLoading(false);
                 turnstile.reset(this.#turnstileId);
                 Leuce.UI.notifyError(response.body.message);
             }
@@ -101,12 +101,12 @@ class Controller extends App.Controller
     #handleLogoutButtonClick(event)
     {
         event.preventDefault();
-        this.view.get('logoutButton').leuceButton().setLoading(true);
+        this.view.logoutButton.leuceButton().setLoading(true);
         this.model.logOut().then(response => {
             if (response.isSuccess()) {
                 Controller.reloadPage();
             } else {
-                this.view.get('logoutButton').leuceButton().setLoading(false);
+                this.view.logoutButton.leuceButton().setLoading(false);
                 Leuce.UI.notifyError(response.body.message);
             }
         });

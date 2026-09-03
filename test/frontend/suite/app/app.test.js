@@ -52,18 +52,17 @@ QUnit.module('App', function()
                 <a id="navbarLogout"></a>
             `);
             const view = new App.View();
-            assert.ok(view.get('root') instanceof jQuery);
-            assert.ok(view.get('logout') instanceof jQuery);
+            assert.ok(view.root instanceof jQuery);
+            assert.ok(view.logout instanceof jQuery);
         });
 
         QUnit.test('setLoading() sets and restores cursor style', function(assert)
         {
             const view = new App.View();
-            const root = view.get('root')[0];
             view.setLoading(true);
-            assert.strictEqual(root.style.cursor, 'progress');
+            assert.strictEqual(view.root[0].style.cursor, 'progress');
             view.setLoading(false);
-            assert.strictEqual(root.style.cursor, '');
+            assert.strictEqual(view.root[0].style.cursor, '');
         });
     }); // View
 
@@ -104,10 +103,10 @@ QUnit.module('App', function()
             App.Controller.reloadPage = function() {
                 assert.ok(true);
             };
-            view.get('logout').trigger('click');
+            view.logout.trigger('click');
             Promise.resolve().then(function() {
                 assert.true(called);
-                assert.strictEqual(view.get('root')[0].style.cursor, '');
+                assert.strictEqual(view.root[0].style.cursor, '');
                 done();
             });
         });
@@ -132,10 +131,10 @@ QUnit.module('App', function()
             Leuce.UI.notifyError = function(message) {
                 assert.strictEqual(message, 'Session expired.');
             };
-            view.get('logout').trigger('click');
+            view.logout.trigger('click');
             Promise.resolve().then(function() {
                 assert.true(called);
-                assert.strictEqual(view.get('root')[0].style.cursor, '');
+                assert.strictEqual(view.root[0].style.cursor, '');
                 done();
             });
         });

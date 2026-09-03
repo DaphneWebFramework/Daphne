@@ -23,6 +23,6 @@ class View extends App.View
      */
     formData()
     {
-        return this.get('form').serialize();
+        return this.form.serialize();
     }
 }

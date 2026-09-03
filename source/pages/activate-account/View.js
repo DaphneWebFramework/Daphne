@@ -23,7 +23,7 @@ class View extends App.View
      */
     formData()
     {
-        return this.get('form').serialize();
+        return this.form.serialize();
     }
 
     /**
@@ -31,6 +31,6 @@ class View extends App.View
      */
     hideSpinner()
     {
-        this.get('spinner').hide().attr('aria-hidden', 'true');
+        this.spinner.hide().attr('aria-hidden', 'true');
     }
 }

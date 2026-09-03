@@ -41,7 +41,7 @@ class View extends Leuce.MVC.View
      */
     setLoading(isLoading)
     {
-        this.get('root').css('cursor', isLoading ? 'progress' : '');
+        this.root.css('cursor', isLoading ? 'progress' : '');
     }
 }
 
@@ -54,7 +54,7 @@ class Controller extends Leuce.MVC.Controller
     constructor(model, view)
     {
         super(model, view);
-        this.view.get('logout')?.on('click', this.#handleLogoutClick.bind(this));
+        this.view.logout?.on('click', this.#handleLogoutClick.bind(this));
     }
 
     /**

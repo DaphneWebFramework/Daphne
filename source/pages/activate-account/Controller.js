@@ -18,7 +18,7 @@ class Controller extends App.Controller
     constructor(model, view)
     {
         super(model, view);
-        this.view.get('form').on(
+        this.view.form.on(
             'submit',
             this.#handleFormSubmit.bind(this)
         );
@@ -29,7 +29,7 @@ class Controller extends App.Controller
      */
     start()
     {
-        this.view.get('form').submit();
+        this.view.form.submit();
     }
 
     /**

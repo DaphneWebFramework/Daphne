@@ -18,7 +18,7 @@ class Controller extends App.Controller
     constructor(model, view)
     {
         super(model, view);
-        this.view.get('form').on(
+        this.view.form.on(
             'submit',
             this.#handleFormSubmit.bind(this)
         );
@@ -31,12 +31,12 @@ class Controller extends App.Controller
     #handleFormSubmit(event)
     {
         event.preventDefault();
-        this.view.get('submitButton').leuceButton().setLoading(true);
+        this.view.submitButton.leuceButton().setLoading(true);
         this.model.resetPassword(this.view.formData()).then(response => {
             if (response.isSuccess()) {
                 window.location.replace(response.body.redirectUrl);
             } else {
-                this.view.get('submitButton').leuceButton().setLoading(false);
+                this.view.submitButton.leuceButton().setLoading(false);
                 Leuce.UI.notifyError(response.body.message);
             }
         });

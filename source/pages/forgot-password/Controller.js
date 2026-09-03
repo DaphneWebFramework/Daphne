@@ -29,7 +29,7 @@ class Controller extends App.Controller
                 callback: (token) => this.#handleTurnstileSuccess()
             });
         });
-        this.view.get('form').on(
+        this.view.form.on(
             'submit',
             this.#handleFormSubmit.bind(this)
         );
@@ -40,7 +40,7 @@ class Controller extends App.Controller
      */
     #handleTurnstileSuccess()
     {
-        this.view.get('submitButton').prop('disabled', false);
+        this.view.submitButton.prop('disabled', false);
     }
 
     /**
@@ -50,9 +50,9 @@ class Controller extends App.Controller
     #handleFormSubmit(event)
     {
         event.preventDefault();
-        this.view.get('submitButton').leuceButton().setLoading(true);
+        this.view.submitButton.leuceButton().setLoading(true);
         this.model.sendPasswordReset(this.view.formData()).then(response => {
-            this.view.get('submitButton').leuceButton().setLoading(false);
+            this.view.submitButton.leuceButton().setLoading(false);
             if (response.isSuccess()) {
                 Leuce.UI.notifySuccess(response.body.message);
             } else {

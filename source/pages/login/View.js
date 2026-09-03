@@ -33,7 +33,7 @@ class View extends App.View
         if (!this.has('form')) {
             return undefined;
         }
-        const form = new Leuce.UI.Form(this.get('form'));
+        const form = new Leuce.UI.Form(this.form);
         return form.findInput('csrfToken').val();
     }
 
@@ -42,6 +42,6 @@ class View extends App.View
      */
     formData()
     {
-        return this.get('form')?.serialize();
+        return this.form?.serialize();
     }
 }

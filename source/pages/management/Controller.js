@@ -25,7 +25,7 @@ class Controller extends App.Controller
         this.#tableControllers = {};
         this.#createTableControllers();
         // 2
-        this.view.get('entityMappingTable').on(
+        this.view.entityMappingTable.on(
             'click',
             '[data-action]',
             this.#handleEntityMappingTableInlineAction.bind(this)
@@ -49,7 +49,7 @@ class Controller extends App.Controller
     {
         // 1
         this.#tableControllers['entityMappingTable'] = new Leuce.UI.TableController({
-            $table: this.view.get('entityMappingTable'),
+            $table: this.view.entityMappingTable,
             fnList: this.#bindModelMethod('listEntityMappings'),
         });
         // 2

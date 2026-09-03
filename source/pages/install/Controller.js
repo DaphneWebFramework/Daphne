@@ -33,7 +33,7 @@ class Controller extends App.Controller
     {
         // 1
         if (!await this.#runStep(
-            this.view.get('databaseInstallStep'),
+            this.view.databaseInstallStep,
             () => this.model.checkDatabase(this.#installKey),
             () => this.model.createDatabase(this.#installKey),
             this.#createMessages('database')
@@ -61,7 +61,7 @@ class Controller extends App.Controller
         }
         // 3
         if (!await this.#runStep(
-            this.view.get('adminAccountInstallStep'),
+            this.view.adminAccountInstallStep,
             () => this.model.checkAdminAccount(this.#installKey),
             () => this.model.createAdminAccount(this.#installKey),
             this.#createMessages('admin account')
@@ -69,7 +69,7 @@ class Controller extends App.Controller
             return;
         }
         // 4
-        this.view.get('installSummary').removeClass('d-none');
+        this.view.installSummary.removeClass('d-none');
     }
 
     /**
